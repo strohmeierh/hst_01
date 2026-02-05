@@ -37,7 +37,7 @@
     h1 {
       text-align: center;
       letter-spacing: 2px;
-      margin-bottom: 40px;
+      margin-bottom: 20px; /* Reduziert, damit der Button näher dran ist */
       color: var(--accent-color);
       text-shadow: var(--accent-glow);
       font-weight: 300;
@@ -50,6 +50,35 @@
       margin-left: auto;
       margin-right: auto;
       width: fit-content;
+    }
+
+    /* --- Neuer Bereich für Header-Links (Wetter-Button) --- */
+    .header-links {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .weather-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background-color: var(--card-bg);
+      color: var(--accent-color);
+      border: 1px solid var(--accent-color);
+      padding: 12px 25px;
+      border-radius: 30px; /* Runde Ecken für modernes App-Feeling */
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 1.1rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    }
+
+    .weather-button:hover {
+      background-color: var(--accent-color);
+      color: #0f172a; /* Dunkler Text auf hellem Hintergrund */
+      box-shadow: 0 0 15px var(--accent-color);
+      transform: translateY(-2px);
     }
 
     /* --- 2. Das Raster (Grid) Layout --- */
@@ -192,6 +221,20 @@
     </svg>
     Huberts Webcams ab EDSF
   </h1>
+
+  <!-- WETTER LINK BUTTON -->
+  <div class="header-links">
+    <a href="http://www.lgh-platz.de/wetter/index.html" target="_blank" class="weather-button">
+      <!-- Kleines Wetter-Icon -->
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M17 18a5 5 0 0 0-1.89-9.55 5 5 0 0 0-9 2.5 5 5 0 0 0 0 8.5h9z"></path>
+        <line x1="8" y1="18" x2="8" y2="22"></line>
+        <line x1="12" y1="18" x2="12" y2="22"></line>
+        <line x1="16" y1="18" x2="16" y2="22"></line>
+      </svg>
+      Aktuelle Wetterdaten Hütten
+    </a>
+  </div>
 
   <div class="dashboard-grid">
 
