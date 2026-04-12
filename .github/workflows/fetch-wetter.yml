@@ -1,0 +1,39 @@
+name: Wetterdaten aktualisieren
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'   # alle 5 Minuten
+  workflow_dispatch:          # auch manuell auslösbar
+
+jobs:
+  fetch-wetter:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Repository auschecken
+        uses: actions/checkout@v4
+
+      - name: gauge-data.txt herunterladen
+        run: |
+          curl -s -o gauge-data.txt \
+            "http://www.lgh-platz.de/wetter/ss/gauge-data.txt"
+
+      - name: Prüfen ob Datei gültig ist
+        run: |
+          if [ ! -s gauge-data.txt ]; then
+            echo "Fehler: gauge-data.txt ist leer"
+            exit 1
+          fi
+          echo "Datei OK, Größe: $(wc -c < gauge-data.txt) Bytes"
+          head -c 200 gauge-data.txt
+
+      - name: Commit und Push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add gauge-data.txt
+          git diff --staged --quiet && echo "Keine Änderung" || \
+            git commit -m "Wetter: $(date -u '+%Y-%m-%d %H:%M') UTC"
+          git push
