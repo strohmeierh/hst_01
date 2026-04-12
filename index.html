@@ -678,6 +678,17 @@
         '</a>';
     }
 
+    /* ── Kamera-Links: Cache-Buster beim Klick ──────────────── */
+    document.querySelectorAll('.cam-header a').forEach(function(a) {
+      var base = a.getAttribute('href');
+      if (!base || base.indexOf('.jpg') === -1) return;
+      a.addEventListener('click', function(e) {
+        e.preventDefault();
+        var sep = base.indexOf('?') === -1 ? '?' : '&';
+        window.open(base + sep + 't=' + Date.now(), '_blank', 'noopener');
+      });
+    });
+
   })();
   </script>
 
