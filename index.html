@@ -3,165 +3,164 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Live-Webcam-Übersicht für EDSF und Schwarzwald">
   <title>Huberts Webcam-Übersicht</title>
-  
-  <!-- --- FAVICON & APPLE TOUCH ICON --- -->
-  <!-- Update auf v=6 für Cache-Refresh -->
-  <!-- Wir definieren jetzt beide Varianten (precomposed und normal), damit Safari es sicher findet -->
+
   <link rel="apple-touch-icon" href="https://ui-avatars.com/api/?name=LGH&background=ffffff&color=0f172a&size=180&rounded=false&bold=true&format=png&length=3&v=6">
   <link rel="apple-touch-icon-precomposed" href="https://ui-avatars.com/api/?name=LGH&background=ffffff&color=0f172a&size=180&rounded=false&bold=true&format=png&length=3&v=6">
-  
-  <!-- Standard Favicons für Browser Tabs und Favoriten-Leisten -->
   <link rel="icon" type="image/png" sizes="32x32" href="https://ui-avatars.com/api/?name=LGH&background=ffffff&color=0f172a&size=32&rounded=true&bold=true&format=png&length=3&v=6">
   <link rel="shortcut icon" href="https://ui-avatars.com/api/?name=LGH&background=ffffff&color=0f172a&size=32&rounded=true&bold=true&format=png&length=3&v=6">
 
   <style>
-    /* --- 1. Grundeinstellungen & Typografie --- */
     :root {
-      --bg-color: #0f172a;       /* Dunkles Blau-Grau */
-      --card-bg: #1e293b;        /* Karten-Hintergrund */
-      --text-main: #e2e8f0;      /* Textfarbe */
-      --accent-color: #38bdf8;   /* Neon Blau */
-      --accent-glow: 0 0 10px rgba(56, 189, 248, 0.5);
-      --font-stack: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --bg:          #0f172a;
+      --card-bg:     #1e293b;
+      --card-border: #334155;
+      --text:        #e2e8f0;
+      --text-muted:  #94a3b8;
+      --accent:      #38bdf8;
+      --accent-dim:  rgba(56, 189, 248, 0.15);
+      --green:       #10b981;
+      --font:        'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --radius:      12px;
+      --ease:        0.25s ease;
     }
+
+    *, *::before, *::after { box-sizing: border-box; }
 
     body {
       margin: 0;
-      padding: 20px;
-      background-color: var(--bg-color);
-      color: var(--text-main);
-      font-family: var(--font-stack);
+      padding: 24px 20px 40px;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      line-height: 1.5;
     }
+
+    header { text-align: center; margin-bottom: 32px; }
 
     h1 {
-      text-align: center;
-      letter-spacing: 2px;
-      margin-bottom: 20px; /* Reduziert, damit der Button näher dran ist */
-      color: var(--accent-color);
-      text-shadow: var(--accent-glow);
-      font-weight: 300;
-      border-bottom: 1px solid var(--accent-color);
-      display: flex;         
-      align-items: center;
-      justify-content: center;
-      gap: 15px;             
-      padding-bottom: 10px;
-      margin-left: auto;
-      margin-right: auto;
-      width: fit-content;
-    }
-
-    /* --- Neuer Bereich für Header-Links (Wetter-Button) --- */
-    .header-links {
-      text-align: center;
-      margin-bottom: 40px;
-    }
-
-    .weather-button {
       display: inline-flex;
       align-items: center;
-      gap: 10px;
-      background-color: var(--card-bg);
-      color: var(--accent-color);
-      border: 1px solid var(--accent-color);
-      padding: 12px 25px;
-      border-radius: 30px; /* Runde Ecken für modernes App-Feeling */
-      text-decoration: none;
-      font-weight: 500;
-      font-size: 1.1rem;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+      gap: 12px;
+      margin: 0 0 16px;
+      padding-bottom: 12px;
+      color: var(--accent);
+      font-size: clamp(1.1rem, 4vw, 1.6rem);
+      font-weight: 300;
+      letter-spacing: 2px;
+      border-bottom: 1px solid var(--accent);
     }
 
-    .weather-button:hover {
-      background-color: var(--accent-color);
-      color: #0f172a; /* Dunkler Text auf hellem Hintergrund */
-      box-shadow: 0 0 15px var(--accent-color);
+    .weather-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background-color: var(--card-bg);
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      padding: 10px 22px;
+      border-radius: 30px;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 1rem;
+      transition: background-color var(--ease), color var(--ease), box-shadow var(--ease), transform var(--ease);
+    }
+
+    .weather-btn:hover {
+      background-color: var(--accent);
+      color: var(--bg);
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.45);
       transform: translateY(-2px);
     }
 
-    /* --- 2. Das Raster (Grid) Layout --- */
-    .dashboard-grid {
-      display: grid;
-      /* Mindestens 350px breit, sonst füllen */
-      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); 
-      gap: 20px;
-      max-width: 1600px;
-      margin: 0 auto;
+    main { max-width: 1600px; margin: 0 auto; }
+
+    .section-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin: 32px 0 12px 4px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--card-border);
     }
 
-    /* --- 3. Karten-Design --- */
+    .cam-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 18px;
+    }
+
     .cam-card {
       background-color: var(--card-bg);
-      border-radius: 12px;
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
       overflow: hidden;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      border: 1px solid #334155;
       display: flex;
       flex-direction: column;
+      transition: transform var(--ease), box-shadow var(--ease), border-color var(--ease);
     }
 
     .cam-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.7), var(--accent-glow);
-      border-color: var(--accent-color);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(0,0,0,0.6), 0 0 0 1px var(--accent-dim);
+      border-color: var(--accent);
     }
 
     .cam-header {
-      padding: 15px;
-      background: rgba(0,0,0,0.2);
       display: flex;
       justify-content: space-between;
       align-items: center;
-    }
-
-    .cam-header h2 {
-      margin: 0;
-      font-size: 1.1rem;
-      font-weight: 500;
+      padding: 12px 14px;
+      background: rgba(0,0,0,0.18);
+      gap: 8px;
     }
 
     .cam-header a {
-      color: var(--accent-color);
+      color: var(--accent);
       text-decoration: none;
-      transition: color 0.2s;
-      font-weight: bold;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color var(--ease);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .cam-header a:hover {
-      color: #fff;
-      text-shadow: var(--accent-glow);
-    }
+    .cam-header a:hover { color: #fff; }
 
     .status-dot {
-      height: 8px;
+      flex-shrink: 0;
       width: 8px;
-      background-color: #10b981; /* Grün */
+      height: 8px;
+      background-color: var(--green);
       border-radius: 50%;
-      display: inline-block;
-      box-shadow: 0 0 5px #10b981;
+      box-shadow: 0 0 0 0 rgba(16,185,129,0.6);
+      animation: pulse 2.5s infinite;
     }
 
-    /* --- 4. Medien Container --- */
+    @keyframes pulse {
+      0%   { box-shadow: 0 0 0 0   rgba(16,185,129,0.6); }
+      70%  { box-shadow: 0 0 0 6px rgba(16,185,129,0); }
+      100% { box-shadow: 0 0 0 0   rgba(16,185,129,0); }
+    }
+
     .media-container {
       position: relative;
       width: 100%;
-      aspect-ratio: 16 / 9; 
+      aspect-ratio: 16 / 9;
       background-color: #000;
       overflow: hidden;
-      /* Lade-Indikator: Zeigt einen Spinner, solange kein Bild da ist */
       display: flex;
       align-items: center;
       justify-content: center;
     }
-    
-    /* Lade-Animation (Spinner), sichtbar bis das Bild lädt */
+
     .media-container::after {
-      content: "Lade...";
-      color: #64748b;
+      content: "Lade…";
+      color: var(--text-muted);
       font-size: 0.8rem;
       position: absolute;
       z-index: 0;
@@ -170,334 +169,324 @@
     .media-container img {
       width: 100%;
       height: 100%;
-      object-fit: cover; 
+      object-fit: cover;
       display: block;
       position: relative;
-      z-index: 1; /* Bild liegt über dem Lade-Text */
-      background-color: #000; /* Verdeckt Lade-Text wenn geladen */
-    }
-
-    .media-container iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-      position: relative;
       z-index: 1;
+      opacity: 0;
+      transition: opacity 0.3s ease;
     }
 
-    /* --- 5. Spezial-Hacks --- */
+    .media-container img.loaded { opacity: 1; }
 
-    .scale-hack iframe {
-      width: 200%;
-      height: 200%;
-      transform: scale(0.5);
-      transform-origin: 0 0;
-    }
-    
-    .scale-hack-strong iframe {
-      width: 350%;            
-      height: 350%;           
-      transform: scale(0.2857);
-      transform-origin: 0 0;
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
     }
 
-    /* --- 6. Mobile Anpassung --- */
     @media (max-width: 600px) {
-      .dashboard-grid {
-        grid-template-columns: 1fr;
-      }
-      body {
-        padding: 10px;
-      }
+      body { padding: 12px 10px 32px; }
+      .cam-grid { grid-template-columns: 1fr; }
+      h1 { font-size: 1.1rem; letter-spacing: 1px; }
     }
   </style>
 </head>
 <body>
 
-  <h1>
-    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-      <circle cx="12" cy="13" r="4"></circle>
-    </svg>
-    Huberts Webcams ab EDSF
-  </h1>
-
-  <!-- WETTER LINK BUTTON -->
-  <div class="header-links">
-    <a href="http://www.lgh-platz.de/wetter/index.html" target="_blank" class="weather-button">
-      <!-- Kleines Wetter-Icon -->
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M17 18a5 5 0 0 0-1.89-9.55 5 5 0 0 0-9 2.5 5 5 0 0 0 0 8.5h9z"></path>
-        <line x1="8" y1="18" x2="8" y2="22"></line>
-        <line x1="12" y1="18" x2="12" y2="22"></line>
-        <line x1="16" y1="18" x2="16" y2="22"></line>
+  <header>
+    <h1 aria-label="Huberts Webcams ab EDSF">
+      <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24"
+           fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+        <circle cx="12" cy="13" r="4"/>
+      </svg>
+      Huberts Webcams ab EDSF
+    </h1>
+    <a href="http://www.lgh-platz.de/wetter/index.html" target="_blank" rel="noopener" class="weather-btn">
+      <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+           fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M17 18a5 5 0 0 0-1.89-9.55 5 5 0 0 0-9 2.5 5 5 0 0 0 0 8.5h9z"/>
+        <line x1="8" y1="18" x2="8" y2="22"/>
+        <line x1="12" y1="18" x2="12" y2="22"/>
+        <line x1="16" y1="18" x2="16" y2="22"/>
       </svg>
       Aktuelle Wetterdaten Hütten
     </a>
-  </div>
+  </header>
 
-  <div class="dashboard-grid">
+  <main>
 
-    <!-- EDSF Block -->
-    <div class="cam-card">
-      <div class="cam-header">
-        <a href="http://www.lgh-platz.de/cam/cam11.jpg" target="_blank">EDSF - Flugzeughalle</a>
-        <span class="status-dot"></span>
+    <!-- ===== EDSF ===== -->
+    <h2 class="section-title">EDSF – Flugplatz</h2>
+    <div class="cam-grid">
+
+      <div class="cam-card">
+        <div class="cam-header">
+          <a href="https://wsrv.nl/?url=www.lgh-platz.de/cam/cam11.jpg" target="_blank" rel="noopener">EDSF – Flugzeughalle</a>
+          <span class="status-dot" aria-label="Live"></span>
+        </div>
+        <div class="media-container">
+          <img class="live-cam" data-src="https://wsrv.nl/?url=www.lgh-platz.de/cam/cam11.jpg"
+               src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+               width="640" height="360" alt="EDSF Flugzeughalle">
+        </div>
       </div>
-      <div class="media-container">
-        <!-- TRICK: src ist ein leeres Pixel. data-url enthält das echte Ziel. 
-             Der Browser lädt beim Start NICHTS Altes. -->
-        <img class="live-cam" 
-             data-proxy="true" 
-             data-url="www.lgh-platz.de/cam/cam11.jpg" 
-             src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" 
-             alt="EDSF Flugzeughalle">
+
+      <div class="cam-card">
+        <div class="cam-header">
+          <a href="https://wsrv.nl/?url=www.lgh-platz.de/cam/cam21.jpg" target="_blank" rel="noopener">EDSF – Parkplatz</a>
+          <span class="status-dot" aria-label="Live"></span>
+        </div>
+        <div class="media-container">
+          <img class="live-cam" data-src="https://wsrv.nl/?url=www.lgh-platz.de/cam/cam21.jpg"
+               src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+               width="640" height="360" alt="EDSF Parkplatz">
+        </div>
       </div>
+
+      <div class="cam-card">
+        <div class="cam-header">
+          <a href="https://wsrv.nl/?url=www.lgh-platz.de/cam/cam31.jpg" target="_blank" rel="noopener">EDSF – Flugfeld 1</a>
+          <span class="status-dot" aria-label="Live"></span>
+        </div>
+        <div class="media-container">
+          <img class="live-cam" data-src="https://wsrv.nl/?url=www.lgh-platz.de/cam/cam31.jpg"
+               src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+               width="640" height="360" alt="EDSF Flugfeld 1">
+        </div>
+      </div>
+
+      <div class="cam-card">
+        <div class="cam-header">
+          <a href="https://wsrv.nl/?url=www.lgh-platz.de/cam/cam41.jpg" target="_blank" rel="noopener">EDSF – Flugfeld 2</a>
+          <span class="status-dot" aria-label="Live"></span>
+        </div>
+        <div class="media-container">
+          <img class="live-cam" data-src="https://wsrv.nl/?url=www.lgh-platz.de/cam/cam41.jpg"
+               src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+               width="640" height="360" alt="EDSF Flugfeld 2">
+        </div>
+      </div>
+
+      <div class="cam-card">
+        <div class="cam-header">
+          <a href="https://wsrv.nl/?url=www.lgh-platz.de/cam/cam51.jpg" target="_blank" rel="noopener">EDSF – Flugfeld 3</a>
+          <span class="status-dot" aria-label="Live"></span>
+        </div>
+        <div class="media-container">
+          <img class="live-cam" data-src="https://wsrv.nl/?url=www.lgh-platz.de/cam/cam51.jpg"
+               src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+               width="640" height="360" alt="EDSF Flugfeld 3">
+        </div>
+      </div>
+
+      <div class="cam-card">
+        <div class="cam-header">
+          <a href="https://wsrv.nl/?url=www.lgh-platz.de/cam/cam61.jpg" target="_blank" rel="noopener">EDSF – Start Piste 11 (West)</a>
+          <span class="status-dot" aria-label="Live"></span>
+        </div>
+        <div class="media-container">
+          <img class="live-cam" data-src="https://wsrv.nl/?url=www.lgh-platz.de/cam/cam61.jpg"
+               src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+               width="640" height="360" alt="EDSF Piste 11">
+        </div>
+      </div>
+
+      <div class="cam-card">
+        <div class="cam-header">
+          <a href="https://wsrv.nl/?url=www.lgh-platz.de/cam/cam91.jpg" target="_blank" rel="noopener">EDSF – Blick nach Norden</a>
+          <span class="status-dot" aria-label="Live"></span>
+        </div>
+        <div class="media-container">
+          <img class="live-cam" data-src="https://wsrv.nl/?url=www.lgh-platz.de/cam/cam91.jpg"
+               src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+               width="640" height="360" alt="EDSF Norden">
+        </div>
+      </div>
+
     </div>
 
-    <div class="cam-card">
-      <div class="cam-header">
-        <a href="http://www.lgh-platz.de/cam/cam21.jpg" target="_blank">EDSF - Parkplatz</a>
-        <span class="status-dot"></span>
+    <!-- ===== Umgebung ===== -->
+    <h2 class="section-title">Umgebung</h2>
+    <div class="cam-grid">
+
+      <div class="cam-card">
+        <div class="cam-header">
+          <a href="https://www.ziis.de/cam/current_WE.jpg" target="_blank" rel="noopener">Rickenbach Altenschwand 1</a>
+          <span class="status-dot" aria-label="Live"></span>
+        </div>
+        <div class="media-container">
+          <img class="live-cam" data-src="https://www.ziis.de/cam/current_WE.jpg"
+               src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+               width="640" height="360" alt="Rickenbach 1">
+        </div>
       </div>
-      <div class="media-container">
-        <img class="live-cam" 
-             data-proxy="true" 
-             data-url="www.lgh-platz.de/cam/cam21.jpg" 
-             src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" 
-             alt="EDSF Parkplatz">
+
+      <div class="cam-card">
+        <div class="cam-header">
+          <a href="https://www.ziis.de/cam/mega.jpg" target="_blank" rel="noopener">Rickenbach Altenschwand 2</a>
+          <span class="status-dot" aria-label="Live"></span>
+        </div>
+        <div class="media-container">
+          <img class="live-cam" data-src="https://www.ziis.de/cam/mega.jpg"
+               src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+               width="640" height="360" alt="Rickenbach 2">
+        </div>
       </div>
+
+      <div class="cam-card">
+        <div class="cam-header">
+          <a href="https://wsrv.nl/?url=www.schopfheim.de/webcam/gersbach/video.jpg" target="_blank" rel="noopener">Gersbach</a>
+          <span class="status-dot" aria-label="Live"></span>
+        </div>
+        <div class="media-container">
+          <img class="live-cam" data-src="https://wsrv.nl/?url=www.schopfheim.de/webcam/gersbach/video.jpg"
+               src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+               width="640" height="360" alt="Gersbach">
+        </div>
+      </div>
+
+      <div class="cam-card">
+        <div class="cam-header">
+          <a href="https://www.feldberger-hof.de/static/webcam/fh-webcam.jpg" target="_blank" rel="noopener">Feldberg Seebuck</a>
+          <span class="status-dot" aria-label="Live"></span>
+        </div>
+        <div class="media-container">
+          <img class="live-cam" data-src="https://www.feldberger-hof.de/static/webcam/fh-webcam.jpg"
+               src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+               width="640" height="360" alt="Feldberg Seebuck">
+        </div>
+      </div>
+
+      <div class="cam-card">
+        <div class="cam-header">
+          <a href="https://www.belchen-seilbahn.de/webcam.html" target="_blank" rel="noopener">Belchen – Panorama West</a>
+          <span class="status-dot" aria-label="Live"></span>
+        </div>
+        <div class="media-container">
+          <img class="live-cam" data-src="https://belchen-webcam.datacreate.de/webcam/links.jpg"
+               src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+               width="640" height="360" alt="Belchen Panorama West">
+        </div>
+      </div>
+
     </div>
 
-    <div class="cam-card">
-      <div class="cam-header">
-        <a href="http://www.lgh-platz.de/cam/cam31.jpg" target="_blank">EDSF - Flugfeld 1</a>
-        <span class="status-dot"></span>
+    <!-- ===== Weitere Flugplätze ===== -->
+    <h2 class="section-title">Weitere Flugplätze</h2>
+    <div class="cam-grid">
+
+      <div class="cam-card">
+        <div class="cam-header">
+          <a href="https://www.lsg-suedwest.de/WebCam/snapshot.jpg" target="_blank" rel="noopener">Flugplatz Herten</a>
+          <span class="status-dot" aria-label="Live"></span>
+        </div>
+        <div class="media-container">
+          <img class="live-cam" data-src="https://www.lsg-suedwest.de/WebCam/snapshot.jpg"
+               src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+               width="640" height="360" alt="Flugplatz Herten">
+        </div>
       </div>
-      <div class="media-container">
-        <img class="live-cam" 
-             data-proxy="true" 
-             data-url="www.lgh-platz.de/cam/cam31.jpg" 
-             src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" 
-             alt="EDSF Flugfeld 1">
+
+      <div class="cam-card">
+        <div class="cam-header">
+          <a href="https://cam.afu-server.de/Klippeneck-CAM3.jpg" target="_blank" rel="noopener">Klippeneck – Piste</a>
+          <span class="status-dot" aria-label="Live"></span>
+        </div>
+        <div class="media-container">
+          <img class="live-cam" data-src="https://cam.afu-server.de/Klippeneck-CAM3.jpg"
+               src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+               width="640" height="360" alt="Klippeneck Piste">
+        </div>
       </div>
+
+      <div class="cam-card">
+        <div class="cam-header">
+          <a href="https://cam.afu-server.de/Klippeneck-CAM1.jpg" target="_blank" rel="noopener">Klippeneck – Panorama</a>
+          <span class="status-dot" aria-label="Live"></span>
+        </div>
+        <div class="media-container">
+          <img class="live-cam" data-src="https://cam.afu-server.de/Klippeneck-CAM1.jpg"
+               src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+               width="640" height="360" alt="Klippeneck Panorama">
+        </div>
+      </div>
+
+      <div class="cam-card">
+        <div class="cam-header">
+          <a href="https://webcam-gewerbepark.ftp-land-in-sicht.de/snap_c1.jpg" target="_blank" rel="noopener">Flugplatz Bremgarten</a>
+          <span class="status-dot" aria-label="Live"></span>
+        </div>
+        <div class="media-container">
+          <img class="live-cam" data-src="https://webcam-gewerbepark.ftp-land-in-sicht.de/snap_c1.jpg"
+               src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+               width="640" height="360" alt="Flugplatz Bremgarten">
+        </div>
+      </div>
+
     </div>
+  </main>
 
-    <div class="cam-card">
-      <div class="cam-header">
-        <a href="http://www.lgh-platz.de/cam/cam41.jpg" target="_blank">EDSF - Flugfeld 2</a>
-        <span class="status-dot"></span>
-      </div>
-      <div class="media-container">
-        <img class="live-cam" 
-             data-proxy="true" 
-             data-url="www.lgh-platz.de/cam/cam41.jpg" 
-             src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" 
-             alt="EDSF Flugfeld 2">
-      </div>
-    </div>
+  <footer>
+    <p>Letzter Refresh: <span id="last-refresh">–</span> &middot; Aktualisierung alle 90 Sekunden</p>
+  </footer>
 
-    <div class="cam-card">
-      <div class="cam-header">
-        <a href="http://www.lgh-platz.de/cam/cam51.jpg" target="_blank">EDSF - Flugfeld 3</a>
-        <span class="status-dot"></span>
-      </div>
-      <div class="media-container">
-        <img class="live-cam" 
-             data-proxy="true" 
-             data-url="www.lgh-platz.de/cam/cam51.jpg" 
-             src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" 
-             alt="EDSF Flugfeld 3">
-      </div>
-    </div>
-
-    <div class="cam-card">
-      <div class="cam-header">
-        <a href="http://www.lgh-platz.de/cam/cam61.jpg" target="_blank">EDSF - Start Piste 11 (West)</a>
-        <span class="status-dot"></span>
-      </div>
-      <div class="media-container">
-        <img class="live-cam" 
-             data-proxy="true" 
-             data-url="www.lgh-platz.de/cam/cam61.jpg" 
-             src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" 
-             alt="EDSF Piste 11">
-      </div>
-    </div>
-
-    <div class="cam-card">
-      <div class="cam-header">
-        <a href="http://www.lgh-platz.de/cam/cam91.jpg" target="_blank">EDSF - Blick nach Norden</a>
-        <span class="status-dot"></span>
-      </div>
-      <div class="media-container">
-        <img class="live-cam" 
-             data-proxy="true" 
-             data-url="www.lgh-platz.de/cam/cam91.jpg" 
-             src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" 
-             alt="EDSF Norden">
-      </div>
-    </div>
-
-    <!-- Schwarzwald Block -->
-    <div class="cam-card">
-      <div class="cam-header">
-        <a href="https://www.ziis.de/cam/current_WE.jpg" target="_blank">Rickenbach Altenschwand 1</a>
-        <span class="status-dot"></span>
-      </div>
-      <div class="media-container">
-        <img class="live-cam" 
-             data-url="https://www.ziis.de/cam/current_WE.jpg" 
-             src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" 
-             alt="Rickenbach 1">
-      </div>
-    </div>
-
-    <div class="cam-card">
-      <div class="cam-header">
-        <a href="https://www.ziis.de/cam/mega.jpg" target="_blank">Rickenbach Altenschwand 2</a>
-        <span class="status-dot"></span>
-      </div>
-      <div class="media-container">
-        <img class="live-cam" 
-             data-url="https://www.ziis.de/cam/mega.jpg" 
-             src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" 
-             alt="Rickenbach 2">
-      </div>
-    </div>
-
-    <!-- Gersbach -->
-    <div class="cam-card">
-      <div class="cam-header">
-        <a href="http://www.schopfheim.de/webcam/gersbach/video.jpg" target="_blank">Gersbach</a>
-        <span class="status-dot"></span>
-      </div>
-      <div class="media-container">
-        <img class="live-cam" 
-             data-proxy="true" 
-             data-url="www.schopfheim.de/webcam/gersbach/video.jpg" 
-             src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" 
-             alt="Gersbach">
-      </div>
-    </div>
-
-    <div class="cam-card">
-      <div class="cam-header">
-        <a href="https://www.feldberger-hof.de/static/webcam/fh-webcam.jpg" target="_blank">Feldberg Seebuck</a>
-        <span class="status-dot"></span>
-      </div>
-      <div class="media-container">
-        <img class="live-cam" 
-             data-url="https://www.feldberger-hof.de/static/webcam/fh-webcam.jpg" 
-             src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" 
-             alt="Feldberg Seebuck">
-      </div>
-    </div>
-
-    <!-- Hochblauen -->
-    <div class="cam-card">
-      <div class="cam-header">
-        <a href="https://www.foto-webcam.eu/webcam/hochblauen/" target="_blank">Hochblauen</a>
-        <span class="status-dot"></span>
-      </div>
-      <div class="media-container">
-        <img class="live-cam" 
-             data-url="https://www.foto-webcam.eu/webcam/hochblauen/current/1200.jpg" 
-             src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" 
-             alt="Hochblauen">
-      </div>
-    </div>
-
-    <!-- Flugplatz Herten -->
-    <div class="cam-card">
-      <div class="cam-header">
-        <a href="https://www.lsg-suedwest.de/WebCam/snapshot.jpg" target="_blank">Flugplatz Herten</a>
-        <span class="status-dot"></span>
-      </div>
-      <div class="media-container">
-        <img class="live-cam" 
-             data-url="https://www.lsg-suedwest.de/WebCam/snapshot.jpg" 
-             src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" 
-             alt="Flugplatz Herten">
-      </div>
-    </div>
-
-    <!-- Klippeneck Piste -->
-    <div class="cam-card">
-      <div class="cam-header">
-        <a href="https://cam.afu-server.de/Klippeneck-CAM3.jpg" target="_blank">Klippeneck Piste</a>
-        <span class="status-dot"></span>
-      </div>
-      <div class="media-container">
-        <img class="live-cam" 
-             data-url="https://cam.afu-server.de/Klippeneck-CAM3.jpg" 
-             src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" 
-             alt="Klippeneck Piste">
-      </div>
-    </div>
-
-    <!-- Klippeneck Panorama -->
-    <div class="cam-card">
-      <div class="cam-header">
-        <a href="https://cam.afu-server.de/Klippeneck-CAM1.jpg" target="_blank">Klippeneck Panorama</a>
-        <span class="status-dot"></span>
-      </div>
-      <div class="media-container">
-        <img class="live-cam" 
-             data-url="https://cam.afu-server.de/Klippeneck-CAM1.jpg" 
-             src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" 
-             alt="Klippeneck Panorama">
-      </div>
-    </div>
-
-    <!-- Flugplatz Bremgarten -->
-    <div class="cam-card">
-      <div class="cam-header">
-        <a href="https://webcam-gewerbepark.ftp-land-in-sicht.de/snap_c1.jpg" target="_blank">Flugplatz Bremgarten</a>
-        <span class="status-dot"></span>
-      </div>
-      <div class="media-container">
-        <img class="live-cam" 
-             data-url="https://webcam-gewerbepark.ftp-land-in-sicht.de/snap_c1.jpg" 
-             src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" 
-             alt="Flugplatz Bremgarten">
-      </div>
-    </div>
-
-  </div> 
-
-  <!-- Auto-Refresh Skript -->
   <script>
-    function refreshWebcams() {
-      // Wähle alle Bilder mit der Klasse 'live-cam'
-      const images = document.querySelectorAll('img.live-cam');
-      const timestamp = new Date().getTime();
-      
-      images.forEach(img => {
-        const rawUrl = img.getAttribute('data-url');
-        const useProxy = img.getAttribute('data-proxy') === 'true';
-        
-        if (rawUrl) {
-          // Erstelle Cache-Buster Parameter (?t=12345 oder &t=12345)
-          const separator = rawUrl.includes('?') ? '&' : '?';
-          const urlWithTime = rawUrl + separator + 't=' + timestamp;
-          
-          if (useProxy) {
-            // Bei Proxy-Bildern: Neue URL an den Proxy übergeben
-            img.src = 'https://wsrv.nl/?url=' + urlWithTime; 
-          } else {
-            // Bei direkten Bildern: Einfach Timestamp anhängen
-            img.src = urlWithTime;
-          }
-        }
-      });
+  (function () {
+    var REFRESH_MS = 90000;
+    var lastEl = document.getElementById('last-refresh');
+
+    function pad(n) { return ('0' + n).slice(-2); }
+    function nowStr() {
+      var d = new Date();
+      return pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
     }
 
-    // 1. Sofort beim Laden einmal ausführen (Cache umgehen beim Start)
-    window.onload = refreshWebcams;
+    function bust(url, ts) {
+      return url + (url.includes('?') ? '&' : '?') + 't=' + ts;
+    }
 
-    // 2. Danach alle 60 Sekunden wiederholen
-    setInterval(refreshWebcams, 60000);
+    function loadImg(img, ts) {
+      var base = img.getAttribute('data-src');
+      if (!base) return;
+      img.classList.remove('loaded');
+      var fresh = new Image();
+      fresh.onload = function () {
+        img.src = fresh.src;
+        img.classList.add('loaded');
+      };
+      fresh.src = bust(base, ts);
+    }
+
+    // Intersection Observer: merkt sich welche Bilder sichtbar sind
+    var visible = new Set();
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        e.isIntersecting ? visible.add(e.target) : visible.delete(e.target);
+      });
+    }, { rootMargin: '200px' });
+
+    var imgs = document.querySelectorAll('img.live-cam');
+
+    // Sofort alle Bilder laden (Observer ist hier noch nicht relevant)
+    var ts0 = Date.now();
+    imgs.forEach(function (img) {
+      io.observe(img);   // Observer für spätere Refreshes registrieren
+      loadImg(img, ts0); // Erstes Laden: direkt, ohne auf Observer zu warten
+    });
+
+    // Zyklischer Refresh: nur sichtbare Bilder
+    setInterval(function () {
+      var ts = Date.now();
+      visible.forEach(function (img) { loadImg(img, ts); });
+      if (lastEl) lastEl.textContent = nowStr();
+    }, REFRESH_MS);
+
+    if (lastEl) lastEl.textContent = nowStr();
+  })();
   </script>
+
 </body>
 </html>
