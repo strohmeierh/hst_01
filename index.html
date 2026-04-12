@@ -275,11 +275,30 @@
       color: var(--text-muted);
     }
 
+    .wx-updated-br { display: none; }
+
+    /* Wetter-Layout: Desktop = nebeneinander, Mobil = übereinander */
+    .wx-layout {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
     @media (max-width: 600px) {
       body { padding: 12px 10px 32px; }
       .cam-grid { grid-template-columns: 1fr; }
       h1 { font-size: 1.1rem; letter-spacing: 1px; }
       .header-links { flex-direction: column; align-items: center; }
+      /* Mobil: Diagramm oben (volle Breite), Kacheln darunter */
+      .wx-layout {
+        grid-template-columns: 1fr;
+      }
+      .wx-layout > div:first-child {
+        display: flex;
+        justify-content: center;
+      }
+      .wx-updated-br { display: inline; }
     }
   </style>
 </head>
@@ -629,10 +648,18 @@
         return n.toFixed(dez !== undefined ? dez : 1).replace('.', ',');
       }
 
-      var zeit    = d.date || '–';
+      var bearing = d.bearing !== undefined ? parseFloat(d.bearing) : 0;
+      var wspeed  = d.wspeed  !== undefined ? parseFloat(d.wspeed)  : 0;
+      var wgust   = d.wgust   !== undefined ? parseFloat(d.wgust)   : 0;
+
+      // Datum von "2026.04.12 00:55" → "12.04.2026 00:55" umformatieren
+      var rawDate = d.date || '–';
+      var zeit = rawDate.replace(/^(\d{4})\.(\d{2})\.(\d{2})(.*)$/, '$3.$2.$1$4');
       var windDir = (d.bearingTxt && d.bearingTxt !== '---') ? d.bearingTxt : (d.bearing ? d.bearing + '°' : '');
-      var wind    = f(d.wspeed, 0) + ' km/h' + (windDir ? ' aus ' + windDir : '');
-      var boeen   = f(d.wgust, 0) + ' km/h';
+      var windKt  = Math.round(wspeed / 1.852);
+      var guestKt = Math.round(wgust  / 1.852);
+      var wind    = f(d.wspeed, 0) + ' km/h / ' + windKt + ' kt' + (windDir ? ' aus ' + windDir : '');
+      var boeen   = f(d.wgust,  0) + ' km/h / ' + guestKt + ' kt';
       var cbFt    = d.cloudbasevalue ? Math.round(parseFloat(d.cloudbasevalue)) : null;
       var cbM     = cbFt ? Math.round(cbFt / 3.28084) : null;
       var cb      = cbFt ? cbFt + ' ft / ' + cbM + ' m' : '–';
@@ -651,22 +678,237 @@
       }
 
       el.innerHTML =
-        '<div class="wx-stats">' +
-          stat('Temperatur',   f(d.temp, 1) + ' °C',
-               'Min ' + f(d.tempTL,1) + ' / Max ' + f(d.tempTH,1) + ' °C') +
-          stat('Taupunkt',     f(d.dew,  1) + ' °C') +
-          stat('Feuchte',      f(d.hum,  0) + ' %') +
-          stat('QNH',          f(d.press,1) + ' hPa', trend) +
-          stat('Wind',         wind) +
-          stat('Böen',         boeen) +
-          stat('Wolkenbasis',  cb) +
-          stat('Niederschlag', regen) +
+        '<div class="wx-layout">' +
+
+          /* ── Pisten-Winddiagramm ── */
+          buildRunwayDiagram(bearing, wspeed, wgust) +
+
+          /* ── Werte-Kacheln ── */
+          '<div class="wx-stats">' +
+            stat('Temperatur',   f(d.temp, 1) + ' °C',
+                 'Min ' + f(d.tempTL,1) + ' / Max ' + f(d.tempTH,1) + ' °C') +
+            stat('Taupunkt',     f(d.dew,  1) + ' °C') +
+            stat('Feuchte',      f(d.hum,  0) + ' %') +
+            stat('QNH',          f(d.press,1) + ' hPa', trend) +
+            stat('Wind',         wind) +
+            stat('Böen',         boeen) +
+            stat('Wolkenbasis',  cb) +
+            stat('Niederschlag', regen) +
+          '</div>' +
+
         '</div>' +
         '<div class="wx-updated">' +
-          'Stand: ' + zeit + ' · ' +
-          '<a href="http://www.lgh-platz.de/wetter/index.html" target="_blank" rel="noopener" ' +
+          'Stand: ' + zeit +
+          '<br class="wx-updated-br">' +
+          ' · <a href="http://www.lgh-platz.de/wetter/index.html" target="_blank" rel="noopener" ' +
           'style="color:var(--accent);">Wetterdaten Hütten (lgh-platz.de) ↗</a>' +
         '</div>';
+    }
+
+    /* ── Pisten-Winddiagramm EDSF (Piste 11/29 = 110°/290°) ─── */
+    function buildRunwayDiagram(bearing, wspeed, wgust) {
+      var RWY = 110; // Piste 11 in Grad true
+
+      // Windkomponenten relativ zur Piste 11 (Anflugrichtung 110°)
+      // Winkel zwischen Windrichtung und Pistenrichtung
+      var diff    = (bearing - RWY + 360) % 360;
+      var diffRad = diff * Math.PI / 180;
+      // Gegenwind: positiv = Gegenwind auf Piste 11, negativ = Rückenwind
+      var head  = Math.round(wspeed * Math.cos(diffRad));
+      // Seitenwind: positiv = von rechts (Steuerbord), negativ = von links
+      var cross = Math.round(wspeed * Math.sin(diffRad));
+
+      // Farbe nach |Seitenwind|
+      var absX  = Math.abs(cross);
+      var color = absX <= 5  ? '#10b981' :
+                  absX <= 10 ? '#f59e0b' :
+                               '#ef4444';
+
+      // SVG-Dimensionen
+      var W = 180, H = 250, cx = W/2, cy = 108;
+      var rwyHalf = 68;
+      var rwyW    = 20;
+      var rwyAngleDeg = RWY - 90; // SVG-Rotationswinkel (0°=oben=Norden)
+
+      // SVG-Koordinatensystem: 0° = oben = Norden
+      // Piste 11 zeigt nach 110° → SVG-Winkel = 110° (Uhrzeigersinn von oben)
+      // Pistenvektor in SVG: sin(110°) nach rechts, -cos(110°) nach unten
+      var rwyRad = RWY * Math.PI / 180;
+      var rx = Math.sin(rwyRad); // x-Komponente der Pistenrichtung
+      var ry = -Math.cos(rwyRad); // y-Komponente (negativ weil Y in SVG nach unten)
+
+      // Piste 11-Ende (in Richtung 110°)
+      var p11x = cx + rwyHalf * rx;
+      var p11y = cy + rwyHalf * ry;
+      // Piste 29-Ende (in Richtung 290°)
+      var p29x = cx - rwyHalf * rx;
+      var p29y = cy - rwyHalf * ry;
+
+      // Gegenwind / Rückenwind Text
+      var headLabel = head >= 0 ? 'GW' : 'RW';
+      var headColor = head >= 0 ? '#10b981' : '#ef4444';
+      var headWarn  = head < 0  ? ' ⚠' : '';
+
+      return '<div style="flex-shrink:0;padding:4px 0;">' +
+        '<svg width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '" ' +
+             'xmlns="http://www.w3.org/2000/svg" style="display:block;">' +
+
+          /* Hintergrund */
+          '<rect width="' + W + '" height="' + H + '" rx="10" fill="rgba(0,0,0,0.3)"/>' +
+
+          /* Kompasskreis */
+          '<circle cx="' + cx + '" cy="' + cy + '" r="72" fill="none" stroke="#1e3a5f" stroke-width="1.5"/>' +
+          '<circle cx="' + cx + '" cy="' + cy + '" r="72" fill="none" stroke="#334155" stroke-width="0.5" stroke-dasharray="2 6"/>' +
+
+          /* Himmelsrichtungen */
+          '<text x="' + cx + '" y="14" text-anchor="middle" font-size="10" font-weight="bold" fill="#475569">N</text>' +
+          '<text x="' + cx + '" y="' + (cy*2-4) + '" text-anchor="middle" font-size="10" font-weight="bold" fill="#475569">S</text>' +
+          '<text x="8" y="' + (cy+4) + '" text-anchor="start" font-size="10" font-weight="bold" fill="#475569">W</text>' +
+          '<text x="' + (W-8) + '" y="' + (cy+4) + '" text-anchor="end" font-size="10" font-weight="bold" fill="#475569">O</text>' +
+
+          /* Piste – Rechteck entlang der Pistenlinie */
+          /* Berechne 4 Ecken des Pistenrechtecks */
+          (function() {
+            // Senkrecht zur Piste
+            var nx = ry, ny = -rx; // 90° gedreht
+            var hw = rwyW / 2;
+            var corners = [
+              [p11x + hw*nx, p11y + hw*ny],
+              [p11x - hw*nx, p11y - hw*ny],
+              [p29x - hw*nx, p29y - hw*ny],
+              [p29x + hw*nx, p29y + hw*ny]
+            ];
+            var pts = corners.map(function(c){ return c[0].toFixed(1)+','+c[1].toFixed(1); }).join(' ');
+            return '<polygon points="' + pts + '" fill="#2d3f55" stroke="#64748b" stroke-width="1.5"/>';
+          })() +
+
+          /* Mittellinie gestrichelt */
+          '<line x1="' + p11x.toFixed(1) + '" y1="' + p11y.toFixed(1) + '" ' +
+               'x2="' + p29x.toFixed(1) + '" y2="' + p29y.toFixed(1) + '" ' +
+            'stroke="#94a3b8" stroke-width="1" stroke-dasharray="5 4"/>' +
+
+          /* Pistenbezeichnungen ausserhalb der Pistenenden, beide aufrecht lesbar */
+          (function() {
+            var offset = rwyHalf + 10; // px ausserhalb des Pistenendes
+            // "11" ausserhalb des 290°-Endes, Pilot fliegt Richtung 110° → Text normal
+            var t11x = (cx - offset * rx).toFixed(1);
+            var t11y = (cy - offset * ry).toFixed(1);
+            // "29" ausserhalb des 110°-Endes, Pilot fliegt Richtung 290° → Text normal
+            var t29x = (cx + offset * rx).toFixed(1);
+            var t29y = (cy + offset * ry).toFixed(1);
+            return (
+              '<text x="' + t11x + '" y="' + t11y + '" ' +
+                'text-anchor="middle" dominant-baseline="middle" ' +
+                'font-size="12" font-weight="bold" fill="#e2e8f0" ' +
+                'transform="rotate(' + rwyAngleDeg + ',' + t11x + ',' + t11y + ')">11</text>' +
+              '<text x="' + t29x + '" y="' + t29y + '" ' +
+                'text-anchor="middle" dominant-baseline="middle" ' +
+                'font-size="12" font-weight="bold" fill="#e2e8f0" ' +
+                'transform="rotate(' + rwyAngleDeg + ',' + t29x + ',' + t29y + ')">29</text>'
+            );
+          })() +
+
+          /* ── Offizieller meteorologischer Windpfeil ──────────────
+             Schaft: zeigt woher Wind kommt → Spitze zeigt wohin er weht
+             Befiederung am Schaft-Ende (Ursprung des Windes):
+               Dreieck  = 50 kt
+               Lang     = 10 kt
+               Kurz     =  5 kt                                        */
+          (function() {
+            var kt = Math.round(wspeed / 1.852); // km/h → Knoten
+
+            if (kt < 2) {
+              // Calm: Kreis in der Mitte
+              return '<circle cx="' + cx + '" cy="' + cy + '" r="8" fill="none" ' +
+                'stroke="' + color + '" stroke-width="2.5"/>';
+            }
+
+            // Schaft: von Windursprung (außen) zur Pistenmitte (Spitze)
+            var windRad = bearing * Math.PI / 180;
+            var shaftLen = 58;
+            // Ursprungspunkt (woher Wind kommt)
+            var ox = cx + shaftLen * Math.sin(windRad);
+            var oy = cy - shaftLen * Math.cos(windRad);
+            // Spitze (wohin Wind weht = Pistenmitte)
+            var tx = cx;
+            var ty = cy;
+
+            // Pfeilspitze an der Spitze
+            var svg = '<defs><marker id="whead" markerWidth="8" markerHeight="8" ' +
+              'refX="4" refY="4" orient="auto">' +
+              '<path d="M0,0 L8,4 L0,8 Z" fill="' + color + '"/>' +
+              '</marker></defs>';
+
+            // Schaft
+            svg += '<line x1="' + ox.toFixed(1) + '" y1="' + oy.toFixed(1) + '" ' +
+              'x2="' + tx + '" y2="' + ty + '" ' +
+              'stroke="' + color + '" stroke-width="2.5" marker-end="url(#whead)"/>';
+
+            // Befiederung am Ursprungspunkt (senkrecht zum Schaft, nach rechts)
+            // Richtungsvektor des Schafts (von Ursprung zur Spitze)
+            var dx = tx - ox, dy = ty - oy;
+            var len = Math.sqrt(dx*dx + dy*dy);
+            var ux = dx/len, uy = dy/len; // Einheitsvektor Schaft
+            var px = -uy, py = ux;        // Senkrecht nach rechts (Befiederungsseite)
+
+            var remaining = kt;
+            var bPos = 0; // Abstand vom Ursprung entlang Schaft
+            var bSpacing = 8; // Abstand zwischen Strichen
+
+            // Dreiecke (50 kt)
+            while (remaining >= 50) {
+              var bx = ox + bPos * ux;
+              var by = oy + bPos * uy;
+              var ex = bx + bSpacing * ux;
+              var ey = by + bSpacing * uy;
+              var tx2 = bx + 16 * px;
+              var ty2 = by + 16 * py;
+              svg += '<polygon points="' +
+                bx.toFixed(1)+','+by.toFixed(1)+' '+
+                ex.toFixed(1)+','+ey.toFixed(1)+' '+
+                tx2.toFixed(1)+','+ty2.toFixed(1) +
+                '" fill="' + color + '"/>';
+              remaining -= 50;
+              bPos += bSpacing + 2;
+            }
+            // Lange Striche (10 kt)
+            while (remaining >= 10) {
+              var bx = ox + bPos * ux;
+              var by = oy + bPos * uy;
+              svg += '<line x1="' + bx.toFixed(1) + '" y1="' + by.toFixed(1) + '" ' +
+                'x2="' + (bx + 14*px).toFixed(1) + '" y2="' + (by + 14*py).toFixed(1) + '" ' +
+                'stroke="' + color + '" stroke-width="2.5"/>';
+              remaining -= 10;
+              bPos += bSpacing;
+            }
+            // Kurze Striche (5 kt)
+            while (remaining >= 5) {
+              var bx = ox + bPos * ux;
+              var by = oy + bPos * uy;
+              svg += '<line x1="' + bx.toFixed(1) + '" y1="' + by.toFixed(1) + '" ' +
+                'x2="' + (bx + 8*px).toFixed(1) + '" y2="' + (by + 8*py).toFixed(1) + '" ' +
+                'stroke="' + color + '" stroke-width="2"/>';
+              remaining -= 5;
+              bPos += bSpacing;
+            }
+
+            return svg;
+          })() +
+
+          /* Windkomponenten-Anzeige unten */
+          '<rect x="4" y="' + (H-62) + '" width="' + (W-8) + '" height="58" rx="6" fill="rgba(0,0,0,0.35)"/>' +
+
+          '<text x="' + cx + '" y="' + (H-48) + '" text-anchor="middle" font-size="10" fill="#94a3b8">Gegenwind</text>' +
+          '<text x="' + cx + '" y="' + (H-34) + '" text-anchor="middle" font-size="12" font-weight="bold" ' +
+            'fill="' + headColor + '">' + Math.abs(head) + ' km/h / ' + Math.round(Math.abs(head)/1.852) + ' kt' + headWarn + '</text>' +
+
+          '<text x="' + cx + '" y="' + (H-20) + '" text-anchor="middle" font-size="10" fill="#94a3b8">Seitenwindkomponente</text>' +
+          '<text x="' + cx + '" y="' + (H-6) + '" text-anchor="middle" font-size="12" font-weight="bold" ' +
+            'fill="' + color + '">' + Math.abs(cross) + ' km/h / ' + Math.round(Math.abs(cross)/1.852) + ' kt</text>' +
+
+        '</svg>' +
+        '<div style="font-size:0.63rem;color:var(--text-muted);text-align:center;margin-top:3px;">Wind / Piste EDSF</div>' +
+      '</div>';
     }
 
     function renderFallback(el) {
