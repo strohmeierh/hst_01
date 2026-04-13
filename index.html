@@ -64,15 +64,15 @@
     .top-btn {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       background-color: var(--card-bg);
       color: var(--accent);
       border: 1px solid var(--accent);
-      padding: 7px 12px;
+      padding: 5px 10px;
       border-radius: 30px;
       text-decoration: none;
       font-weight: 500;
-      font-size: 0.82rem;
+      font-size: 0.75rem;
       cursor: pointer;
       white-space: nowrap;
       transition: background-color var(--ease), color var(--ease),
@@ -84,6 +84,14 @@
       color: var(--bg);
       box-shadow: 0 0 16px rgba(56,189,248,0.45);
       transform: translateY(-2px);
+    }
+
+    .sunrise-bar {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 6px;
+      text-align: center;
+      letter-spacing: 0.03em;
     }
 
     /* === Wetter-Panel === */
@@ -317,7 +325,7 @@
 
     <div class="header-links">
       <button class="top-btn" id="wx-toggle" onclick="toggleWx()" aria-expanded="false">
-        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="13" height="13"
              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
              stroke-linecap="round" stroke-linejoin="round">
           <path d="M17 18a5 5 0 0 0-1.89-9.55 5 5 0 0 0-9 2.5 5 5 0 0 0 0 8.5h9z"/>
@@ -325,12 +333,12 @@
           <line x1="12" y1="18" x2="12" y2="22"/>
           <line x1="16" y1="18" x2="16" y2="22"/>
         </svg>
-        Wetter EDSF
+        Wetter
       </button>
 
       <a href="https://glidertracker.de/#lat=47.633&lon=7.941&z=11&nowelcome"
-         target="_blank" rel="noopener" class="top-btn top-btn-sm">
-        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="15" height="15"
+         target="_blank" rel="noopener" class="top-btn">
+        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="13" height="13"
              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
              stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 2L2 7l10 5 10-5-10-5z"/>
@@ -341,8 +349,8 @@
       </a>
 
       <a href="https://www.weglide.org/flight?club=LG%2520Hotzenwald,23"
-         target="_blank" rel="noopener" class="top-btn top-btn-sm">
-        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="15" height="15"
+         target="_blank" rel="noopener" class="top-btn">
+        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="13" height="13"
              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
              stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="10"/>
@@ -351,6 +359,7 @@
         WeGlide
       </a>
     </div>
+    <div class="sunrise-bar" id="sunrise-bar"></div>
   </header>
 
   <!-- ===== WETTER-PANEL ===== -->
@@ -631,6 +640,14 @@
     }, REFRESH_MS);
     if (lastEl) lastEl.textContent = nowStr();
 
+    /* Sonnenzeiten sofort beim Laden anzeigen */
+    (function() {
+      var bar = document.getElementById('sunrise-bar');
+      if (!bar) return;
+      var s = calcSunTimes(47.633, 7.941);
+      bar.textContent = '☀ Aufgang ' + s.rise + '  ·  Untergang ' + s.set + ' (Lokalzeit)';
+    })();
+
     /* ── Wetter-Panel Toggle ────────────────────────────────── */
     var wxLoaded = false;
 
@@ -683,16 +700,16 @@
       var guestKt = Math.round(wgust  / 1.852);
       var wind    = f(d.wspeed, 0) + ' km/h / ' + windKt + ' kt' + (windDir ? ' aus ' + windDir : '');
       var boeen   = f(d.wgust,  0) + ' km/h / ' + guestKt + ' kt';
-      var cbFt    = d.cloudbasevalue ? Math.round(parseFloat(d.cloudbasevalue)) : null;
-      var cbM     = cbFt ? Math.round(cbFt / 3.28084) : null;
-      var cbLine1 = cbFt ? cbFt + ' ft' : '–';
-      var cbLine2 = cbM  ? cbM  + ' m'  : '';
+      var cbFt = d.cloudbasevalue ? Math.round(parseFloat(d.cloudbasevalue)) : null;
+      var cbM  = cbFt ? Math.round(cbFt / 3.28084) : null;
+      var cb   = cbFt ? cbFt + ' ft / ' + cbM + ' m' : '–';
 
-      // Sonnenauf- und Untergang aus gauge-data.txt
-      // Felder: sunrise / sunset als "HH:MM" in UTC oder Lokalzeit
-      var sunrise = d.sunrise || d.sunriseTime || '';
-      var sunset  = d.sunset  || d.sunsetTime  || '';
-      var sonne   = (sunrise && sunset) ? sunrise + ' / ' + sunset : '';
+      // Sonnenauf-/-untergang für EDSF (47.633°N, 7.941°E) berechnen
+      var sunTimes = calcSunTimes(47.633, 7.941);
+      var sunBar = document.getElementById('sunrise-bar');
+      if (sunBar) {
+        sunBar.innerHTML = '☀ Aufgang ' + sunTimes.rise + ' · Untergang ' + sunTimes.set + ' (Lokalzeit)';
+      }
       var regen   = f(d.rfall, 1) + ' mm';
       var trend   = d.presstrend != null
         ? 'Trend: ' + (parseFloat(d.presstrend) >= 0 ? '+' : '') + f(d.presstrend, 1) + ' hPa/h'
@@ -722,9 +739,8 @@
             stat('QNH',          f(d.press,1) + ' hPa', trend) +
             stat('Wind',         wind) +
             stat('Böen',         boeen) +
-            stat('Wolkenbasis',  cbLine1, cbLine2) +
+            stat('Wolkenbasis',  cb) +
             stat('Niederschlag', regen) +
-            (sonne ? stat('Sonne ↑ / ↓', sonne) : '') +
           '</div>' +
 
         '</div>' +
@@ -938,6 +954,44 @@
 
         '</svg>' +
       '</div>';
+    }
+
+    /* ── Sonnenauf-/-untergang berechnen ────────────────────────
+       Algorithmus nach NOAA Solar Calculator, Genauigkeit ±1 min  */
+    function calcSunTimes(lat, lon) {
+      var now  = new Date();
+      var JD   = now / 86400000 + 2440587.5; // Julianisches Datum
+      var n    = Math.floor(JD - 2451545.0 + 0.5); // Tage seit J2000
+      // Mittlere Anomalie
+      var M    = (357.5291 + 0.98560028 * n) % 360;
+      var Mrad = M * Math.PI / 180;
+      // Mittlere Länge
+      var L    = (280.4665 + 0.9856474 * n) % 360;
+      // Gleichung der Zeit (Minuten)
+      var EoT  = 4 * (L - 0.0057183 - (M + 1.9148 * Math.sin(Mrad) +
+                 0.02 * Math.sin(2*Mrad)) + 2.4682 * Math.sin(2*(L + 1.9148 *
+                 Math.sin(Mrad) + 0.02 * Math.sin(2*Mrad)) * Math.PI / 180));
+      // Deklination
+      var decl = Math.asin(0.39779 * Math.sin((L + 1.9148 * Math.sin(Mrad) +
+                 0.02 * Math.sin(2*Mrad) + 180.01 + 102.9372) * Math.PI / 180));
+      // Stundenwinkel bei Sonnenauf-/-untergang (Zentrum = -0.83°)
+      var cosH = (Math.cos((-0.833) * Math.PI / 180) -
+                  Math.sin(lat * Math.PI / 180) * Math.sin(decl)) /
+                 (Math.cos(lat * Math.PI / 180) * Math.cos(decl));
+      if (Math.abs(cosH) > 1) return { rise: '--:--', set: '--:--' };
+      var H = Math.acos(cosH) * 180 / Math.PI;
+      // Sonnenauf-/-untergang in UTC-Minuten
+      var transit = 720 - 4 * lon - EoT;
+      var riseUTC = transit - H * 4;
+      var setUTC  = transit + H * 4;
+      // In Lokalzeit umrechnen
+      function toLocal(utcMin) {
+        var d2 = new Date(now);
+        d2.setUTCHours(0, 0, Math.round(utcMin * 60), 0);
+        var h = d2.getHours(), m = d2.getMinutes();
+        return (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
+      }
+      return { rise: toLocal(riseUTC), set: toLocal(setUTC) };
     }
 
     function renderFallback(el) {
