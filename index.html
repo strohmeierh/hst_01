@@ -56,24 +56,25 @@
     /* === Buttons === */
     .header-links {
       display: flex;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
       justify-content: center;
-      gap: 10px;
+      gap: 8px;
     }
 
     .top-btn {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       background-color: var(--card-bg);
       color: var(--accent);
       border: 1px solid var(--accent);
-      padding: 10px 20px;
+      padding: 7px 12px;
       border-radius: 30px;
       text-decoration: none;
       font-weight: 500;
-      font-size: 0.95rem;
+      font-size: 0.82rem;
       cursor: pointer;
+      white-space: nowrap;
       transition: background-color var(--ease), color var(--ease),
                   box-shadow var(--ease), transform var(--ease);
     }
@@ -289,7 +290,6 @@
       body { padding: 12px 10px 32px; }
       .cam-grid { grid-template-columns: 1fr; }
       h1 { font-size: 1.1rem; letter-spacing: 1px; }
-      .header-links { flex-direction: column; align-items: center; }
       /* Mobil: Diagramm oben (volle Breite), Kacheln darunter */
       .wx-layout {
         grid-template-columns: 1fr;
@@ -327,6 +327,29 @@
         </svg>
         Wetter EDSF
       </button>
+
+      <a href="https://glidertracker.de/#lat=47.633&lon=7.941&z=11&nowelcome"
+         target="_blank" rel="noopener" class="top-btn top-btn-sm">
+        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="15" height="15"
+             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+          <path d="M2 17l10 5 10-5"/>
+          <path d="M2 12l10 5 10-5"/>
+        </svg>
+        Glidertracker
+      </a>
+
+      <a href="https://www.weglide.org/flight?club=LG%2520Hotzenwald,23"
+         target="_blank" rel="noopener" class="top-btn top-btn-sm">
+        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="15" height="15"
+             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M12 8l-4 4 4 4 4-4-4-4z"/>
+        </svg>
+        WeGlide
+      </a>
     </div>
   </header>
 
@@ -662,7 +685,14 @@
       var boeen   = f(d.wgust,  0) + ' km/h / ' + guestKt + ' kt';
       var cbFt    = d.cloudbasevalue ? Math.round(parseFloat(d.cloudbasevalue)) : null;
       var cbM     = cbFt ? Math.round(cbFt / 3.28084) : null;
-      var cb      = cbFt ? cbFt + ' ft / ' + cbM + ' m' : '–';
+      var cbLine1 = cbFt ? cbFt + ' ft' : '–';
+      var cbLine2 = cbM  ? cbM  + ' m'  : '';
+
+      // Sonnenauf- und Untergang aus gauge-data.txt
+      // Felder: sunrise / sunset als "HH:MM" in UTC oder Lokalzeit
+      var sunrise = d.sunrise || d.sunriseTime || '';
+      var sunset  = d.sunset  || d.sunsetTime  || '';
+      var sonne   = (sunrise && sunset) ? sunrise + ' / ' + sunset : '';
       var regen   = f(d.rfall, 1) + ' mm';
       var trend   = d.presstrend != null
         ? 'Trend: ' + (parseFloat(d.presstrend) >= 0 ? '+' : '') + f(d.presstrend, 1) + ' hPa/h'
@@ -692,8 +722,9 @@
             stat('QNH',          f(d.press,1) + ' hPa', trend) +
             stat('Wind',         wind) +
             stat('Böen',         boeen) +
-            stat('Wolkenbasis',  cb) +
+            stat('Wolkenbasis',  cbLine1, cbLine2) +
             stat('Niederschlag', regen) +
+            (sonne ? stat('Sonne ↑ / ↓', sonne) : '') +
           '</div>' +
 
         '</div>' +
@@ -744,10 +775,9 @@
       var p29x = cx - rwyHalf * rx;
       var p29y = cy - rwyHalf * ry;
 
-      // Gegenwind / Rückenwind Text
-      var headLabel = head >= 0 ? 'GW' : 'RW';
-      var headColor = head >= 0 ? '#10b981' : '#ef4444';
-      var headWarn  = head < 0  ? ' ⚠' : '';
+      // Gegenwindkomponente: immer grün, Warnung nur ab 40 km/h
+      var headColor = '#10b981';
+      var headWarn  = Math.abs(head) > 40 ? ' ⚠' : '';
 
       return '<div style="flex-shrink:0;padding:4px 0;">' +
         '<svg width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '" ' +
@@ -898,7 +928,7 @@
           /* Windkomponenten-Anzeige unten */
           '<rect x="4" y="' + (H-62) + '" width="' + (W-8) + '" height="58" rx="6" fill="rgba(0,0,0,0.35)"/>' +
 
-          '<text x="' + cx + '" y="' + (H-48) + '" text-anchor="middle" font-size="10" fill="#94a3b8">Gegenwind</text>' +
+          '<text x="' + cx + '" y="' + (H-48) + '" text-anchor="middle" font-size="10" fill="#94a3b8">Gegenwindkomponente</text>' +
           '<text x="' + cx + '" y="' + (H-34) + '" text-anchor="middle" font-size="12" font-weight="bold" ' +
             'fill="' + headColor + '">' + Math.abs(head) + ' km/h / ' + Math.round(Math.abs(head)/1.852) + ' kt' + headWarn + '</text>' +
 
@@ -907,7 +937,6 @@
             'fill="' + color + '">' + Math.abs(cross) + ' km/h / ' + Math.round(Math.abs(cross)/1.852) + ' kt</text>' +
 
         '</svg>' +
-        '<div style="font-size:0.63rem;color:var(--text-muted);text-align:center;margin-top:3px;">Wind / Piste EDSF</div>' +
       '</div>';
     }
 
