@@ -722,6 +722,23 @@
         ? 'Trend: ' + (parseFloat(d.presstrend) >= 0 ? '+' : '') + f(d.presstrend, 1) + ' hPa/h'
         : '';
 
+      // Dichtehöhe berechnen (ICAO-Formel)
+      // EDSF Platzhöhe: 884 m = 2900 ft
+      var daHtml = '';
+      var tempVal  = d.temp  ? parseFloat(String(d.temp).replace(',', '.'))  : null;
+      var pressVal = d.press ? parseFloat(String(d.press).replace(',', '.')) : null;
+      if (tempVal !== null && pressVal !== null) {
+        var elevFt   = 2900;
+        var isaTemp  = 15 - (elevFt / 1000 * 2);
+        var tempDev  = tempVal - isaTemp;
+        var pressAlt = elevFt + (1013.25 - pressVal) * 27;
+        var densAlt  = Math.round(pressAlt + 118.8 * tempDev);
+        var daColor  = densAlt > 5000 ? '#ef4444' : densAlt > 3000 ? '#f59e0b' : '#10b981';
+        daHtml = '<div class="wx-stat"><div class="wx-stat-label">Dichtehöhe</div>' +
+          '<div class="wx-stat-value" style="color:' + daColor + ';">' + densAlt + ' ft</div>' +
+          '<div class="wx-stat-sub">' + Math.round(densAlt / 3.28084) + ' m</div></div>';
+      }
+
       function stat(label, val, sub) {
         if (!val || val === '–') return '';
         return '<div class="wx-stat">' +
@@ -748,6 +765,7 @@
             stat('Böen',         boeen) +
             cbHtml +
             stat('Niederschlag', regen) +
+            daHtml +
           '</div>' +
 
         '</div>' +
