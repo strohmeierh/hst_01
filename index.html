@@ -685,7 +685,8 @@
     function renderWetter(el, d) {
       function f(v, dez) {
         if (v === undefined || v === null || v === '') return '–';
-        var n = parseFloat(v);
+        // gauge-data.txt liefert Dezimalzahlen mit Komma ("3,6") → für parseFloat in Punkt umwandeln
+        var n = parseFloat(String(v).replace(',', '.'));
         if (isNaN(n)) return String(v);
         return n.toFixed(dez !== undefined ? dez : 1).replace('.', ',');
       }
