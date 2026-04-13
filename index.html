@@ -150,6 +150,8 @@
       font-size: 1.1rem;
       font-weight: 600;
       color: var(--accent);
+      display: block;
+      line-height: 1.4;
     }
 
     .wx-stat-sub {
@@ -702,7 +704,11 @@
       var boeen   = f(d.wgust,  0) + ' km/h / ' + guestKt + ' kt';
       var cbFt = d.cloudbasevalue ? Math.round(parseFloat(d.cloudbasevalue)) : null;
       var cbM  = cbFt ? Math.round(cbFt / 3.28084) : null;
-      var cb   = cbFt ? cbFt + ' ft / ' + cbM + ' m' : '–';
+      var cbHtml = cbFt
+        ? '<div class="wx-stat"><div class="wx-stat-label">Wolkenbasis</div>' +
+          '<div class="wx-stat-value">' + cbFt + ' ft</div>' +
+          '<div class="wx-stat-value">' + cbM  + ' m</div></div>'
+        : '';
 
       // Sonnenauf-/-untergang für EDSF (47.633°N, 7.941°E) berechnen
       var sunTimes = calcSunTimes(47.633, 7.941);
@@ -739,7 +745,7 @@
             stat('QNH',          f(d.press,1) + ' hPa', trend) +
             stat('Wind',         wind) +
             stat('Böen',         boeen) +
-            stat('Wolkenbasis',  cb) +
+            cbHtml +
             stat('Niederschlag', regen) +
           '</div>' +
 
@@ -1021,14 +1027,22 @@
     }
 
     /* ── Kamera-Links: Cache-Buster beim Klick ──────────────── */
-    document.querySelectorAll('.cam-header a').forEach(function(a) {
+    document.querySelectorAll('.cam-card').forEach(function(card) {
+      var a    = card.querySelector('.cam-header a');
+      var img  = card.querySelector('img.live-cam');
+      if (!a || !img) return;
       var base = a.getAttribute('href');
       if (!base || base.indexOf('.jpg') === -1) return;
-      a.addEventListener('click', function(e) {
+
+      function openFresh(e) {
         e.preventDefault();
         var sep = base.indexOf('?') === -1 ? '?' : '&';
         window.open(base + sep + 't=' + Date.now(), '_blank', 'noopener');
-      });
+      }
+
+      a.addEventListener('click', openFresh);
+      img.style.cursor = 'pointer';
+      img.addEventListener('click', openFresh);
     });
 
   })();
