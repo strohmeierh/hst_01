@@ -645,7 +645,7 @@
       var bar = document.getElementById('sunrise-bar');
       if (!bar) return;
       var s = calcSunTimes(47.633, 7.941);
-      bar.textContent = '☀ Aufgang ' + s.rise + '  ·  Untergang ' + s.set + ' (Lokalzeit)';
+      bar.textContent = '☀ Aufgang ' + s.rise + '  ·  Untergang ' + s.set + ' (MEZ)';
     })();
 
     /* ── Wetter-Panel Toggle ────────────────────────────────── */
@@ -708,7 +708,7 @@
       var sunTimes = calcSunTimes(47.633, 7.941);
       var sunBar = document.getElementById('sunrise-bar');
       if (sunBar) {
-        sunBar.innerHTML = '☀ Aufgang ' + sunTimes.rise + ' · Untergang ' + sunTimes.set + ' (Lokalzeit)';
+        sunBar.innerHTML = '☀ Aufgang ' + sunTimes.rise + ' · Untergang ' + sunTimes.set + ' (MEZ)';
       }
       var regen   = f(d.rfall, 1) + ' mm';
       var trend   = d.presstrend != null
@@ -959,39 +959,56 @@
     /* ── Sonnenauf-/-untergang berechnen ────────────────────────
        Algorithmus nach NOAA Solar Calculator, Genauigkeit ±1 min  */
     function calcSunTimes(lat, lon) {
-      var now  = new Date();
-      var JD   = now / 86400000 + 2440587.5; // Julianisches Datum
-      var n    = Math.floor(JD - 2451545.0 + 0.5); // Tage seit J2000
-      // Mittlere Anomalie
+      var now     = new Date();
+      var JD      = now.getTime() / 86400000 + 2440587.5;
+      var n       = Math.floor(JD - 2451545.0 + 0.5);
+
       var M    = (357.5291 + 0.98560028 * n) % 360;
       var Mrad = M * Math.PI / 180;
-      // Mittlere Länge
-      var L    = (280.4665 + 0.9856474 * n) % 360;
-      // Gleichung der Zeit (Minuten)
-      var EoT  = 4 * (L - 0.0057183 - (M + 1.9148 * Math.sin(Mrad) +
-                 0.02 * Math.sin(2*Mrad)) + 2.4682 * Math.sin(2*(L + 1.9148 *
-                 Math.sin(Mrad) + 0.02 * Math.sin(2*Mrad)) * Math.PI / 180));
+      var C    = 1.9148 * Math.sin(Mrad) + 0.02 * Math.sin(2*Mrad);
+      var lam  = (M + C + 180 + 102.9372) % 360;
+      var lamR = lam * Math.PI / 180;
+
       // Deklination
-      var decl = Math.asin(0.39779 * Math.sin((L + 1.9148 * Math.sin(Mrad) +
-                 0.02 * Math.sin(2*Mrad) + 180.01 + 102.9372) * Math.PI / 180));
-      // Stundenwinkel bei Sonnenauf-/-untergang (Zentrum = -0.83°)
-      var cosH = (Math.cos((-0.833) * Math.PI / 180) -
-                  Math.sin(lat * Math.PI / 180) * Math.sin(decl)) /
+      var sinD = Math.sin(lamR) * Math.sin(23.4393 * Math.PI / 180);
+      var decl = Math.asin(sinD);
+
+      // Gleichung der Zeit (in Tagen)
+      var EoT = 0.0053 * Math.sin(Mrad) - 0.0069 * Math.sin(2 * lamR);
+
+      // Stundenwinkel
+      var cosH = (Math.sin(-0.8333 * Math.PI / 180) -
+                  Math.sin(lat * Math.PI / 180) * sinD) /
                  (Math.cos(lat * Math.PI / 180) * Math.cos(decl));
+
       if (Math.abs(cosH) > 1) return { rise: '--:--', set: '--:--' };
-      var H = Math.acos(cosH) * 180 / Math.PI;
-      // Sonnenauf-/-untergang in UTC-Minuten
-      var transit = 720 - 4 * lon - EoT;
-      var riseUTC = transit - H * 4;
-      var setUTC  = transit + H * 4;
-      // In Lokalzeit umrechnen
-      function toLocal(utcMin) {
-        var d2 = new Date(now);
-        d2.setUTCHours(0, 0, Math.round(utcMin * 60), 0);
-        var h = d2.getHours(), m = d2.getMinutes();
+      var H = Math.acos(cosH); // in Radian
+
+      // Auf-/Untergang als Julianisches Datum
+      var Jrise = 2451545.0 + n + (0.0009 - lon/360 - EoT) - H / (2*Math.PI);
+      var Jset  = 2451545.0 + n + (0.0009 - lon/360 - EoT) + H / (2*Math.PI);
+
+      // Umrechnung in Uhrzeit: JD → Unix ms → MEZ (UTC+1) bzw. MESZ (UTC+2)
+      function jdToTime(jd) {
+        var ms   = (jd - 2440587.5) * 86400000;
+        var d2   = new Date(ms);
+        // Offset bestimmen: MESZ (März letzter So bis Oktober letzter So) = UTC+2, sonst UTC+1
+        var year = d2.getUTCFullYear();
+        function lastSunday(month) {
+          var d3 = new Date(Date.UTC(year, month, 31));
+          d3.setUTCDate(31 - (d3.getUTCDay() || 7) % 7);
+          return d3;
+        }
+        var mezStart = lastSunday(2); // letzter Sonntag März
+        var mezEnd   = lastSunday(9); // letzter Sonntag Oktober
+        var offset   = (d2 >= mezStart && d2 < mezEnd) ? 2 : 1; // MESZ=+2, MEZ=+1
+        var totalMin = Math.round(ms / 60000) + offset * 60;
+        var h = Math.floor(totalMin / 60) % 24;
+        var m = totalMin % 60;
         return (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
       }
-      return { rise: toLocal(riseUTC), set: toLocal(setUTC) };
+
+      return { rise: jdToTime(Jrise), set: jdToTime(Jset) };
     }
 
     function renderFallback(el) {
