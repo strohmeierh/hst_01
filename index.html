@@ -11,7 +11,6 @@
   <link rel="icon" type="image/png" href="icon-edsf.png">
   <link rel="shortcut icon" href="icon-edsf.png">
 
-  <!-- Preconnects für schnellere DNS-Auflösung -->
   <link rel="preconnect" href="https://wsrv.nl">
 
   <style>
@@ -284,7 +283,7 @@
       justify-content: center;
     }
 
-    /* Lade-Spinner (CSS-Kreis) */
+    /* Lade-Spinner */
     .media-container::after {
       content: "";
       position: absolute;
@@ -406,7 +405,6 @@
     <div class="sunrise-bar" id="sunrise-bar"></div>
   </header>
 
-  <!-- ===== WETTER-PANEL ===== -->
   <div class="wx-panel" id="wx-panel">
     <div class="wx-card">
       <div class="wx-card-title">
@@ -422,7 +420,6 @@
   </div>
 
   <main>
-    <!-- ===== EDSF ===== -->
     <h2 class="section-title">EDSF – Flugplatz</h2>
     <div class="cam-grid">
 
@@ -498,7 +495,6 @@
 
     </div>
 
-    <!-- ===== Umgebung ===== -->
     <h2 class="section-title">Umgebung</h2>
     <div class="cam-grid">
 
@@ -554,7 +550,6 @@
 
     </div>
 
-    <!-- ===== Weitere Flugplätze ===== -->
     <h2 class="section-title">Weitere Flugplätze</h2>
     <div class="cam-grid">
 
@@ -630,7 +625,7 @@
 
     document.querySelectorAll('.dropdown-content a').forEach(function(link) {
       link.addEventListener('click', function(e) {
-        e.stopPropagation(); // Menü bleibt beim Klicken auf einen Link offen
+        e.stopPropagation(); 
       });
     });
 
@@ -798,6 +793,9 @@
           trendStr = '<span style="white-space: nowrap;">Trend: ' + sign + f(d.presstrend, 1) + '&nbsp;hPa/h</span>';
       }
 
+      // Regenrate & Niederschlag heute
+      var rrateVal = f(d.rrate, 1) + '&nbsp;mm/h';
+      var rrateSub = '<span style="white-space: nowrap;">Max: ' + f(d.rrateTM, 1) + '&nbsp;mm/h</span>';
       var regen = f(d.rfall, 1) + '&nbsp;mm';
 
       // Dichtehöhe
@@ -820,7 +818,7 @@
         return '<div class="wx-stat">' +
           '<div class="wx-stat-label">' + label + '</div>' +
           '<div class="wx-stat-value">' + val + '</div>' +
-          (sub ? '<div class="wx-stat-sub" style="margin-top: 6px;">' + sub + '</div>' : '') +
+          (sub ? '<div class="wx-stat-sub">' + sub + '</div>' : '') +
           '</div>';
       }
 
@@ -839,7 +837,8 @@
             stat('Wind', windVal, windSub) +
             stat('Böen', gustVal, gustSub) +
             cbHtml +
-            stat('Niederschlag', regen) +
+            stat('Regenrate', rrateVal, rrateSub) +
+            stat('Niederschlag heute', regen) +
             daHtml +
           '</div>' +
         '</div>' +
