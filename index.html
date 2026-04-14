@@ -689,7 +689,7 @@
       var bar = document.getElementById('sunrise-bar');
       if (!bar) return;
       var s = calcSunTimes(47.633, 7.941);
-      bar.textContent = '☀ Aufgang ' + s.rise + '  ·  Untergang ' + s.set + ' (MEZ)';
+      bar.textContent = '☀ Aufgang ' + s.rise + '  ·  Untergang ' + s.set + ' (Lokal)';
     })();
 
     /* ── Wetter-Panel Toggle & Auto-Refresh ─────────────────── */
@@ -782,7 +782,7 @@
 
       var sunTimes = calcSunTimes(47.633, 7.941);
       var sunBar = document.getElementById('sunrise-bar');
-      if (sunBar) sunBar.innerHTML = '☀ Aufgang ' + sunTimes.rise + ' · Untergang ' + sunTimes.set + ' (MEZ)';
+      if (sunBar) sunBar.innerHTML = '☀ Aufgang ' + sunTimes.rise + ' · Untergang ' + sunTimes.set + ' (Lokal)';
       
       // QNH
       var pressVal = f(d.press, 1) + '&nbsp;hPa';
