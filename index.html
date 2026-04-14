@@ -820,14 +820,14 @@
         return '<div class="wx-stat">' +
           '<div class="wx-stat-label">' + label + '</div>' +
           '<div class="wx-stat-value">' + val + '</div>' +
-          (sub ? '<div class="wx-stat-sub">' + sub + '</div>' : '') +
+          (sub ? '<div class="wx-stat-sub" style="margin-top: 6px;">' + sub + '</div>' : '') +
           '</div>';
       }
 
-      // Bei Variabel: Wind auf 0 setzen für Grafik
-      var isVariable = (d.bearingTxt && d.bearingTxt.toLowerCase().indexOf('var') > -1);
-      var diagWspd = isVariable ? 0 : wspeed;
-      var diagWgst = isVariable ? 0 : wgust;
+      // Bei rein variablem Wind ohne Hauptrichtung: Wind für Grafik auf 0 setzen
+      var isStrictlyVariable = (d.bearingTxt && d.bearingTxt.toLowerCase().indexOf('var') > -1) && (bearing === 0);
+      var diagWspd = isStrictlyVariable ? 0 : wspeed;
+      var diagWgst = isStrictlyVariable ? 0 : wgust;
 
       el.innerHTML =
         '<div class="wx-layout">' +
