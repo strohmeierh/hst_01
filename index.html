@@ -11,7 +11,6 @@
   <link rel="icon" type="image/png" href="icon-edsf.png">
   <link rel="shortcut icon" href="icon-edsf.png">
 
-  <!-- Preconnects für schnellere DNS-Auflösung -->
   <link rel="preconnect" href="https://wsrv.nl">
 
   <style>
@@ -148,7 +147,7 @@
     /* Datenkacheln */
     .wx-stats {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
       gap: 10px;
       margin-bottom: 14px;
     }
@@ -156,7 +155,10 @@
     .wx-stat {
       background: rgba(0,0,0,0.2);
       border-radius: 8px;
-      padding: 10px 12px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
     }
 
     .wx-stat-label {
@@ -164,21 +166,22 @@
       color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      margin-bottom: 4px;
+      margin-bottom: 6px;
     }
 
     .wx-stat-value {
       font-size: 1.1rem;
       font-weight: 600;
       color: var(--accent);
-      display: block;
-      line-height: 1.4;
+      line-height: 1.3;
     }
 
+    /* DEUTLICH GRÖSSER & HELLER FÜR ZWEITE ZEILE */
     .wx-stat-sub {
-      font-size: 0.65rem;
-      color: var(--text-muted);
-      margin-top: 3px;
+      font-size: 0.85rem; 
+      color: #cbd5e1;
+      margin-top: 6px;
+      line-height: 1.4;
     }
 
     .wx-updated {
@@ -400,7 +403,6 @@
     <div class="sunrise-bar" id="sunrise-bar"></div>
   </header>
 
-  <!-- ===== WETTER-PANEL ===== -->
   <div class="wx-panel" id="wx-panel">
     <div class="wx-card">
       <div class="wx-card-title">
@@ -416,7 +418,6 @@
   </div>
 
   <main>
-    <!-- ===== EDSF ===== -->
     <h2 class="section-title">EDSF – Flugplatz</h2>
     <div class="cam-grid">
 
@@ -492,7 +493,6 @@
 
     </div>
 
-    <!-- ===== Umgebung ===== -->
     <h2 class="section-title">Umgebung</h2>
     <div class="cam-grid">
 
@@ -548,7 +548,6 @@
 
     </div>
 
-    <!-- ===== Weitere Flugplätze ===== -->
     <h2 class="section-title">Weitere Flugplätze</h2>
     <div class="cam-grid">
 
@@ -624,14 +623,12 @@
       }
     };
 
-    // Klicks auf Links im Menü sollen das Menü offen halten (für die Rückkehr)
     document.querySelectorAll('.dropdown-content a').forEach(function(link) {
       link.addEventListener('click', function(e) {
         e.stopPropagation();
       });
     });
 
-    // State beim Laden wiederherstellen (Links-Menü)
     if (localStorage.getItem("edsf_linksMenuOpen") === "true") {
       document.getElementById("tools-menu").parentElement.classList.add("show");
     }
@@ -710,7 +707,6 @@
       if (open && !wxLoaded) { wxLoaded = true; loadWetter(); }
     };
 
-    // State beim Laden wiederherstellen (Wetter-Panel)
     if (localStorage.getItem('edsf_wxPanelOpen') === 'true') {
       document.getElementById('wx-panel').classList.add('open');
       document.getElementById('wx-toggle').setAttribute('aria-expanded', 'true');
@@ -761,8 +757,6 @@
       var windColor = windKt >= 15 ? '#ef4444' : 'var(--accent)';
       var gustColor = gustKt >= 15 ? '#ef4444' : 'var(--accent)';
 
-      // ── Sauber formatierte Werte (mit &nbsp; und <br> für Mobile) ──
-      
       // Temperatur
       var tempVal = f(d.temp, 1) + '&nbsp;°C';
       var tempSub = '<span style="white-space: nowrap;">Min: ' + f(d.tempTL, 1) + '&nbsp;°C</span><br>' +
@@ -794,11 +788,10 @@
       if (cbFt) {
          var cbM = Math.round(cbFt / 3.28084);
          cbHtml = '<div class="wx-stat"><div class="wx-stat-label">Wolkenbasis</div>' +
-                  '<div class="wx-stat-value" style="white-space: nowrap;">' + cbFt + '&nbsp;ft</div>' +
-                  '<div class="wx-stat-sub" style="white-space: nowrap;">' + cbM  + '&nbsp;m (MSL)</div></div>';
+                  '<div class="wx-stat-value" style="white-space: nowrap;">' + cbFt + '&nbsp;ft (MSL)</div>' +
+                  '<div class="wx-stat-sub" style="white-space: nowrap;">' + cbM  + '&nbsp;m</div></div>';
       }
 
-      // Sonnenzeiten
       var sunTimes = calcSunTimes(47.633, 7.941);
       var sunBar = document.getElementById('sunrise-bar');
       if (sunBar) sunBar.innerHTML = '☀ Aufgang ' + sunTimes.rise + ' · Untergang ' + sunTimes.set + ' (MEZ)';
@@ -812,7 +805,6 @@
           trendStr = '<span style="white-space: nowrap;">Trend: ' + sign + f(d.presstrend, 1) + '&nbsp;hPa/h</span>';
       }
 
-      // Niederschlag
       var regen = f(d.rfall, 1) + '&nbsp;mm';
 
       // Dichtehöhe
@@ -827,7 +819,7 @@
         var daColor  = densAlt > 5000 ? '#ef4444' : densAlt > 3000 ? '#f59e0b' : '#10b981';
         daHtml = '<div class="wx-stat"><div class="wx-stat-label">Dichtehöhe</div>' +
           '<div class="wx-stat-value" style="color:' + daColor + '; white-space: nowrap;">' + densAlt + '&nbsp;ft</div>' +
-          '<div class="wx-stat-sub" style="white-space: nowrap;">' + Math.round(densAlt / 3.28084) + '&nbsp;m (MSL)</div></div>';
+          '<div class="wx-stat-sub" style="white-space: nowrap;">' + Math.round(densAlt / 3.28084) + '&nbsp;m</div></div>';
       }
 
       function stat(label, val, sub) {
@@ -835,7 +827,7 @@
         return '<div class="wx-stat">' +
           '<div class="wx-stat-label">' + label + '</div>' +
           '<div class="wx-stat-value">' + val + '</div>' +
-          (sub ? '<div class="wx-stat-sub" style="margin-top: 6px;">' + sub + '</div>' : '') +
+          (sub ? '<div class="wx-stat-sub">' + sub + '</div>' : '') +
           '</div>';
       }
 
@@ -888,8 +880,16 @@
 
       var headColor = '#10b981';
       var headWarn  = Math.abs(head) > 40 ? ' ⚠' : '';
+      
+      var kt = Math.round(wspeed / 1.852);
+      var prefRwy = '–';
+      if (kt < 2) {
+        prefRwy = 'Windstill';
+      } else {
+        prefRwy = head >= 0 ? '11' : '29';
+      }
 
-      return '<div style="flex-shrink:0;padding:4px 0;">' +
+      var svg = '<div style="flex-shrink:0;padding:4px 0;">' +
         '<svg width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '" ' +
              'xmlns="http://www.w3.org/2000/svg" style="display:block;">' +
           '<rect width="' + W + '" height="' + H + '" rx="10" fill="rgba(0,0,0,0.3)"/>' +
@@ -930,84 +930,89 @@
                 'font-size="12" font-weight="bold" fill="#e2e8f0" ' +
                 'transform="rotate(' + rwyAngleDeg + ',' + t29x + ',' + t29y + ')">29</text>'
             );
-          })() +
-          (function() {
-            var kt = Math.round(wspeed / 1.852); 
-            if (kt < 2) {
-              return '<circle cx="' + cx + '" cy="' + cy + '" r="8" fill="none" ' +
-                'stroke="' + color + '" stroke-width="2.5"/>';
-            }
-            var windRad = bearing * Math.PI / 180;
-            var shaftLen = 58;
-            var ox = cx + shaftLen * Math.sin(windRad);
-            var oy = cy - shaftLen * Math.cos(windRad);
-            var tx = cx;
-            var ty = cy;
+          })();
 
-            var svg = '<defs><marker id="whead" markerWidth="8" markerHeight="8" ' +
-              'refX="4" refY="4" orient="auto">' +
-              '<path d="M0,0 L8,4 L0,8 Z" fill="' + color + '"/>' +
-              '</marker></defs>';
+      if (kt < 2) {
+        svg += '<circle cx="' + cx + '" cy="' + cy + '" r="8" fill="none" stroke="' + color + '" stroke-width="2.5"/>';
+      } else {
+        var windRad = bearing * Math.PI / 180;
+        var shaftLen = 58;
+        var ox = cx + shaftLen * Math.sin(windRad);
+        var oy = cy - shaftLen * Math.cos(windRad);
+        var tx = cx;
+        var ty = cy;
 
-            svg += '<line x1="' + ox.toFixed(1) + '" y1="' + oy.toFixed(1) + '" ' +
-              'x2="' + tx + '" y2="' + ty + '" ' +
-              'stroke="' + color + '" stroke-width="2.5" marker-end="url(#whead)"/>';
+        var textDist = shaftLen + 15;
+        var wx = cx + textDist * Math.sin(windRad);
+        var wy = cy - textDist * Math.cos(windRad);
+        
+        svg += '<text x="' + wx.toFixed(1) + '" y="' + (wy + 4).toFixed(1) + '" text-anchor="middle" font-size="12" font-weight="bold" fill="' + color + '">' + bearing + '°</text>';
 
-            var dx = tx - ox, dy = ty - oy;
-            var len = Math.sqrt(dx*dx + dy*dy);
-            var ux = dx/len, uy = dy/len; 
-            var px = -uy, py = ux;        
+        svg += '<defs><marker id="whead" markerWidth="8" markerHeight="8" ' +
+          'refX="4" refY="4" orient="auto">' +
+          '<path d="M0,0 L8,4 L0,8 Z" fill="' + color + '"/>' +
+          '</marker></defs>';
 
-            var remaining = kt;
-            var bPos = 0; 
-            var bSpacing = 8; 
+        svg += '<line x1="' + ox.toFixed(1) + '" y1="' + oy.toFixed(1) + '" ' +
+          'x2="' + tx + '" y2="' + ty + '" ' +
+          'stroke="' + color + '" stroke-width="2.5" marker-end="url(#whead)"/>';
 
-            while (remaining >= 50) {
-              var bx = ox + bPos * ux;
-              var by = oy + bPos * uy;
-              var ex = bx + bSpacing * ux;
-              var ey = by + bSpacing * uy;
-              var tx2 = bx + 16 * px;
-              var ty2 = by + 16 * py;
-              svg += '<polygon points="' +
-                bx.toFixed(1)+','+by.toFixed(1)+' '+
-                ex.toFixed(1)+','+ey.toFixed(1)+' '+
-                tx2.toFixed(1)+','+ty2.toFixed(1) +
-                '" fill="' + color + '"/>';
-              remaining -= 50;
-              bPos += bSpacing + 2;
-            }
-            while (remaining >= 10) {
-              var bx = ox + bPos * ux;
-              var by = oy + bPos * uy;
-              svg += '<line x1="' + bx.toFixed(1) + '" y1="' + by.toFixed(1) + '" ' +
-                'x2="' + (bx + 14*px).toFixed(1) + '" y2="' + (by + 14*py).toFixed(1) + '" ' +
-                'stroke="' + color + '" stroke-width="2.5"/>';
-              remaining -= 10;
-              bPos += bSpacing;
-            }
-            while (remaining >= 5) {
-              var bx = ox + bPos * ux;
-              var by = oy + bPos * uy;
-              svg += '<line x1="' + bx.toFixed(1) + '" y1="' + by.toFixed(1) + '" ' +
-                'x2="' + (bx + 8*px).toFixed(1) + '" y2="' + (by + 8*py).toFixed(1) + '" ' +
-                'stroke="' + color + '" stroke-width="2"/>';
-              remaining -= 5;
-              bPos += bSpacing;
-            }
+        var dx = tx - ox, dy = ty - oy;
+        var len = Math.sqrt(dx*dx + dy*dy);
+        var ux = dx/len, uy = dy/len; 
+        var px = -uy, py = ux;        
 
-            return svg;
-          })() +
+        var remaining = kt;
+        var bPos = 0; 
+        var bSpacing = 8; 
 
-          '<rect x="4" y="' + (H-62) + '" width="' + (W-8) + '" height="58" rx="6" fill="rgba(0,0,0,0.35)"/>' +
-          '<text x="' + cx + '" y="' + (H-48) + '" text-anchor="middle" font-size="10" fill="#94a3b8">Gegenwindkomponente</text>' +
-          '<text x="' + cx + '" y="' + (H-34) + '" text-anchor="middle" font-size="12" font-weight="bold" ' +
-            'fill="' + headColor + '">' + Math.abs(head) + ' km/h / ' + Math.round(Math.abs(head)/1.852) + ' kt' + headWarn + '</text>' +
-          '<text x="' + cx + '" y="' + (H-20) + '" text-anchor="middle" font-size="10" fill="#94a3b8">Seitenwindkomponente</text>' +
-          '<text x="' + cx + '" y="' + (H-6) + '" text-anchor="middle" font-size="12" font-weight="bold" ' +
-            'fill="' + color + '">' + Math.abs(cross) + ' km/h / ' + Math.round(Math.abs(cross)/1.852) + ' kt</text>' +
-        '</svg>' +
+        while (remaining >= 50) {
+          var bx = ox + bPos * ux;
+          var by = oy + bPos * uy;
+          var ex = bx + bSpacing * ux;
+          var ey = by + bSpacing * uy;
+          var tx2 = bx + 16 * px;
+          var ty2 = by + 16 * py;
+          svg += '<polygon points="' +
+            bx.toFixed(1)+','+by.toFixed(1)+' '+
+            ex.toFixed(1)+','+ey.toFixed(1)+' '+
+            tx2.toFixed(1)+','+ty2.toFixed(1) +
+            '" fill="' + color + '"/>';
+          remaining -= 50;
+          bPos += bSpacing + 2;
+        }
+        while (remaining >= 10) {
+          var bx = ox + bPos * ux;
+          var by = oy + bPos * uy;
+          svg += '<line x1="' + bx.toFixed(1) + '" y1="' + by.toFixed(1) + '" ' +
+            'x2="' + (bx + 14*px).toFixed(1) + '" y2="' + (by + 14*py).toFixed(1) + '" ' +
+            'stroke="' + color + '" stroke-width="2.5"/>';
+          remaining -= 10;
+          bPos += bSpacing;
+        }
+        while (remaining >= 5) {
+          var bx = ox + bPos * ux;
+          var by = oy + bPos * uy;
+          svg += '<line x1="' + bx.toFixed(1) + '" y1="' + by.toFixed(1) + '" ' +
+            'x2="' + (bx + 8*px).toFixed(1) + '" y2="' + (by + 8*py).toFixed(1) + '" ' +
+            'stroke="' + color + '" stroke-width="2"/>';
+          remaining -= 5;
+          bPos += bSpacing;
+        }
+      }
+
+      svg += '<rect x="4" y="' + (H-62) + '" width="' + (W-8) + '" height="58" rx="6" fill="rgba(0,0,0,0.35)"/>' +
+        '<text x="' + cx + '" y="' + (H-48) + '" text-anchor="middle" font-size="10" fill="#94a3b8">Gegenwindkomponente</text>' +
+        '<text x="' + cx + '" y="' + (H-34) + '" text-anchor="middle" font-size="12" font-weight="bold" ' +
+          'fill="' + headColor + '">' + Math.abs(head) + ' km/h / ' + Math.round(Math.abs(head)/1.852) + ' kt' + headWarn + '</text>' +
+        '<text x="' + cx + '" y="' + (H-20) + '" text-anchor="middle" font-size="10" fill="#94a3b8">Seitenwindkomponente</text>' +
+        '<text x="' + cx + '" y="' + (H-6) + '" text-anchor="middle" font-size="12" font-weight="bold" ' +
+          'fill="' + color + '">' + Math.abs(cross) + ' km/h / ' + Math.round(Math.abs(cross)/1.852) + ' kt</text>' +
+      '</svg>' +
+      '<div style="text-align:center; font-size:0.85rem; font-weight:600; color:var(--text-muted); margin-top:12px; background: rgba(0,0,0,0.25); padding: 6px 8px; border-radius: 6px; border: 1px solid var(--card-border);">Bevorzugte Piste: <span style="color:var(--text);">' + prefRwy + '</span></div>' +
       '</div>';
+      
+      return svg;
     }
 
     function calcSunTimes(lat, lon) {
