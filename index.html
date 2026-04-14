@@ -11,6 +11,7 @@
   <link rel="icon" type="image/png" href="icon-edsf.png">
   <link rel="shortcut icon" href="icon-edsf.png">
 
+  <!-- Preconnects für schnellere DNS-Auflösung -->
   <link rel="preconnect" href="https://wsrv.nl">
 
   <style>
@@ -39,7 +40,6 @@
       line-height: 1.5;
     }
 
-    /* === Header === */
     header { text-align: center; margin-bottom: 24px; z-index: 10; position: relative; }
 
     h1 {
@@ -55,7 +55,6 @@
       border-bottom: 1px solid var(--accent);
     }
 
-    /* === Buttons & Dropdown === */
     .header-links {
       display: flex;
       flex-wrap: wrap;
@@ -88,7 +87,6 @@
       transform: translateY(-2px);
     }
 
-    /* Dropdown Menü */
     .dropdown { position: relative; display: inline-block; }
     .dropdown-content {
       display: none; position: absolute; background-color: var(--card-bg);
@@ -122,7 +120,6 @@
     }
     .wx-panel.open { display: block; }
 
-    /* Wetterdaten-Karte */
     .wx-card {
       background-color: var(--card-bg);
       border: 1px solid var(--card-border);
@@ -144,7 +141,6 @@
       gap: 8px;
     }
 
-    /* Datenkacheln */
     .wx-stats {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -176,7 +172,7 @@
       line-height: 1.3;
     }
 
-    /* DEUTLICH GRÖSSER & HELLER FÜR ZWEITE ZEILE */
+    /* Größere Sub-Zeile */
     .wx-stat-sub {
       font-size: 0.85rem; 
       color: #cbd5e1;
@@ -211,7 +207,6 @@
       border-bottom: 1px solid var(--card-border);
     }
 
-    /* === Kamera-Grid === */
     .cam-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -283,7 +278,7 @@
       justify-content: center;
     }
 
-    /* Lade-Spinner (CSS-Kreis) */
+    /* Lade-Spinner */
     .media-container::after {
       content: "";
       position: absolute;
@@ -346,7 +341,9 @@
       .cam-grid { grid-template-columns: 1fr; }
       h1 { font-size: 1.1rem; letter-spacing: 1px; }
       .wx-layout { grid-template-columns: 1fr; }
-      .wx-layout > div:first-child { display: flex; justify-content: center; }
+      
+      /* Zentrierung Diagramm & Textbox Piste darunter */
+      .wx-layout > div:first-child { display: flex; flex-direction: column; align-items: center; justify-content: center; }
       .wx-updated-br { display: inline; }
       
       /* Buttons nebeneinander auf Mobile */
@@ -403,6 +400,7 @@
     <div class="sunrise-bar" id="sunrise-bar"></div>
   </header>
 
+  <!-- ===== WETTER-PANEL ===== -->
   <div class="wx-panel" id="wx-panel">
     <div class="wx-card">
       <div class="wx-card-title">
@@ -418,6 +416,7 @@
   </div>
 
   <main>
+    <!-- ===== EDSF ===== -->
     <h2 class="section-title">EDSF – Flugplatz</h2>
     <div class="cam-grid">
 
@@ -493,6 +492,7 @@
 
     </div>
 
+    <!-- ===== Umgebung ===== -->
     <h2 class="section-title">Umgebung</h2>
     <div class="cam-grid">
 
@@ -548,6 +548,7 @@
 
     </div>
 
+    <!-- ===== Weitere Flugplätze ===== -->
     <h2 class="section-title">Weitere Flugplätze</h2>
     <div class="cam-grid">
 
@@ -603,7 +604,7 @@
 
   <script>
   (function () {
-    /* ── Dropdown Menü ──────────────────────────────────────── */
+    /* ── Dropdown Menü & LocalStorage ───────────────────────── */
     window.toggleMenu = function(e) {
       e.stopPropagation();
       var dropdown = document.getElementById("tools-menu").parentElement;
@@ -1079,7 +1080,7 @@
           e.preventDefault();
           var sep = base.indexOf('?') === -1 ? '?' : '&';
           window.open(base + sep + 't=' + Date.now(), '_blank', 'noopener');
-        } else if (e.target.tagName.toLowerCase() === 'img') {
+        } else if (e.target && e.target.tagName && e.target.tagName.toLowerCase() === 'img') {
           e.preventDefault();
           window.open(base, '_blank', 'noopener');
         }
