@@ -11,6 +11,9 @@
   <link rel="icon" type="image/png" href="icon-edsf.png">
   <link rel="shortcut icon" href="icon-edsf.png">
 
+  <!-- Preconnects für schnellere DNS-Auflösung -->
+  <link rel="preconnect" href="https://wsrv.nl">
+
   <style>
     :root {
       --bg:          #0f172a;
@@ -38,7 +41,7 @@
     }
 
     /* === Header === */
-    header { text-align: center; margin-bottom: 24px; }
+    header { text-align: center; margin-bottom: 24px; z-index: 10; position: relative; }
 
     h1 {
       display: inline-flex;
@@ -53,10 +56,10 @@
       border-bottom: 1px solid var(--accent);
     }
 
-    /* === Buttons === */
+    /* === Buttons & Dropdown === */
     .header-links {
       display: flex;
-      flex-wrap: nowrap;
+      flex-wrap: wrap;
       justify-content: center;
       gap: 8px;
     }
@@ -68,11 +71,11 @@
       background-color: var(--card-bg);
       color: var(--accent);
       border: 1px solid var(--accent);
-      padding: 5px 10px;
+      padding: 7px 14px;
       border-radius: 30px;
       text-decoration: none;
       font-weight: 500;
-      font-size: 0.75rem;
+      font-size: 0.8rem;
       cursor: pointer;
       white-space: nowrap;
       transition: background-color var(--ease), color var(--ease),
@@ -86,10 +89,28 @@
       transform: translateY(-2px);
     }
 
+    /* Dropdown Menü */
+    .dropdown { position: relative; display: inline-block; }
+    .dropdown-content {
+      display: none; position: absolute; background-color: var(--card-bg);
+      min-width: 240px; box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+      border: 1px solid var(--accent); border-radius: 8px;
+      z-index: 100; top: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+      overflow: hidden; text-align: left;
+    }
+    .dropdown-content a {
+      color: var(--text); padding: 12px 16px; text-decoration: none;
+      display: block; font-size: 0.85rem; border-bottom: 1px solid var(--card-border);
+      transition: background-color 0.2s;
+    }
+    .dropdown-content a:last-child { border-bottom: none; }
+    .dropdown-content a:hover { background-color: var(--accent-dim); color: var(--accent); }
+    .dropdown.show .dropdown-content { display: block; }
+
     .sunrise-bar {
       font-size: 0.75rem;
       color: var(--text-muted);
-      margin-top: 6px;
+      margin-top: 10px;
       text-align: center;
       letter-spacing: 0.03em;
     }
@@ -228,6 +249,7 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      flex-grow: 1;
     }
 
     .cam-header a:hover { color: #fff; }
@@ -258,13 +280,20 @@
       justify-content: center;
     }
 
+    /* Lade-Spinner (CSS-Kreis) */
     .media-container::after {
-      content: "Lade…";
-      color: var(--text-muted);
-      font-size: 0.8rem;
+      content: "";
       position: absolute;
+      width: 28px; height: 28px;
+      border: 3px solid var(--card-border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
       z-index: 0;
     }
+    .media-container.loaded::after { display: none; }
+
+    @keyframes spin { 100% { transform: rotate(360deg); } }
 
     .media-container img {
       width: 100%;
@@ -285,10 +314,23 @@
       font-size: 0.78rem;
       color: var(--text-muted);
     }
+    
+    .disclaimer {
+      font-size: 0.72rem;
+      color: #94a3b8;
+      margin-top: 12px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.4;
+      background: rgba(0,0,0,0.2);
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid var(--card-border);
+    }
 
     .wx-updated-br { display: none; }
 
-    /* Wetter-Layout: Desktop = nebeneinander, Mobil = übereinander */
     .wx-layout {
       display: grid;
       grid-template-columns: auto 1fr;
@@ -300,15 +342,18 @@
       body { padding: 12px 10px 32px; }
       .cam-grid { grid-template-columns: 1fr; }
       h1 { font-size: 1.1rem; letter-spacing: 1px; }
-      /* Mobil: Diagramm oben (volle Breite), Kacheln darunter */
-      .wx-layout {
-        grid-template-columns: 1fr;
-      }
-      .wx-layout > div:first-child {
-        display: flex;
-        justify-content: center;
-      }
+      .wx-layout { grid-template-columns: 1fr; }
+      .wx-layout > div:first-child { display: flex; justify-content: center; }
       .wx-updated-br { display: inline; }
+      
+      /* Buttons nebeneinander auf Mobile */
+      .header-links { flex-direction: row; flex-wrap: nowrap; gap: 8px; }
+      .header-links > button, .header-links > .dropdown { flex: 1; }
+      .header-links .top-btn { width: 100%; justify-content: center; padding: 10px 4px; font-size: 0.85rem; }
+      
+      /* Dropdown-Menü Full-Width auf Mobile */
+      .dropdown { position: static; }
+      .dropdown-content { width: 100%; left: 0; transform: none; top: calc(100% + 4px); }
     }
   </style>
 </head>
@@ -327,39 +372,30 @@
 
     <div class="header-links">
       <button class="top-btn" id="wx-toggle" onclick="toggleWx()" aria-expanded="false">
-        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="13" height="13"
-             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-             stroke-linecap="round" stroke-linejoin="round">
-          <path d="M17 18a5 5 0 0 0-1.89-9.55 5 5 0 0 0-9 2.5 5 5 0 0 0 0 8.5h9z"/>
-          <line x1="8" y1="18" x2="8" y2="22"/>
-          <line x1="12" y1="18" x2="12" y2="22"/>
-          <line x1="16" y1="18" x2="16" y2="22"/>
+        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 18a5 5 0 0 0-1.89-9.55 5 5 0 0 0-9 2.5 5 5 0 0 0 0 8.5h9z"/><line x1="8" y1="18" x2="8" y2="22"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="16" y1="18" x2="16" y2="22"/>
         </svg>
-        Wetter
+        Wetter EDSF
       </button>
 
-      <a href="https://glidertracker.de/#lat=47.633&lon=7.941&z=11&nowelcome"
-         target="_blank" rel="noopener" class="top-btn">
-        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="13" height="13"
-             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-             stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-          <path d="M2 17l10 5 10-5"/>
-          <path d="M2 12l10 5 10-5"/>
-        </svg>
-        Glidertracker
-      </a>
-
-      <a href="https://www.weglide.org/flight?club=LG%2520Hotzenwald,23"
-         target="_blank" rel="noopener" class="top-btn">
-        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="13" height="13"
-             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-             stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"/>
-          <path d="M12 8l-4 4 4 4 4-4-4-4z"/>
-        </svg>
-        WeGlide
-      </a>
+      <div class="dropdown">
+        <button class="top-btn" onclick="toggleMenu(event)">
+          <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/>
+          </svg>
+          Links ▼
+        </button>
+        <div class="dropdown-content" id="tools-menu">
+          <a href="https://www.windy.com/-Weather-radar-radar?radar,47.633,7.941,10" target="_blank" rel="noopener">☔ Regenradar (EDSF)</a>
+          <a href="https://www.skybriefing.com/de/dabs" target="_blank" rel="noopener">🗺 DABS (Schweiz)</a>
+          <a href="https://notaminfo.com/switzerlandmap" target="_blank" rel="noopener">✈ NOTAM Info (Schweiz)</a>
+          <a href="https://notaminfo.com/germanymap" target="_blank" rel="noopener">✈ NOTAM Info (Deutschland)</a>
+          <a href="https://www.dwd.de/DE/fachnutzer/luftfahrt/teaser/luftsportberichte/fbdl60_edzf_node.html" target="_blank" rel="noopener">🌤 3-Tage DWD (DE Mitte)</a>
+          <a href="https://glidertracker.de/#lat=47.633&lon=7.941&z=11&nowelcome" target="_blank" rel="noopener">🛰 Glidertracker</a>
+          <a href="https://www.weglide.org/flight?club=LG%2520Hotzenwald,23" target="_blank" rel="noopener">🛩 WeGlide</a>
+          <a href="https://vereinsflieger.de/" target="_blank" rel="noopener">☁ Vereinsflieger</a>
+        </div>
+      </div>
     </div>
     <div class="sunrise-bar" id="sunrise-bar"></div>
   </header>
@@ -368,13 +404,8 @@
   <div class="wx-panel" id="wx-panel">
     <div class="wx-card">
       <div class="wx-card-title">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
-             fill="none" stroke="currentColor" stroke-width="2"
-             stroke-linecap="round" stroke-linejoin="round">
-          <path d="M17 18a5 5 0 0 0-1.89-9.55 5 5 0 0 0-9 2.5 5 5 0 0 0 0 8.5h9z"/>
-          <line x1="8" y1="18" x2="8" y2="22"/>
-          <line x1="12" y1="18" x2="12" y2="22"/>
-          <line x1="16" y1="18" x2="16" y2="22"/>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 18a5 5 0 0 0-1.89-9.55 5 5 0 0 0-9 2.5 5 5 0 0 0 0 8.5h9z"/><line x1="8" y1="18" x2="8" y2="22"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="16" y1="18" x2="16" y2="22"/>
         </svg>
         EDSF – Flugplatz Hütten-Hotzenwald · 884 m (2900 ft)
       </div>
@@ -385,7 +416,6 @@
   </div>
 
   <main>
-
     <!-- ===== EDSF ===== -->
     <h2 class="section-title">EDSF – Flugplatz</h2>
     <div class="cam-grid">
@@ -396,9 +426,7 @@
           <span class="status-dot"></span>
         </div>
         <div class="media-container">
-          <img class="live-cam" data-src="https://wsrv.nl/?url=www.lgh-platz.de/cam/cam11.jpg"
-               src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-               width="640" height="360" alt="EDSF Flugzeughalle">
+          <img class="live-cam" data-src="https://wsrv.nl/?url=www.lgh-platz.de/cam/cam11.jpg" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" width="640" height="360" alt="EDSF Flugzeughalle">
         </div>
       </div>
 
@@ -408,9 +436,7 @@
           <span class="status-dot"></span>
         </div>
         <div class="media-container">
-          <img class="live-cam" data-src="https://wsrv.nl/?url=www.lgh-platz.de/cam/cam21.jpg"
-               src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-               width="640" height="360" alt="EDSF Parkplatz">
+          <img class="live-cam" data-src="https://wsrv.nl/?url=www.lgh-platz.de/cam/cam21.jpg" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" width="640" height="360" alt="EDSF Parkplatz">
         </div>
       </div>
 
@@ -420,9 +446,7 @@
           <span class="status-dot"></span>
         </div>
         <div class="media-container">
-          <img class="live-cam" data-src="https://wsrv.nl/?url=www.lgh-platz.de/cam/cam31.jpg"
-               src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-               width="640" height="360" alt="EDSF Flugfeld 1">
+          <img class="live-cam" data-src="https://wsrv.nl/?url=www.lgh-platz.de/cam/cam31.jpg" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" width="640" height="360" alt="EDSF Flugfeld 1">
         </div>
       </div>
 
@@ -432,9 +456,7 @@
           <span class="status-dot"></span>
         </div>
         <div class="media-container">
-          <img class="live-cam" data-src="https://wsrv.nl/?url=www.lgh-platz.de/cam/cam41.jpg"
-               src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-               width="640" height="360" alt="EDSF Flugfeld 2">
+          <img class="live-cam" data-src="https://wsrv.nl/?url=www.lgh-platz.de/cam/cam41.jpg" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" width="640" height="360" alt="EDSF Flugfeld 2">
         </div>
       </div>
 
@@ -444,21 +466,17 @@
           <span class="status-dot"></span>
         </div>
         <div class="media-container">
-          <img class="live-cam" data-src="https://wsrv.nl/?url=www.lgh-platz.de/cam/cam51.jpg"
-               src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-               width="640" height="360" alt="EDSF Flugfeld 3">
+          <img class="live-cam" data-src="https://wsrv.nl/?url=www.lgh-platz.de/cam/cam51.jpg" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" width="640" height="360" alt="EDSF Flugfeld 3">
         </div>
       </div>
 
       <div class="cam-card">
         <div class="cam-header">
-          <a href="https://wsrv.nl/?url=www.lgh-platz.de/cam/cam61.jpg" target="_blank" rel="noopener">EDSF – Start Piste 11 (West)</a>
+          <a href="https://wsrv.nl/?url=www.lgh-platz.de/cam/cam61.jpg" target="_blank" rel="noopener">EDSF – Start Piste 11</a>
           <span class="status-dot"></span>
         </div>
         <div class="media-container">
-          <img class="live-cam" data-src="https://wsrv.nl/?url=www.lgh-platz.de/cam/cam61.jpg"
-               src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-               width="640" height="360" alt="EDSF Piste 11">
+          <img class="live-cam" data-src="https://wsrv.nl/?url=www.lgh-platz.de/cam/cam61.jpg" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" width="640" height="360" alt="EDSF Piste 11">
         </div>
       </div>
 
@@ -468,9 +486,7 @@
           <span class="status-dot"></span>
         </div>
         <div class="media-container">
-          <img class="live-cam" data-src="https://wsrv.nl/?url=www.lgh-platz.de/cam/cam91.jpg"
-               src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-               width="640" height="360" alt="EDSF Norden">
+          <img class="live-cam" data-src="https://wsrv.nl/?url=www.lgh-platz.de/cam/cam91.jpg" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" width="640" height="360" alt="EDSF Norden">
         </div>
       </div>
 
@@ -482,25 +498,21 @@
 
       <div class="cam-card">
         <div class="cam-header">
-          <a href="https://www.ziis.de/cam/current_WE.jpg" target="_blank" rel="noopener">Rickenbach Altenschwand 1</a>
+          <a href="https://wsrv.nl/?url=www.ziis.de/cam/current_WE.jpg" target="_blank" rel="noopener">Rickenbach Altenschwand 1</a>
           <span class="status-dot"></span>
         </div>
         <div class="media-container">
-          <img class="live-cam" data-src="https://www.ziis.de/cam/current_WE.jpg"
-               src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-               width="640" height="360" alt="Rickenbach 1">
+          <img class="live-cam" data-src="https://wsrv.nl/?url=www.ziis.de/cam/current_WE.jpg" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" width="640" height="360" alt="Rickenbach 1">
         </div>
       </div>
 
       <div class="cam-card">
         <div class="cam-header">
-          <a href="https://www.ziis.de/cam/mega.jpg" target="_blank" rel="noopener">Rickenbach Altenschwand 2</a>
+          <a href="https://wsrv.nl/?url=www.ziis.de/cam/mega.jpg" target="_blank" rel="noopener">Rickenbach Altenschwand 2</a>
           <span class="status-dot"></span>
         </div>
         <div class="media-container">
-          <img class="live-cam" data-src="https://www.ziis.de/cam/mega.jpg"
-               src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-               width="640" height="360" alt="Rickenbach 2">
+          <img class="live-cam" data-src="https://wsrv.nl/?url=www.ziis.de/cam/mega.jpg" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" width="640" height="360" alt="Rickenbach 2">
         </div>
       </div>
 
@@ -510,33 +522,27 @@
           <span class="status-dot"></span>
         </div>
         <div class="media-container">
-          <img class="live-cam" data-src="https://wsrv.nl/?url=www.schopfheim.de/webcam/gersbach/video.jpg"
-               src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-               width="640" height="360" alt="Gersbach">
+          <img class="live-cam" data-src="https://wsrv.nl/?url=www.schopfheim.de/webcam/gersbach/video.jpg" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" width="640" height="360" alt="Gersbach">
         </div>
       </div>
 
       <div class="cam-card">
         <div class="cam-header">
-          <a href="https://www.feldberger-hof.de/static/webcam/fh-webcam.jpg" target="_blank" rel="noopener">Feldberg Seebuck</a>
+          <a href="https://wsrv.nl/?url=www.feldberger-hof.de/static/webcam/fh-webcam.jpg" target="_blank" rel="noopener">Feldberg Seebuck</a>
           <span class="status-dot"></span>
         </div>
         <div class="media-container">
-          <img class="live-cam" data-src="https://www.feldberger-hof.de/static/webcam/fh-webcam.jpg"
-               src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-               width="640" height="360" alt="Feldberg Seebuck">
+          <img class="live-cam" data-src="https://wsrv.nl/?url=www.feldberger-hof.de/static/webcam/fh-webcam.jpg" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" width="640" height="360" alt="Feldberg Seebuck">
         </div>
       </div>
 
       <div class="cam-card">
         <div class="cam-header">
-          <a href="https://www.belchen-seilbahn.de/webcam.html" target="_blank" rel="noopener">Belchen – Panorama West</a>
+          <a href="https://wsrv.nl/?url=belchen-webcam.datacreate.de/webcam/links.jpg" target="_blank" rel="noopener">Belchen – Panorama West</a>
           <span class="status-dot"></span>
         </div>
         <div class="media-container">
-          <img class="live-cam" data-src="https://belchen-webcam.datacreate.de/webcam/links.jpg"
-               src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-               width="640" height="360" alt="Belchen Panorama West">
+          <img class="live-cam" data-src="https://wsrv.nl/?url=belchen-webcam.datacreate.de/webcam/links.jpg" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" width="640" height="360" alt="Belchen Panorama West">
         </div>
       </div>
 
@@ -548,49 +554,41 @@
 
       <div class="cam-card">
         <div class="cam-header">
-          <a href="https://www.lsg-suedwest.de/WebCam/snapshot.jpg" target="_blank" rel="noopener">Flugplatz Herten</a>
+          <a href="https://wsrv.nl/?url=www.lsg-suedwest.de/WebCam/snapshot.jpg" target="_blank" rel="noopener">Flugplatz Herten</a>
           <span class="status-dot"></span>
         </div>
         <div class="media-container">
-          <img class="live-cam" data-src="https://www.lsg-suedwest.de/WebCam/snapshot.jpg"
-               src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-               width="640" height="360" alt="Flugplatz Herten">
+          <img class="live-cam" data-src="https://wsrv.nl/?url=www.lsg-suedwest.de/WebCam/snapshot.jpg" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" width="640" height="360" alt="Flugplatz Herten">
         </div>
       </div>
 
       <div class="cam-card">
         <div class="cam-header">
-          <a href="https://cam.afu-server.de/Klippeneck-CAM3.jpg" target="_blank" rel="noopener">Klippeneck – Piste</a>
+          <a href="https://wsrv.nl/?url=cam.afu-server.de/Klippeneck-CAM3.jpg" target="_blank" rel="noopener">Klippeneck – Piste</a>
           <span class="status-dot"></span>
         </div>
         <div class="media-container">
-          <img class="live-cam" data-src="https://cam.afu-server.de/Klippeneck-CAM3.jpg"
-               src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-               width="640" height="360" alt="Klippeneck Piste">
+          <img class="live-cam" data-src="https://wsrv.nl/?url=cam.afu-server.de/Klippeneck-CAM3.jpg" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" width="640" height="360" alt="Klippeneck Piste">
         </div>
       </div>
 
       <div class="cam-card">
         <div class="cam-header">
-          <a href="https://cam.afu-server.de/Klippeneck-CAM1.jpg" target="_blank" rel="noopener">Klippeneck – Panorama</a>
+          <a href="https://wsrv.nl/?url=cam.afu-server.de/Klippeneck-CAM1.jpg" target="_blank" rel="noopener">Klippeneck – Panorama</a>
           <span class="status-dot"></span>
         </div>
         <div class="media-container">
-          <img class="live-cam" data-src="https://cam.afu-server.de/Klippeneck-CAM1.jpg"
-               src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-               width="640" height="360" alt="Klippeneck Panorama">
+          <img class="live-cam" data-src="https://wsrv.nl/?url=cam.afu-server.de/Klippeneck-CAM1.jpg" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" width="640" height="360" alt="Klippeneck Panorama">
         </div>
       </div>
 
       <div class="cam-card">
         <div class="cam-header">
-          <a href="https://webcam-gewerbepark.ftp-land-in-sicht.de/snap_c1.jpg" target="_blank" rel="noopener">Flugplatz Bremgarten</a>
+          <a href="https://wsrv.nl/?url=webcam-gewerbepark.ftp-land-in-sicht.de/snap_c1.jpg" target="_blank" rel="noopener">Flugplatz Bremgarten</a>
           <span class="status-dot"></span>
         </div>
         <div class="media-container">
-          <img class="live-cam" data-src="https://webcam-gewerbepark.ftp-land-in-sicht.de/snap_c1.jpg"
-               src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-               width="640" height="360" alt="Flugplatz Bremgarten">
+          <img class="live-cam" data-src="https://wsrv.nl/?url=webcam-gewerbepark.ftp-land-in-sicht.de/snap_c1.jpg" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" width="640" height="360" alt="Flugplatz Bremgarten">
         </div>
       </div>
 
@@ -599,10 +597,45 @@
 
   <footer>
     <p>Letzter Refresh: <span id="last-refresh">–</span> &middot; Aktualisierung alle 90 Sekunden</p>
+    <div class="disclaimer">
+      ⚠️ <strong>Wichtiger Hinweis:</strong> Dieses Dashboard dient ausschließlich zur groben Orientierung und ersetzt in keinem Fall das Einholen offizieller Flugwetter- und NOTAM-Informationen für die Flugvorbereitung. Alle Angaben, Berechnungen und Bilder sind ohne Gewähr.
+    </div>
   </footer>
 
   <script>
   (function () {
+    /* ── Dropdown Menü ──────────────────────────────────────── */
+    window.toggleMenu = function(e) {
+      e.stopPropagation();
+      var dropdown = document.getElementById("tools-menu").parentElement;
+      var isOpen = dropdown.classList.toggle("show");
+      localStorage.setItem("edsf_linksMenuOpen", isOpen);
+    };
+
+    window.onclick = function(event) {
+      if (!event.target.closest('.dropdown')) {
+        var dropdowns = document.getElementsByClassName("dropdown");
+        for (var i = 0; i < dropdowns.length; i++) {
+          if (dropdowns[i].classList.contains('show')) {
+            dropdowns[i].classList.remove('show');
+            localStorage.setItem("edsf_linksMenuOpen", "false");
+          }
+        }
+      }
+    };
+
+    // Klicks auf Links im Menü sollen das Menü offen halten (für die Rückkehr)
+    document.querySelectorAll('.dropdown-content a').forEach(function(link) {
+      link.addEventListener('click', function(e) {
+        e.stopPropagation();
+      });
+    });
+
+    // State beim Laden wiederherstellen (Links-Menü)
+    if (localStorage.getItem("edsf_linksMenuOpen") === "true") {
+      document.getElementById("tools-menu").parentElement.classList.add("show");
+    }
+
     /* ── Kamera-Refresh ─────────────────────────────────────── */
     var REFRESH_MS = 90000;
     var lastEl = document.getElementById('last-refresh');
@@ -615,12 +648,29 @@
     function bust(url, ts) {
       return url + (url.includes('?') ? '&' : '?') + 't=' + ts;
     }
+
+    var fallbackSvg = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="%2394a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="background:%23000;padding:2rem;"><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7"/><line x1="18" y1="2" x2="22" y2="6"/><line x1="22" y1="2" x2="18" y2="6"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>';
+
     function loadImg(img, ts) {
       var base = img.getAttribute('data-src');
       if (!base) return;
+
+      var container = img.closest('.media-container');
+      container.classList.remove('loaded');
       img.classList.remove('loaded');
+
       var fresh = new Image();
-      fresh.onload = function () { img.src = fresh.src; img.classList.add('loaded'); };
+      fresh.onload = function () { 
+        img.src = fresh.src; 
+        img.classList.add('loaded');
+        container.classList.add('loaded');
+      };
+      fresh.onerror = function() {
+        img.src = fallbackSvg;
+        img.style.objectFit = 'contain';
+        img.classList.add('loaded');
+        container.classList.add('loaded');
+      };
       fresh.src = bust(base, ts);
     }
 
@@ -642,7 +692,6 @@
     }, REFRESH_MS);
     if (lastEl) lastEl.textContent = nowStr();
 
-    /* Sonnenzeiten sofort beim Laden anzeigen */
     (function() {
       var bar = document.getElementById('sunrise-bar');
       if (!bar) return;
@@ -650,25 +699,34 @@
       bar.textContent = '☀ Aufgang ' + s.rise + '  ·  Untergang ' + s.set + ' (MEZ)';
     })();
 
-    /* ── Wetter-Panel Toggle ────────────────────────────────── */
+    /* ── Wetter-Panel Toggle & Auto-Refresh ─────────────────── */
     var wxLoaded = false;
-
     window.toggleWx = function () {
       var panel = document.getElementById('wx-panel');
       var btn   = document.getElementById('wx-toggle');
       var open  = panel.classList.toggle('open');
       btn.setAttribute('aria-expanded', open);
+      localStorage.setItem('edsf_wxPanelOpen', open);
       if (open && !wxLoaded) { wxLoaded = true; loadWetter(); }
     };
 
-    /* ── Wetterdaten aus index.html scrapen ─────────────────────
-       gauge-data.txt ist per Proxy nicht erreichbar (HTTP+CORS).
-       Die index.html enthält alle Werte als fertigen HTML-Text
-       und ist über corsproxy.io abrufbar.                        */
+    // State beim Laden wiederherstellen (Wetter-Panel)
+    if (localStorage.getItem('edsf_wxPanelOpen') === 'true') {
+      document.getElementById('wx-panel').classList.add('open');
+      document.getElementById('wx-toggle').setAttribute('aria-expanded', 'true');
+      wxLoaded = true;
+      loadWetter();
+    }
+
+    setInterval(function() {
+      if(document.getElementById('wx-panel').classList.contains('open')) {
+        loadWetter();
+      }
+    }, 600000);
+
+    /* ── Wetterdaten EDSF ─────────────────────────────────────── */
     function loadWetter() {
       var el  = document.getElementById('wx-content');
-      // gauge-data.txt liegt im gleichen Repository auf GitHub Pages
-      // → kein Proxy, kein CORS-Problem, direkt HTTPS
       var url = 'gauge-data.txt?t=' + Date.now();
 
       el.innerHTML = '<div style="color:var(--text-muted);font-size:0.82rem;">Lade Wetterdaten…</div>';
@@ -685,7 +743,6 @@
     function renderWetter(el, d) {
       function f(v, dez) {
         if (v === undefined || v === null || v === '') return '–';
-        // gauge-data.txt liefert Dezimalzahlen mit Komma ("3,6") → für parseFloat in Punkt umwandeln
         var n = parseFloat(String(v).replace(',', '.'));
         if (isNaN(n)) return String(v);
         return n.toFixed(dez !== undefined ? dez : 1).replace('.', ',');
@@ -695,48 +752,82 @@
       var wspeed  = d.wspeed  !== undefined ? parseFloat(d.wspeed)  : 0;
       var wgust   = d.wgust   !== undefined ? parseFloat(d.wgust)   : 0;
 
-      // Datum von "2026.04.12 00:55" → "12.04.2026 00:55" umformatieren
       var rawDate = d.date || '–';
       var zeit = rawDate.replace(/^(\d{4})\.(\d{2})\.(\d{2})(.*)$/, '$3.$2.$1$4');
       var windDir = (d.bearingTxt && d.bearingTxt !== '---') ? d.bearingTxt : (d.bearing ? d.bearing + '°' : '');
       var windKt  = Math.round(wspeed / 1.852);
-      var guestKt = Math.round(wgust  / 1.852);
-      var wind    = f(d.wspeed, 0) + ' km/h / ' + windKt + ' kt' + (windDir ? ' aus ' + windDir : '');
-      var boeen   = f(d.wgust,  0) + ' km/h / ' + guestKt + ' kt';
-      var cbFt = d.cloudbasevalue ? Math.round(parseFloat(d.cloudbasevalue)) : null;
-      var cbM  = cbFt ? Math.round(cbFt / 3.28084) : null;
-      var cbHtml = cbFt
-        ? '<div class="wx-stat"><div class="wx-stat-label">Wolkenbasis (MSL)</div>' +
-          '<div class="wx-stat-value">' + cbFt + ' ft</div>' +
-          '<div class="wx-stat-value">' + cbM  + ' m</div></div>'
-        : '';
+      var gustKt  = Math.round(wgust  / 1.852);
+      
+      var windColor = windKt >= 15 ? '#ef4444' : 'var(--accent)';
+      var gustColor = gustKt >= 15 ? '#ef4444' : 'var(--accent)';
 
-      // Sonnenauf-/-untergang für EDSF (47.633°N, 7.941°E) berechnen
+      // ── Sauber formatierte Werte (mit &nbsp; und <br> für Mobile) ──
+      
+      // Temperatur
+      var tempVal = f(d.temp, 1) + '&nbsp;°C';
+      var tempSub = '<span style="white-space: nowrap;">Min: ' + f(d.tempTL, 1) + '&nbsp;°C</span><br>' +
+                    '<span style="white-space: nowrap;">Max: ' + f(d.tempTH, 1) + '&nbsp;°C</span>';
+      
+      // Taupunkt & Spread
+      var tv = d.temp ? parseFloat(String(d.temp).replace(',', '.')) : null;
+      var dv = d.dew ? parseFloat(String(d.dew).replace(',', '.')) : null;
+      var spreadStr = '';
+      if (tv !== null && dv !== null) {
+          var spread = (tv - dv).toFixed(1).replace('.', ',');
+          spreadStr = '<br><span style="white-space: nowrap;">Spread: ' + spread + '&nbsp;°C</span>';
+      }
+      var dewVal = f(d.dew, 1) + '&nbsp;°C';
+      var dewSub = '<span style="white-space: nowrap;">Feuchte: ' + f(d.hum, 0) + '&nbsp;%</span>' + spreadStr;
+      
+      // Wind
+      var windVal = '<span style="color:' + windColor + '; white-space: nowrap;">' + f(d.wspeed, 0) + '&nbsp;km/h</span>';
+      var windSub = '<span style="white-space: nowrap;">' + windKt + '&nbsp;kt</span>' +
+                    (windDir ? '<br><span style="white-space: nowrap;">aus ' + windDir + '</span>' : '');
+      
+      // Böen
+      var gustVal = '<span style="color:' + gustColor + '; white-space: nowrap;">' + f(d.wgust, 0) + '&nbsp;km/h</span>';
+      var gustSub = '<span style="white-space: nowrap;">' + gustKt + '&nbsp;kt</span>';
+      
+      // Wolkenbasis
+      var cbFt = d.cloudbasevalue ? Math.round(parseFloat(d.cloudbasevalue)) : null;
+      var cbHtml = '';
+      if (cbFt) {
+         var cbM = Math.round(cbFt / 3.28084);
+         cbHtml = '<div class="wx-stat"><div class="wx-stat-label">Wolkenbasis</div>' +
+                  '<div class="wx-stat-value" style="white-space: nowrap;">' + cbFt + '&nbsp;ft</div>' +
+                  '<div class="wx-stat-sub" style="white-space: nowrap;">' + cbM  + '&nbsp;m (MSL)</div></div>';
+      }
+
+      // Sonnenzeiten
       var sunTimes = calcSunTimes(47.633, 7.941);
       var sunBar = document.getElementById('sunrise-bar');
-      if (sunBar) {
-        sunBar.innerHTML = '☀ Aufgang ' + sunTimes.rise + ' · Untergang ' + sunTimes.set + ' (MEZ)';
+      if (sunBar) sunBar.innerHTML = '☀ Aufgang ' + sunTimes.rise + ' · Untergang ' + sunTimes.set + ' (MEZ)';
+      
+      // QNH
+      var pressVal = f(d.press, 1) + '&nbsp;hPa';
+      var trendStr = '';
+      if (d.presstrend != null) {
+          var pt = parseFloat(String(d.presstrend).replace(',', '.'));
+          var sign = pt >= 0 ? '+' : '';
+          trendStr = '<span style="white-space: nowrap;">Trend: ' + sign + f(d.presstrend, 1) + '&nbsp;hPa/h</span>';
       }
-      var regen   = f(d.rfall, 1) + ' mm';
-      var trend   = d.presstrend != null
-        ? 'Trend: ' + (parseFloat(d.presstrend) >= 0 ? '+' : '') + f(d.presstrend, 1) + ' hPa/h'
-        : '';
 
-      // Dichtehöhe berechnen (ICAO-Formel)
-      // EDSF Platzhöhe: 884 m = 2900 ft
+      // Niederschlag
+      var regen = f(d.rfall, 1) + '&nbsp;mm';
+
+      // Dichtehöhe
       var daHtml = '';
-      var tempVal  = d.temp  ? parseFloat(String(d.temp).replace(',', '.'))  : null;
-      var pressVal = d.press ? parseFloat(String(d.press).replace(',', '.')) : null;
-      if (tempVal !== null && pressVal !== null) {
+      if (tv !== null && d.press !== null) {
+        var pv = parseFloat(String(d.press).replace(',', '.'));
         var elevFt   = 2900;
         var isaTemp  = 15 - (elevFt / 1000 * 2);
-        var tempDev  = tempVal - isaTemp;
-        var pressAlt = elevFt + (1013.25 - pressVal) * 27;
+        var tempDev  = tv - isaTemp;
+        var pressAlt = elevFt + (1013.25 - pv) * 27;
         var densAlt  = Math.round(pressAlt + 118.8 * tempDev);
         var daColor  = densAlt > 5000 ? '#ef4444' : densAlt > 3000 ? '#f59e0b' : '#10b981';
         daHtml = '<div class="wx-stat"><div class="wx-stat-label">Dichtehöhe</div>' +
-          '<div class="wx-stat-value" style="color:' + daColor + ';">' + densAlt + ' ft</div>' +
-          '<div class="wx-stat-sub">' + Math.round(densAlt / 3.28084) + ' m</div></div>';
+          '<div class="wx-stat-value" style="color:' + daColor + '; white-space: nowrap;">' + densAlt + '&nbsp;ft</div>' +
+          '<div class="wx-stat-sub" style="white-space: nowrap;">' + Math.round(densAlt / 3.28084) + '&nbsp;m (MSL)</div></div>';
       }
 
       function stat(label, val, sub) {
@@ -744,30 +835,23 @@
         return '<div class="wx-stat">' +
           '<div class="wx-stat-label">' + label + '</div>' +
           '<div class="wx-stat-value">' + val + '</div>' +
-          (sub ? '<div class="wx-stat-sub">' + sub + '</div>' : '') +
+          (sub ? '<div class="wx-stat-sub" style="margin-top: 6px;">' + sub + '</div>' : '') +
           '</div>';
       }
 
       el.innerHTML =
         '<div class="wx-layout">' +
-
-          /* ── Pisten-Winddiagramm ── */
           buildRunwayDiagram(bearing, wspeed, wgust) +
-
-          /* ── Werte-Kacheln ── */
           '<div class="wx-stats">' +
-            stat('Temperatur',   f(d.temp, 1) + ' °C',
-                 'Min ' + f(d.tempTL,1) + ' / Max ' + f(d.tempTH,1) + ' °C') +
-            stat('Taupunkt',     f(d.dew,  1) + ' °C') +
-            stat('Feuchte',      f(d.hum,  0) + ' %') +
-            stat('QNH',          f(d.press,1) + ' hPa', trend) +
-            stat('Wind',         wind) +
-            stat('Böen',         boeen) +
+            stat('Temperatur', tempVal, tempSub) +
+            stat('Taupunkt', dewVal, dewSub) +
+            stat('QNH', pressVal, trendStr) +
+            stat('Wind', windVal, windSub) +
+            stat('Böen', gustVal, gustSub) +
             cbHtml +
             stat('Niederschlag', regen) +
             daHtml +
           '</div>' +
-
         '</div>' +
         '<div class="wx-updated">' +
           'Stand: ' + zeit +
@@ -777,71 +861,46 @@
         '</div>';
     }
 
-    /* ── Pisten-Winddiagramm EDSF (Piste 11/29 = 110°/290°) ─── */
     function buildRunwayDiagram(bearing, wspeed, wgust) {
-      var RWY = 110; // Piste 11 in Grad true
-
-      // Windkomponenten relativ zur Piste 11 (Anflugrichtung 110°)
-      // Winkel zwischen Windrichtung und Pistenrichtung
+      var RWY = 110; 
       var diff    = (bearing - RWY + 360) % 360;
       var diffRad = diff * Math.PI / 180;
-      // Gegenwind: positiv = Gegenwind auf Piste 11, negativ = Rückenwind
       var head  = Math.round(wspeed * Math.cos(diffRad));
-      // Seitenwind: positiv = von rechts (Steuerbord), negativ = von links
       var cross = Math.round(wspeed * Math.sin(diffRad));
 
-      // Farbe nach |Seitenwind|
       var absX  = Math.abs(cross);
       var color = absX <= 5  ? '#10b981' :
                   absX <= 10 ? '#f59e0b' :
                                '#ef4444';
 
-      // SVG-Dimensionen
       var W = 180, H = 250, cx = W/2, cy = 108;
       var rwyHalf = 68;
       var rwyW    = 20;
-      var rwyAngleDeg = RWY - 90; // SVG-Rotationswinkel (0°=oben=Norden)
-
-      // SVG-Koordinatensystem: 0° = oben = Norden
-      // Piste 11 zeigt nach 110° → SVG-Winkel = 110° (Uhrzeigersinn von oben)
-      // Pistenvektor in SVG: sin(110°) nach rechts, -cos(110°) nach unten
+      var rwyAngleDeg = RWY - 90; 
       var rwyRad = RWY * Math.PI / 180;
-      var rx = Math.sin(rwyRad); // x-Komponente der Pistenrichtung
-      var ry = -Math.cos(rwyRad); // y-Komponente (negativ weil Y in SVG nach unten)
+      var rx = Math.sin(rwyRad); 
+      var ry = -Math.cos(rwyRad); 
 
-      // Piste 11-Ende (in Richtung 110°)
       var p11x = cx + rwyHalf * rx;
       var p11y = cy + rwyHalf * ry;
-      // Piste 29-Ende (in Richtung 290°)
       var p29x = cx - rwyHalf * rx;
       var p29y = cy - rwyHalf * ry;
 
-      // Gegenwindkomponente: immer grün, Warnung nur ab 40 km/h
       var headColor = '#10b981';
       var headWarn  = Math.abs(head) > 40 ? ' ⚠' : '';
 
       return '<div style="flex-shrink:0;padding:4px 0;">' +
         '<svg width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '" ' +
              'xmlns="http://www.w3.org/2000/svg" style="display:block;">' +
-
-          /* Hintergrund */
           '<rect width="' + W + '" height="' + H + '" rx="10" fill="rgba(0,0,0,0.3)"/>' +
-
-          /* Kompasskreis */
           '<circle cx="' + cx + '" cy="' + cy + '" r="72" fill="none" stroke="#1e3a5f" stroke-width="1.5"/>' +
           '<circle cx="' + cx + '" cy="' + cy + '" r="72" fill="none" stroke="#334155" stroke-width="0.5" stroke-dasharray="2 6"/>' +
-
-          /* Himmelsrichtungen */
           '<text x="' + cx + '" y="14" text-anchor="middle" font-size="10" font-weight="bold" fill="#475569">N</text>' +
           '<text x="' + cx + '" y="' + (cy*2-4) + '" text-anchor="middle" font-size="10" font-weight="bold" fill="#475569">S</text>' +
           '<text x="8" y="' + (cy+4) + '" text-anchor="start" font-size="10" font-weight="bold" fill="#475569">W</text>' +
           '<text x="' + (W-8) + '" y="' + (cy+4) + '" text-anchor="end" font-size="10" font-weight="bold" fill="#475569">O</text>' +
-
-          /* Piste – Rechteck entlang der Pistenlinie */
-          /* Berechne 4 Ecken des Pistenrechtecks */
           (function() {
-            // Senkrecht zur Piste
-            var nx = ry, ny = -rx; // 90° gedreht
+            var nx = ry, ny = -rx;
             var hw = rwyW / 2;
             var corners = [
               [p11x + hw*nx, p11y + hw*ny],
@@ -852,19 +911,13 @@
             var pts = corners.map(function(c){ return c[0].toFixed(1)+','+c[1].toFixed(1); }).join(' ');
             return '<polygon points="' + pts + '" fill="#2d3f55" stroke="#64748b" stroke-width="1.5"/>';
           })() +
-
-          /* Mittellinie gestrichelt */
           '<line x1="' + p11x.toFixed(1) + '" y1="' + p11y.toFixed(1) + '" ' +
                'x2="' + p29x.toFixed(1) + '" y2="' + p29y.toFixed(1) + '" ' +
             'stroke="#94a3b8" stroke-width="1" stroke-dasharray="5 4"/>' +
-
-          /* Pistenbezeichnungen ausserhalb der Pistenenden, beide aufrecht lesbar */
           (function() {
-            var offset = rwyHalf + 10; // px ausserhalb des Pistenendes
-            // "11" ausserhalb des 290°-Endes, Pilot fliegt Richtung 110° → Text normal
+            var offset = rwyHalf + 10; 
             var t11x = (cx - offset * rx).toFixed(1);
             var t11y = (cy - offset * ry).toFixed(1);
-            // "29" ausserhalb des 110°-Endes, Pilot fliegt Richtung 290° → Text normal
             var t29x = (cx + offset * rx).toFixed(1);
             var t29y = (cy + offset * ry).toFixed(1);
             return (
@@ -878,55 +931,37 @@
                 'transform="rotate(' + rwyAngleDeg + ',' + t29x + ',' + t29y + ')">29</text>'
             );
           })() +
-
-          /* ── Offizieller meteorologischer Windpfeil ──────────────
-             Schaft: zeigt woher Wind kommt → Spitze zeigt wohin er weht
-             Befiederung am Schaft-Ende (Ursprung des Windes):
-               Dreieck  = 50 kt
-               Lang     = 10 kt
-               Kurz     =  5 kt                                        */
           (function() {
-            var kt = Math.round(wspeed / 1.852); // km/h → Knoten
-
+            var kt = Math.round(wspeed / 1.852); 
             if (kt < 2) {
-              // Calm: Kreis in der Mitte
               return '<circle cx="' + cx + '" cy="' + cy + '" r="8" fill="none" ' +
                 'stroke="' + color + '" stroke-width="2.5"/>';
             }
-
-            // Schaft: von Windursprung (außen) zur Pistenmitte (Spitze)
             var windRad = bearing * Math.PI / 180;
             var shaftLen = 58;
-            // Ursprungspunkt (woher Wind kommt)
             var ox = cx + shaftLen * Math.sin(windRad);
             var oy = cy - shaftLen * Math.cos(windRad);
-            // Spitze (wohin Wind weht = Pistenmitte)
             var tx = cx;
             var ty = cy;
 
-            // Pfeilspitze an der Spitze
             var svg = '<defs><marker id="whead" markerWidth="8" markerHeight="8" ' +
               'refX="4" refY="4" orient="auto">' +
               '<path d="M0,0 L8,4 L0,8 Z" fill="' + color + '"/>' +
               '</marker></defs>';
 
-            // Schaft
             svg += '<line x1="' + ox.toFixed(1) + '" y1="' + oy.toFixed(1) + '" ' +
               'x2="' + tx + '" y2="' + ty + '" ' +
               'stroke="' + color + '" stroke-width="2.5" marker-end="url(#whead)"/>';
 
-            // Befiederung am Ursprungspunkt (senkrecht zum Schaft, nach rechts)
-            // Richtungsvektor des Schafts (von Ursprung zur Spitze)
             var dx = tx - ox, dy = ty - oy;
             var len = Math.sqrt(dx*dx + dy*dy);
-            var ux = dx/len, uy = dy/len; // Einheitsvektor Schaft
-            var px = -uy, py = ux;        // Senkrecht nach rechts (Befiederungsseite)
+            var ux = dx/len, uy = dy/len; 
+            var px = -uy, py = ux;        
 
             var remaining = kt;
-            var bPos = 0; // Abstand vom Ursprung entlang Schaft
-            var bSpacing = 8; // Abstand zwischen Strichen
+            var bPos = 0; 
+            var bSpacing = 8; 
 
-            // Dreiecke (50 kt)
             while (remaining >= 50) {
               var bx = ox + bPos * ux;
               var by = oy + bPos * uy;
@@ -942,7 +977,6 @@
               remaining -= 50;
               bPos += bSpacing + 2;
             }
-            // Lange Striche (10 kt)
             while (remaining >= 10) {
               var bx = ox + bPos * ux;
               var by = oy + bPos * uy;
@@ -952,7 +986,6 @@
               remaining -= 10;
               bPos += bSpacing;
             }
-            // Kurze Striche (5 kt)
             while (remaining >= 5) {
               var bx = ox + bPos * ux;
               var by = oy + bPos * uy;
@@ -966,23 +999,17 @@
             return svg;
           })() +
 
-          /* Windkomponenten-Anzeige unten */
           '<rect x="4" y="' + (H-62) + '" width="' + (W-8) + '" height="58" rx="6" fill="rgba(0,0,0,0.35)"/>' +
-
           '<text x="' + cx + '" y="' + (H-48) + '" text-anchor="middle" font-size="10" fill="#94a3b8">Gegenwindkomponente</text>' +
           '<text x="' + cx + '" y="' + (H-34) + '" text-anchor="middle" font-size="12" font-weight="bold" ' +
             'fill="' + headColor + '">' + Math.abs(head) + ' km/h / ' + Math.round(Math.abs(head)/1.852) + ' kt' + headWarn + '</text>' +
-
           '<text x="' + cx + '" y="' + (H-20) + '" text-anchor="middle" font-size="10" fill="#94a3b8">Seitenwindkomponente</text>' +
           '<text x="' + cx + '" y="' + (H-6) + '" text-anchor="middle" font-size="12" font-weight="bold" ' +
             'fill="' + color + '">' + Math.abs(cross) + ' km/h / ' + Math.round(Math.abs(cross)/1.852) + ' kt</text>' +
-
         '</svg>' +
       '</div>';
     }
 
-    /* ── Sonnenauf-/-untergang berechnen ────────────────────────
-       Algorithmus nach NOAA Solar Calculator, Genauigkeit ±1 min  */
     function calcSunTimes(lat, lon) {
       var now     = new Date();
       var JD      = now.getTime() / 86400000 + 2440587.5;
@@ -993,40 +1020,29 @@
       var C    = 1.9148 * Math.sin(Mrad) + 0.02 * Math.sin(2*Mrad);
       var lam  = (M + C + 180 + 102.9372) % 360;
       var lamR = lam * Math.PI / 180;
-
-      // Deklination
       var sinD = Math.sin(lamR) * Math.sin(23.4393 * Math.PI / 180);
       var decl = Math.asin(sinD);
-
-      // Gleichung der Zeit (in Tagen)
       var EoT = 0.0053 * Math.sin(Mrad) - 0.0069 * Math.sin(2 * lamR);
 
-      // Stundenwinkel
-      var cosH = (Math.sin(-0.8333 * Math.PI / 180) -
-                  Math.sin(lat * Math.PI / 180) * sinD) /
+      var cosH = (Math.sin(-0.8333 * Math.PI / 180) - Math.sin(lat * Math.PI / 180) * sinD) /
                  (Math.cos(lat * Math.PI / 180) * Math.cos(decl));
 
       if (Math.abs(cosH) > 1) return { rise: '--:--', set: '--:--' };
-      var H = Math.acos(cosH); // in Radian
+      var H = Math.acos(cosH); 
 
-      // Auf-/Untergang als Julianisches Datum
       var Jrise = 2451545.0 + n + (0.0009 - lon/360 - EoT) - H / (2*Math.PI);
       var Jset  = 2451545.0 + n + (0.0009 - lon/360 - EoT) + H / (2*Math.PI);
 
-      // Umrechnung in Uhrzeit: JD → Unix ms → MEZ (UTC+1) bzw. MESZ (UTC+2)
       function jdToTime(jd) {
         var ms   = (jd - 2440587.5) * 86400000;
         var d2   = new Date(ms);
-        // Offset bestimmen: MESZ (März letzter So bis Oktober letzter So) = UTC+2, sonst UTC+1
         var year = d2.getUTCFullYear();
         function lastSunday(month) {
           var d3 = new Date(Date.UTC(year, month, 31));
           d3.setUTCDate(31 - (d3.getUTCDay() || 7) % 7);
           return d3;
         }
-        var mezStart = lastSunday(2); // letzter Sonntag März
-        var mezEnd   = lastSunday(9); // letzter Sonntag Oktober
-        var offset   = (d2 >= mezStart && d2 < mezEnd) ? 2 : 1; // MESZ=+2, MEZ=+1
+        var offset   = (d2 >= lastSunday(2) && d2 < lastSunday(9)) ? 2 : 1; 
         var totalMin = Math.round(ms / 60000) + offset * 60;
         var h = Math.floor(totalMin / 60) % 24;
         var m = totalMin % 60;
@@ -1045,23 +1061,30 @@
         '</a>';
     }
 
-    /* ── Kamera-Links: Cache-Buster beim Klick ──────────────── */
+    /* ── Kamera-Links: Klick öffnet neues Fenster ───────────── */
     document.querySelectorAll('.cam-card').forEach(function(card) {
       var a    = card.querySelector('.cam-header a');
       var img  = card.querySelector('img.live-cam');
-      if (!a || !img) return;
+      if (!a) return;
       var base = a.getAttribute('href');
-      if (!base || base.indexOf('.jpg') === -1) return;
 
       function openFresh(e) {
-        e.preventDefault();
-        var sep = base.indexOf('?') === -1 ? '?' : '&';
-        window.open(base + sep + 't=' + Date.now(), '_blank', 'noopener');
+        if (!base) return;
+        if (base.indexOf('.jpg') > -1 || base.indexOf('wsrv.nl') > -1) {
+          e.preventDefault();
+          var sep = base.indexOf('?') === -1 ? '?' : '&';
+          window.open(base + sep + 't=' + Date.now(), '_blank', 'noopener');
+        } else if (e.target.tagName.toLowerCase() === 'img') {
+          e.preventDefault();
+          window.open(base, '_blank', 'noopener');
+        }
       }
 
       a.addEventListener('click', openFresh);
-      img.style.cursor = 'pointer';
-      img.addEventListener('click', openFresh);
+      if (img) {
+        img.style.cursor = 'pointer';
+        img.addEventListener('click', openFresh);
+      }
     });
 
   })();
