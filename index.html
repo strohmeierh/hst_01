@@ -818,15 +818,19 @@
       var rrateSub = '<span style="white-space: nowrap;">Max: ' + f(d.rrateTM, 1) + '&nbsp;mm/h</span>';
       var regen = f(d.rfall, 1) + '&nbsp;mm';
 
-      // Dichtehöhe
+      // Dichtehöhe berechnen
       var daHtml = '';
-      if (tv !== null && d.press !== null) {
-        var pv = parseFloat(String(d.press).replace(',', '.'));
+      if (m.temp !== undefined && m.altim !== undefined) {
         var elevFt   = 2885;
-        var isaTemp  = 15 - (elevFt / 1000 * 2);
-        var tempDev  = tv - isaTemp;
-        var pressAlt = elevFt + (1013.25 - pv) * 28;
+        // 1. Zuerst Pressure Altitude berechnen
+        var pressAlt = elevFt + (1013.25 - parseFloat(m.altim)) * 28;
+        // 2. ISA Temperatur auf Basis der Pressure Altitude berechnen (nicht mehr elevFt)
+        var isaTemp  = 15 - (pressAlt / 1000 * 2);
+        // 3. Temperaturabweichung (Deviation) berechnen
+        var tempDev  = parseFloat(m.temp) - isaTemp;
+        // 4. Dichtehöhe berechnen
         var densAlt  = Math.round(pressAlt + 118.8 * tempDev);
+        
         var daColor  = densAlt > 5000 ? '#ef4444' : densAlt > 3000 ? '#f59e0b' : '#10b981';
         daHtml = '<div class="wx-stat"><div class="wx-stat-label">Dichtehöhe</div>' +
           '<div class="wx-stat-value" style="color:' + daColor + '; white-space: nowrap;">' + densAlt + '&nbsp;ft</div>' +
