@@ -825,7 +825,7 @@
         var elevFt   = 2900;
         var isaTemp  = 15 - (elevFt / 1000 * 2);
         var tempDev  = tv - isaTemp;
-        var pressAlt = elevFt + (1013.25 - pv) * 27;
+        var pressAlt = elevFt + (1013.25 - pv) * 28;
         var densAlt  = Math.round(pressAlt + 118.8 * tempDev);
         var daColor  = densAlt > 5000 ? '#ef4444' : densAlt > 3000 ? '#f59e0b' : '#10b981';
         daHtml = '<div class="wx-stat"><div class="wx-stat-label">Dichtehöhe</div>' +
