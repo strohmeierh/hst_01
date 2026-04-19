@@ -969,7 +969,8 @@
         var wx = cx + textDist * Math.sin(windRad);
         var wy = cy - textDist * Math.cos(windRad);
         
-        svg += '<text x="' + wx.toFixed(1) + '" y="' + (wy + 4).toFixed(1) + '" text-anchor="middle" font-size="12" font-weight="bold" fill="' + color + '">' + bearing + '°</text>';
+        svg += '<text x="' + wx.toFixed(1) + '" y="' + (wy - 2).toFixed(1) + '" text-anchor="middle" font-size="12" font-weight="bold" fill="' + color + '">' + bearing + '°</text>';
+        svg += '<text x="' + wx.toFixed(1) + '" y="' + (wy + 10).toFixed(1) + '" text-anchor="middle" font-size="12" font-weight="bold" fill="' + color + '">' + kt + ' kt</text>';
 
         svg += '<defs><marker id="whead" markerWidth="8" markerHeight="8" ' +
           'refX="4" refY="4" orient="auto">' +
