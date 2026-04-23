@@ -2,6 +2,11 @@ name: Wetterdaten aktualisieren
 
 on:
   workflow_dispatch:          # auch manuell auslösbar
+  
+# Erlaubt nur ein gleichzeitiges Deployment und reiht weitere in eine Warteschlange ein
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
   fetch-wetter:
