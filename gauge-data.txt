@@ -1,22 +1,85 @@
-<html>
-<head>
-<title>The page is temporarily unavailable</title>
-<style>
-body { font-family: Tahoma, Verdana, Arial, sans-serif; }
-</style>
-</head>
-<body bgcolor="white" text="black">
-<table width="100%" height="100%">
-<tr>
-<td align="center" valign="middle">
-The page you are looking for is temporarily unavailable.<br/>
-Please try again later.
-<br />
-caf992c7e514b1e7d0ebfb723b0c4eb9
-f2de9ca8d6609a0a6ee11831656e7df4
-05df764eb09a406f4ce2bc060ece4284
-</td>
-</tr>
-</table>
-</body>
-</html>
+{
+           "timeUTC":"2026,04,26,05,10,00",
+              "date":"2026.04.26 07:10",
+        "dateFormat":"y.m.d h:m",
+ "SensorContactLost":"0",
+          "tempunit":"C",
+          "windunit":"km/h",
+         "pressunit":"hPa",
+          "rainunit":"mm",
+     "cloudbaseunit":"ft",
+              "temp":"10,5",
+            "tempTL":"10,1",
+            "tempTH":"12,3",
+           "TtempTL":"01:51:44",
+           "TtempTH":"00:09:56",
+         "temptrend":"0.1",
+            "intemp":"23,6",
+          "intempTL":"23,6",
+          "intempTH":"25,8",
+         "TintempTL":"06:53:59",
+         "TintempTH":"00:00:01",
+               "hum":"36",
+             "humTL":"36",
+             "humTH":"44",
+            "ThumTL":"00:14:30",
+            "ThumTH":"01:51:52",
+             "inhum":"30",
+               "dew":"-3,9",
+        "dewpointTL":"-4,0",
+        "dewpointTH":"-1,1",
+       "TdewpointTL":"07:09:36",
+       "TdewpointTH":"02:29:30",
+            "wchill":"10,5",
+          "wchillTL":"10,1",
+         "TwchillTL":"01:51:44",
+         "heatindex":"8,5",
+       "heatindexTH":"10,6",
+      "TheatindexTH":"00:09:56",
+           "apptemp":"4.9",
+         "apptempTL":"0",
+         "apptempTH":"0",
+        "TapptempTL":"",
+        "TapptempTH":"",
+           "humidex":"10.5",
+             "press":"1019,8",
+            "pressL":"981,6",
+            "pressH":"1030,7",
+           "pressTL":"1018,4",
+           "pressTH":"1019,8",
+          "TpressTL":"00:11:00",
+          "TpressTH":"07:09:01",
+     "presstrendval":"0.8",
+             "rfall":"0.0",
+             "rrate":"0.0",
+           "rrateTM":"0.0",
+          "TrrateTM":"00:00:01",
+      "hourlyrainTH":"0.0",
+     "ThourlyrainTH":"",
+    "LastRainTipISO":"2000-01-01 00:00",
+           "wlatest":"21",
+            "wspeed":"16",
+            "windTM":"18",
+             "wgust":"21",
+           "wgustTM":"24",
+          "TwgustTM":"06:26:43",
+           "bearing":"68",
+        "avgbearing":"69",
+         "bearingTM":"68",
+"BearingRangeFrom10":"000",
+  "BearingRangeTo10":"000",
+        "domwinddir":"ONO",
+      "WindRoseData":[0.0,0.0,0.9,238.7,1.8,10.7,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],
+           "windrun":"89.1",
+         "Tbeaufort":"F3",
+                "UV":"   - -",
+              "UVTH":"   - -",
+          "SolarRad":"   - -",
+           "SolarTM":"   - -",
+   "CurrentSolarMax":"40",
+    "cloudbasevalue":"8807",
+          "forecast":"Sch&#246;nes Wetter",
+           "version":"5.3.1",
+             "build":"",
+               "ver":"14"
+}
