@@ -191,6 +191,38 @@
       margin-top: 8px;
     }
 
+    .wx-subheader {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      background: rgba(56,189,248,0.08);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      margin: 16px 0 12px;
+      font-size: 0.82rem;
+      flex-wrap: wrap;
+    }
+    .wx-subheader:first-child { margin-top: 0; }
+    .wx-subheader .wx-subheader-text { color: var(--text); }
+    .wx-subheader .wx-subheader-text strong { color: var(--accent); font-weight: 600; }
+    .wx-subheader .wx-date { white-space: nowrap; }
+    .wx-subheader a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .wx-subheader a:hover { color: #fff; }
+
+    @media (max-width: 600px) {
+      .wx-subheader .wx-date {
+        display: block;
+        margin-top: 3px;
+      }
+    }
+
     .wx-error {
       color: #f87171;
       font-size: 0.82rem;
@@ -853,7 +885,13 @@
       var diagWspd = isStrictlyVariable ? 0 : wspeed;
       var diagWgst = isStrictlyVariable ? 0 : wgust;
 
+      var stationHeader =
+        '<div class="wx-subheader">' +
+          '<span class="wx-subheader-text"><strong><a href="http://www.lgh-platz.de/wetter/index.html" target="_blank" rel="noopener">Wetterstation EDSF:</a></strong><span class="wx-date"> ' + zeit + '</span></span>' +
+        '</div>';
+
       el.innerHTML =
+        stationHeader +
         '<div class="wx-layout">' +
           buildRunwayDiagram(bearing, diagWspd, diagWgst) +
           '<div class="wx-stats">' +
@@ -867,12 +905,6 @@
             stat('Niederschlag heute', regen) +
             daHtml +
           '</div>' +
-        '</div>' +
-        '<div class="wx-updated">' +
-          'Stand: ' + zeit +
-          '<br class="wx-updated-br">' +
-          ' · <a href="http://www.lgh-platz.de/wetter/index.html" target="_blank" rel="noopener" ' +
-          'style="color:var(--accent);">Wetterdaten Hütten (lgh-platz.de) ↗</a>' +
         '</div>';
     }
 
