@@ -1,6 +1,6 @@
 {
-           "timeUTC":"2026,05,04,19,40,00",
-              "date":"2026.05.04 21:40",
+           "timeUTC":"2026,05,04,19,50,00",
+              "date":"2026.05.04 21:50",
         "dateFormat":"y.m.d h:m",
  "SensorContactLost":"0",
           "tempunit":"C",
@@ -69,7 +69,7 @@
 "BearingRangeFrom10":"000",
   "BearingRangeTo10":"000",
         "domwinddir":"NNW",
-      "WindRoseData":[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,80.0,72.9,4.9],
+      "WindRoseData":[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,80.0,69.7,4.9],
            "windrun":"126.3",
          "Tbeaufort":"F3",
                 "UV":"   - -",
