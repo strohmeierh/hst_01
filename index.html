@@ -1548,7 +1548,6 @@
           if (radar.map) {
             setTimeout(function() { radar.map.invalidateSize(); }, 50);
           }
-          startRadarAnim();
           ensureRadarRefresh();
         }
       } else {
@@ -1636,16 +1635,14 @@
           return r.json();
         })
         .then(function (d) {
+          var wasAtNow = !radar.frames.length || (radar.curIndex === radar.nowIndex);
           radar.apiData = d;
           buildRadarFrames();
           document.getElementById('radar-map').classList.remove('loading', 'error');
-          if (initial) {
+          if (initial || wasAtNow) {
             radar.curIndex = radar.nowIndex;
-            renderRadarFrame();
-            startRadarAnim();
-          } else {
-            renderRadarFrame();
           }
+          renderRadarFrame();
         })
         .catch(function () { showRadarError(); });
     }
@@ -1678,7 +1675,7 @@
       if (!frame) return;
 
       var color, options;
-      if (radar.layer === 'rain') { color = 8; options = '1_1'; }
+      if (radar.layer === 'rain') { color = 2; options = '1_1'; }
       else                        { color = 0; options = '0_0'; }
 
       var url = d.host + frame.path + '/256/{z}/{x}/{y}/' + color + '/' + options + '.png';
@@ -1805,7 +1802,26 @@
         radar.curIndex = Math.round(p * (radar.frames.length - 1));
         renderRadarFrame();
       }
-      sc.addEventListener('click', function (e) { stopRadarAnim(); seek(e.clientX); });
+      var scrubDragging = false;
+      sc.addEventListener('mousedown', function (e) {
+        stopRadarAnim();
+        scrubDragging = true;
+        seek(e.clientX);
+        e.preventDefault();
+      });
+      window.addEventListener('mousemove', function (e) {
+        if (scrubDragging) seek(e.clientX);
+      });
+      window.addEventListener('mouseup', function () { scrubDragging = false; });
+      sc.addEventListener('touchstart', function (e) {
+        stopRadarAnim();
+        scrubDragging = true;
+        if (e.touches[0]) seek(e.touches[0].clientX);
+      }, { passive: true });
+      sc.addEventListener('touchmove', function (e) {
+        if (scrubDragging && e.touches[0]) seek(e.touches[0].clientX);
+      }, { passive: true });
+      sc.addEventListener('touchend', function () { scrubDragging = false; });
 
       document.querySelectorAll('#radar-layer-toggle button').forEach(function (b) {
         b.addEventListener('click', function () {
