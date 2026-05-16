@@ -752,7 +752,7 @@
                 ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
       if (tsEl) {
         tsEl.textContent = formatRelativeAge(ageMs);
-        tsEl.title = 'Bildwechsel erkannt: ' + abs + ' (±10 min)';
+        tsEl.title = 'Letzter Bildwechsel: ' + abs;
       }
       if (dot) {
         dot.classList.remove('age-yellow', 'age-red', 'age-unknown');
