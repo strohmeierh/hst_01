@@ -261,11 +261,12 @@
 
     .cam-header {
       display: flex;
+      flex-wrap: wrap;
       justify-content: space-between;
       align-items: center;
       padding: 12px 14px;
       background: rgba(0,0,0,0.18);
-      gap: 8px;
+      gap: 4px 8px;
     }
 
     .cam-header a {
@@ -295,6 +296,37 @@
       0%   { box-shadow: 0 0 0 0   rgba(16,185,129,0.6); }
       70%  { box-shadow: 0 0 0 6px rgba(16,185,129,0); }
       100% { box-shadow: 0 0 0 0   rgba(16,185,129,0); }
+    }
+    @keyframes pulse-yellow {
+      0%   { box-shadow: 0 0 0 0   rgba(234,179,8,0.6); }
+      70%  { box-shadow: 0 0 0 6px rgba(234,179,8,0); }
+      100% { box-shadow: 0 0 0 0   rgba(234,179,8,0); }
+    }
+    @keyframes pulse-red {
+      0%   { box-shadow: 0 0 0 0   rgba(239,68,68,0.6); }
+      70%  { box-shadow: 0 0 0 6px rgba(239,68,68,0); }
+      100% { box-shadow: 0 0 0 0   rgba(239,68,68,0); }
+    }
+
+    .status-dot.age-yellow {
+      background-color: #eab308;
+      animation-name: pulse-yellow;
+    }
+    .status-dot.age-red {
+      background-color: #ef4444;
+      animation-name: pulse-red;
+    }
+    .status-dot.age-unknown {
+      background-color: #64748b;
+      animation: none;
+    }
+
+    .cam-timestamp {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      flex-shrink: 0;
+      font-variant-numeric: tabular-nums;
     }
 
     .media-container {
@@ -451,7 +483,7 @@
 
       <div class="cam-card">
         <div class="cam-header">
-          <a href="https://wsrv.nl/?url=www.lgh-platz.de/cam/cam21.jpg" target="_blank" rel="noopener">EDSF – Parkplatz</a>
+          <a href="http://www.lgh-platz.de/cam/cam21.jpg" target="_blank" rel="noopener">EDSF – Parkplatz</a>
           <span class="status-dot"></span>
         </div>
         <div class="media-container">
@@ -461,7 +493,7 @@
 
       <div class="cam-card">
         <div class="cam-header">
-          <a href="https://wsrv.nl/?url=www.lgh-platz.de/cam/cam31.jpg" target="_blank" rel="noopener">EDSF – Flugfeld 1</a>
+          <a href="http://www.lgh-platz.de/cam/cam31.jpg" target="_blank" rel="noopener">EDSF – Flugfeld 1</a>
           <span class="status-dot"></span>
         </div>
         <div class="media-container">
@@ -471,7 +503,7 @@
 
       <div class="cam-card">
         <div class="cam-header">
-          <a href="https://wsrv.nl/?url=www.lgh-platz.de/cam/cam41.jpg" target="_blank" rel="noopener">EDSF – Flugfeld 2</a>
+          <a href="http://www.lgh-platz.de/cam/cam41.jpg" target="_blank" rel="noopener">EDSF – Flugfeld 2</a>
           <span class="status-dot"></span>
         </div>
         <div class="media-container">
@@ -481,7 +513,7 @@
 
       <div class="cam-card">
         <div class="cam-header">
-          <a href="https://wsrv.nl/?url=www.lgh-platz.de/cam/cam51.jpg" target="_blank" rel="noopener">EDSF – Flugfeld 3</a>
+          <a href="http://www.lgh-platz.de/cam/cam51.jpg" target="_blank" rel="noopener">EDSF – Flugfeld 3</a>
           <span class="status-dot"></span>
         </div>
         <div class="media-container">
@@ -491,7 +523,7 @@
 
       <div class="cam-card">
         <div class="cam-header">
-          <a href="https://wsrv.nl/?url=www.lgh-platz.de/cam/cam61.jpg" target="_blank" rel="noopener">EDSF – Start Piste 11</a>
+          <a href="http://www.lgh-platz.de/cam/cam61.jpg" target="_blank" rel="noopener">EDSF – Start Piste 11</a>
           <span class="status-dot"></span>
         </div>
         <div class="media-container">
@@ -501,7 +533,7 @@
 
       <div class="cam-card">
         <div class="cam-header">
-          <a href="https://wsrv.nl/?url=www.lgh-platz.de/cam/cam91.jpg" target="_blank" rel="noopener">EDSF – Blick nach Norden</a>
+          <a href="http://www.lgh-platz.de/cam/cam91.jpg" target="_blank" rel="noopener">EDSF – Blick nach Norden</a>
           <span class="status-dot"></span>
         </div>
         <div class="media-container">
@@ -511,7 +543,7 @@
 
       <div class="cam-card">
         <div class="cam-header">
-          <a href="https://wsrv.nl/?url=www.lgh-platz.de/cam/cam11.jpg" target="_blank" rel="noopener">EDSF – Flugzeughalle</a>
+          <a href="http://www.lgh-platz.de/cam/cam11.jpg" target="_blank" rel="noopener">EDSF – Flugzeughalle</a>
           <span class="status-dot"></span>
         </div>
         <div class="media-container">
@@ -526,7 +558,7 @@
 
       <div class="cam-card">
         <div class="cam-header">
-          <a href="https://wsrv.nl/?url=www.ziis.de/cam/current_WE.jpg" target="_blank" rel="noopener">Rickenbach Altenschwand 1</a>
+          <a href="https://www.ziis.de/cam/current_WE.jpg" target="_blank" rel="noopener">Rickenbach Altenschwand 1</a>
           <span class="status-dot"></span>
         </div>
         <div class="media-container">
@@ -536,7 +568,7 @@
 
       <div class="cam-card">
         <div class="cam-header">
-          <a href="https://wsrv.nl/?url=www.ziis.de/cam/mega.jpg" target="_blank" rel="noopener">Rickenbach Altenschwand 2</a>
+          <a href="https://www.ziis.de/cam/mega.jpg" target="_blank" rel="noopener">Rickenbach Altenschwand 2</a>
           <span class="status-dot"></span>
         </div>
         <div class="media-container">
@@ -546,7 +578,7 @@
 
       <div class="cam-card">
         <div class="cam-header">
-          <a href="https://wsrv.nl/?url=www.schopfheim.de/webcam/gersbach/video.jpg" target="_blank" rel="noopener">Gersbach</a>
+          <a href="https://www.schopfheim.de/webcam/gersbach/video.jpg" target="_blank" rel="noopener">Gersbach</a>
           <span class="status-dot"></span>
         </div>
         <div class="media-container">
@@ -556,7 +588,7 @@
 
       <div class="cam-card">
         <div class="cam-header">
-          <a href="https://wsrv.nl/?url=www.notschrei-loipe.de/notschrei-loipe.jpg" target="_blank" rel="noopener">Notschrei – Loipenzentrum</a>
+          <a href="https://www.notschrei-loipe.de/notschrei-loipe.jpg" target="_blank" rel="noopener">Notschrei – Loipenzentrum</a>
           <span class="status-dot"></span>
         </div>
         <div class="media-container">
@@ -566,7 +598,7 @@
 
       <div class="cam-card">
         <div class="cam-header">
-          <a href="https://wsrv.nl/?url=webcam.datacreate.de/feldbergblick/webcam-feldbergblick.jpg" target="_blank" rel="noopener">Todtnau – Feldbergblick</a>
+          <a href="https://webcam.datacreate.de/feldbergblick/webcam-feldbergblick.jpg" target="_blank" rel="noopener">Todtnau – Feldbergblick</a>
           <span class="status-dot"></span>
         </div>
         <div class="media-container">
@@ -576,7 +608,7 @@
 
       <div class="cam-card">
         <div class="cam-header">
-          <a href="https://wsrv.nl/?url=www.feldberger-hof.de/static/webcam/fh-webcam.jpg" target="_blank" rel="noopener">Feldberg Seebuck</a>
+          <a href="https://www.feldberger-hof.de/static/webcam/fh-webcam.jpg" target="_blank" rel="noopener">Feldberg Seebuck</a>
           <span class="status-dot"></span>
         </div>
         <div class="media-container">
@@ -591,7 +623,7 @@
 
       <div class="cam-card">
         <div class="cam-header">
-          <a href="https://wsrv.nl/?url=www.lsg-suedwest.de/WebCam/snapshot.jpg" target="_blank" rel="noopener">Flugplatz Herten</a>
+          <a href="https://www.lsg-suedwest.de/WebCam/snapshot.jpg" target="_blank" rel="noopener">Flugplatz Herten</a>
           <span class="status-dot"></span>
         </div>
         <div class="media-container">
@@ -601,7 +633,7 @@
 
       <div class="cam-card">
         <div class="cam-header">
-          <a href="https://wsrv.nl/?url=webcam-gewerbepark.ftp-land-in-sicht.de/snap_c1.jpg" target="_blank" rel="noopener">Flugplatz Bremgarten</a>
+          <a href="https://webcam-gewerbepark.ftp-land-in-sicht.de/snap_c1.jpg" target="_blank" rel="noopener">Flugplatz Bremgarten</a>
           <span class="status-dot"></span>
         </div>
         <div class="media-container">
@@ -611,7 +643,7 @@
 
       <div class="cam-card">
         <div class="cam-header">
-          <a href="https://wsrv.nl/?url=donau-airport.de/donau-airport.de/webcam/cam_neu2.jpg" target="_blank" rel="noopener">Flugplatz Donaueschingen EDTD</a>
+          <a href="https://donau-airport.de/donau-airport.de/webcam/cam_neu2.jpg" target="_blank" rel="noopener">Flugplatz Donaueschingen EDTD</a>
           <span class="status-dot"></span>
         </div>
         <div class="media-container">
@@ -621,7 +653,7 @@
 
       <div class="cam-card">
         <div class="cam-header">
-          <a href="https://wsrv.nl/?url=cam.afu-server.de/Klippeneck-CAM3.jpg" target="_blank" rel="noopener">Klippeneck – Piste</a>
+          <a href="https://cam.afu-server.de/Klippeneck-CAM3.jpg" target="_blank" rel="noopener">Klippeneck – Piste</a>
           <span class="status-dot"></span>
         </div>
         <div class="media-container">
@@ -631,7 +663,7 @@
 
       <div class="cam-card">
         <div class="cam-header">
-          <a href="https://wsrv.nl/?url=cam.afu-server.de/Klippeneck-CAM1.jpg" target="_blank" rel="noopener">Klippeneck – Panorama</a>
+          <a href="https://cam.afu-server.de/Klippeneck-CAM1.jpg" target="_blank" rel="noopener">Klippeneck – Panorama</a>
           <span class="status-dot"></span>
         </div>
         <div class="media-container">
@@ -690,6 +722,48 @@
 
     var fallbackSvg = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="%2394a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="background:%23000;padding:2rem;"><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7"/><line x1="18" y1="2" x2="22" y2="6"/><line x1="22" y1="2" x2="18" y2="6"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>';
 
+    var camStatus = {};
+
+    function refreshCamStatus(ts) {
+      return fetch('data/cam-status.json?t=' + ts, { cache: 'no-store' })
+        .then(function(r) { return r.ok ? r.json() : {}; })
+        .catch(function() { return {}; });
+    }
+
+    function applyAgeUI(tsEl, dot, lastChange) {
+      var ageMin = (Date.now() - lastChange) / 60000;
+      var d = new Date(lastChange);
+      var s = pad(d.getDate()) + '.' + pad(d.getMonth()+1) + '.' + d.getFullYear() +
+              ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+      if (tsEl) {
+        tsEl.textContent = s;
+        tsEl.title = 'Letzter beobachteter Bildwechsel';
+      }
+      if (dot) {
+        dot.classList.remove('age-yellow', 'age-red', 'age-unknown');
+        if (ageMin >= 30)      dot.classList.add('age-red');
+        else if (ageMin >= 10) dot.classList.add('age-yellow');
+      }
+    }
+
+    function applyStatusToCam(img) {
+      var base = img.getAttribute('data-src');
+      if (!base) return;
+      var card = img.closest('.cam-card');
+      var tsEl = card ? card.querySelector('.cam-timestamp') : null;
+      var dot  = card ? card.querySelector('.status-dot')   : null;
+      var entry = camStatus[base];
+      if (entry && entry.lastChange) {
+        applyAgeUI(tsEl, dot, entry.lastChange);
+      } else {
+        if (tsEl) tsEl.textContent = '';
+        if (dot) {
+          dot.classList.remove('age-yellow', 'age-red');
+          dot.classList.add('age-unknown');
+        }
+      }
+    }
+
     function loadImg(img, ts) {
       var base = img.getAttribute('data-src');
       if (!base) return;
@@ -699,8 +773,9 @@
       img.classList.remove('loaded');
 
       var fresh = new Image();
-      fresh.onload = function () { 
-        img.src = fresh.src; 
+      fresh.onload = function() {
+        img.src = fresh.src;
+        img.style.objectFit = '';
         img.classList.add('loaded');
         container.classList.add('loaded');
       };
@@ -711,6 +786,8 @@
         container.classList.add('loaded');
       };
       fresh.src = bust(base, ts);
+
+      applyStatusToCam(img);
     }
 
     var visible = new Set();
@@ -720,14 +797,31 @@
       });
     }, { rootMargin: '200px' });
 
+    document.querySelectorAll('.cam-header').forEach(function(header) {
+      if (header.querySelector('.cam-timestamp')) return;
+      var dot = header.querySelector('.status-dot');
+      var span = document.createElement('span');
+      span.className = 'cam-timestamp';
+      if (dot) header.insertBefore(span, dot);
+      else header.appendChild(span);
+    });
+
     var imgs = document.querySelectorAll('img.live-cam');
     var ts0 = Date.now();
     imgs.forEach(function (img) { io.observe(img); loadImg(img, ts0); });
 
+    refreshCamStatus(ts0).then(function(data) {
+      camStatus = data;
+      imgs.forEach(function (img) { applyStatusToCam(img); });
+    });
+
     setInterval(function () {
       var ts = Date.now();
-      visible.forEach(function (img) { loadImg(img, ts); });
-      if (lastEl) lastEl.textContent = nowStr();
+      refreshCamStatus(ts).then(function(data) {
+        camStatus = data;
+        visible.forEach(function (img) { loadImg(img, ts); });
+        if (lastEl) lastEl.textContent = nowStr();
+      });
     }, REFRESH_MS);
     if (lastEl) lastEl.textContent = nowStr();
 
