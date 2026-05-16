@@ -24,9 +24,9 @@ from urllib.parse import unquote
 import requests
 
 ROOT = Path(__file__).resolve().parent.parent
-# Auto-discover every index_*.html in the repo root. Works identically
-# whether the repo holds EDSF, LSZK, or both.
-HTML_FILES = sorted(ROOT.glob("index_*.html"))
+# Scan every HTML file in the repo root. The SRC_PATTERN below only picks up
+# wsrv.nl cam URLs, so unrelated HTML files (404 page etc.) are ignored.
+HTML_FILES = sorted(ROOT.glob("*.html"))
 STATUS_FILE = ROOT / "data" / "cam-status.json"
 
 # Only cams that route through wsrv.nl participate. LSPV cams (Wangen-Lachen)
@@ -123,4 +123,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
