@@ -12,6 +12,9 @@
   <link rel="shortcut icon" href="icon-edsf.png">
 
   <link rel="preconnect" href="https://wsrv.nl">
+  <link rel="preconnect" href="https://tilecache.rainviewer.com">
+  <link rel="preconnect" href="https://basemaps.cartocdn.com">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 
   <style>
     :root {
@@ -391,6 +394,236 @@
 
     .wx-updated-br { display: none; }
 
+    /* === Radar-Panel === */
+    .radar-panel {
+      max-width: 1600px;
+      margin: 0 auto 32px;
+      display: none;
+    }
+    .radar-panel.open { display: block; }
+
+    .radar-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+    }
+
+    .radar-map {
+      width: 100%;
+      height: 400px;
+      border-radius: 8px;
+      background: #0a0f1c;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--card-border);
+    }
+    .radar-map.loading::before {
+      content: 'Lade Radar…';
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      z-index: 400;
+      background: var(--card-bg);
+    }
+    .radar-map.error::before {
+      content: '⚠ Radar konnte nicht geladen werden.';
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #f87171;
+      font-size: 0.85rem;
+      z-index: 400;
+      background: var(--card-bg);
+    }
+
+    .radar-controls {
+      margin-top: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .radar-btn {
+      background: rgba(0,0,0,0.3);
+      border: 1px solid var(--card-border);
+      color: var(--accent);
+      border-radius: 8px;
+      width: 36px;
+      height: 36px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background var(--ease), border-color var(--ease);
+      padding: 0;
+      flex-shrink: 0;
+    }
+    .radar-btn:hover { background: var(--accent-dim); border-color: var(--accent); }
+    .radar-btn svg { width: 16px; height: 16px; }
+
+    .radar-scrubber {
+      flex: 1 1 200px;
+      min-width: 160px;
+      height: 10px;
+      border-radius: 5px;
+      position: relative;
+      cursor: pointer;
+      background: linear-gradient(
+        to right,
+        #475569 0%,
+        #475569 calc(var(--now-pos, 80%) - 1px),
+        var(--accent) calc(var(--now-pos, 80%) - 1px),
+        var(--accent) calc(var(--now-pos, 80%) + 1px),
+        rgba(168,85,247,0.35) calc(var(--now-pos, 80%) + 1px),
+        rgba(168,85,247,0.35) 100%
+      );
+    }
+    .radar-scrubber-thumb {
+      position: absolute;
+      top: 50%;
+      width: 16px;
+      height: 16px;
+      background: var(--accent);
+      border-radius: 50%;
+      margin-left: -8px;
+      margin-top: -8px;
+      box-shadow: 0 0 10px rgba(56,189,248,0.7);
+      transition: left 0.15s linear;
+      pointer-events: none;
+    }
+
+    .radar-speed {
+      background: rgba(0,0,0,0.3);
+      border: 1px solid var(--card-border);
+      color: var(--accent);
+      border-radius: 8px;
+      padding: 0 12px;
+      height: 36px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      font-weight: 600;
+      font-family: var(--font);
+      min-width: 44px;
+    }
+    .radar-speed:hover { border-color: var(--accent); }
+
+    .radar-layer-toggle {
+      display: inline-flex;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      overflow: hidden;
+      height: 36px;
+    }
+    .radar-layer-toggle button {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 0 12px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      font-family: var(--font);
+      transition: background var(--ease), color var(--ease);
+    }
+    .radar-layer-toggle button.active {
+      background: var(--accent);
+      color: var(--bg);
+      font-weight: 600;
+    }
+
+    .radar-info {
+      margin-top: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .radar-frame-time {
+      color: var(--accent);
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      font-size: 0.95rem;
+    }
+    .radar-frame-tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.68rem;
+      margin-left: 8px;
+      background: rgba(56,189,248,0.15);
+      color: var(--accent);
+      letter-spacing: 0.05em;
+      font-weight: 600;
+      vertical-align: middle;
+    }
+    .radar-frame-tag.forecast {
+      background: rgba(168,85,247,0.18);
+      color: #c084fc;
+    }
+    .radar-frame-tag.past {
+      background: rgba(148,163,184,0.18);
+      color: var(--text-muted);
+    }
+
+    /* Pulsierender EDSF-Marker auf der Karte */
+    .radar-marker {
+      position: relative;
+      width: 14px;
+      height: 14px;
+    }
+    .radar-marker::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 2px rgba(15,23,42,0.95);
+    }
+    .radar-marker::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 2px solid var(--accent);
+      animation: radar-pulse 2.2s infinite;
+    }
+    @keyframes radar-pulse {
+      0%   { transform: scale(1);   opacity: 1; }
+      100% { transform: scale(3.5); opacity: 0; }
+    }
+
+    /* Leaflet-Overrides fürs dunkle Theme */
+    .leaflet-container { background: #0a0f1c !important; font-family: var(--font); outline: none; }
+    .leaflet-control-attribution {
+      background: rgba(15,23,42,0.7) !important;
+      color: var(--text-muted) !important;
+      font-size: 9px !important;
+      backdrop-filter: blur(4px);
+    }
+    .leaflet-control-attribution a { color: var(--accent) !important; }
+    .leaflet-control-zoom a {
+      background: rgba(15,23,42,0.85) !important;
+      color: var(--accent) !important;
+      border-color: var(--card-border) !important;
+    }
+    .leaflet-control-zoom a:hover { background: var(--accent-dim) !important; }
+    .leaflet-control-scale-line {
+      background: rgba(15,23,42,0.7) !important;
+      color: var(--text) !important;
+      border-color: var(--card-border) !important;
+    }
+
     .wx-layout {
       display: grid;
       grid-template-columns: auto 1fr;
@@ -416,6 +649,12 @@
       /* Dropdown-Menü Full-Width auf Mobile */
       .dropdown { position: static; }
       .dropdown-content { width: 100%; left: 0; transform: none; top: calc(100% + 4px); }
+
+      /* Radar kompakter auf Mobile */
+      .radar-map { height: 280px; }
+      .radar-controls { gap: 6px; }
+      .radar-scrubber { flex-basis: 100%; order: 10; margin-top: 4px; }
+      .radar-info { font-size: 0.72rem; }
     }
   </style>
 </head>
@@ -440,6 +679,16 @@
         Wetter EDSF
       </button>
 
+      <button class="top-btn" id="radar-toggle" onclick="toggleRadar()" aria-expanded="false">
+        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="1.5"/>
+          <path d="M12 5a7 7 0 0 1 7 7"/>
+          <path d="M12 9a3 3 0 0 1 3 3"/>
+          <path d="M5 19a7 7 0 0 0 7-7"/>
+        </svg>
+        Radar EDSF
+      </button>
+
       <div class="dropdown">
         <button class="top-btn" onclick="toggleMenu(event)">
           <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -448,7 +697,6 @@
           Links ▼
         </button>
         <div class="dropdown-content" id="tools-menu">
-          <a href="https://www.windy.com/-Weather-radar-radar?radar,47.633,7.941,10" target="_blank" rel="noopener">☔ Regenradar (EDSF)</a>
           <a href="https://www.skybriefing.com/de/dabs" target="_blank" rel="noopener">🗺 DABS (Schweiz)</a>
           <a href="https://notaminfo.com/switzerlandmap" target="_blank" rel="noopener">✈ NOTAM Info (Schweiz)</a>
           <a href="https://notaminfo.com/germanymap" target="_blank" rel="noopener">✈ NOTAM Info (Deutschland)</a>
@@ -473,6 +721,47 @@
       </div>
       <div id="wx-content">
         <div style="color:var(--text-muted);font-size:0.85rem;padding:10px 0;">Lade Wetterdaten…</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="radar-panel" id="radar-panel">
+    <div class="radar-card">
+      <div class="wx-card-title">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="1.5"/>
+          <path d="M12 5a7 7 0 0 1 7 7"/>
+          <path d="M12 9a3 3 0 0 1 3 3"/>
+          <path d="M5 19a7 7 0 0 0 7-7"/>
+        </svg>
+        Wetterradar – EDSF Hütten-Hotzenwald
+      </div>
+      <div class="radar-map loading" id="radar-map"></div>
+      <div class="radar-controls">
+        <button class="radar-btn" id="radar-prev" title="Vorheriger Frame" aria-label="Vorheriger Frame">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/></svg>
+        </button>
+        <button class="radar-btn" id="radar-play" title="Play/Pause" aria-label="Play/Pause">
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+        </button>
+        <button class="radar-btn" id="radar-next" title="Nächster Frame" aria-label="Nächster Frame">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
+        </button>
+        <div class="radar-scrubber" id="radar-scrubber">
+          <div class="radar-scrubber-thumb" id="radar-scrubber-thumb"></div>
+        </div>
+        <button class="radar-speed" id="radar-speed" title="Geschwindigkeit">1×</button>
+        <div class="radar-layer-toggle" id="radar-layer-toggle">
+          <button data-layer="rain" class="active" title="Niederschlag">🌧 Regen</button>
+          <button data-layer="clouds" title="Wolken (Infrarot)">☁ Wolken</button>
+        </div>
+      </div>
+      <div class="radar-info">
+        <div>
+          <span class="radar-frame-time" id="radar-frame-time">--:--</span>
+          <span class="radar-frame-tag" id="radar-frame-tag">JETZT</span>
+        </div>
+        <div id="radar-updated">Daten: <a href="https://www.rainviewer.com/" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;">RainViewer</a> · alle 5 min</div>
       </div>
     </div>
   </div>
@@ -1223,6 +1512,322 @@
            'class="top-btn" style="display:inline-flex;font-size:0.85rem;padding:9px 16px;margin-top:10px;">' +
           'Wetterdaten EDSF direkt öffnen ↗' +
         '</a>';
+    }
+
+    /* ── Wetterradar EDSF ───────────────────────────────────── */
+    var EDSF_LAT = 47.63387;
+    var EDSF_LON = 7.94123;
+    var RWY_DEG  = 110;
+
+    var radar = {
+      initialized: false,
+      leafletReady: false,
+      map: null,
+      tileLayer: null,
+      apiData: null,
+      frames: [],
+      nowIndex: 0,
+      curIndex: 0,
+      playing: false,
+      speedMs: 500,
+      layer: 'rain',
+      animTimer: null,
+      refreshTimer: null
+    };
+
+    window.toggleRadar = function () {
+      var panel = document.getElementById('radar-panel');
+      var btn   = document.getElementById('radar-toggle');
+      var open  = panel.classList.toggle('open');
+      btn.setAttribute('aria-expanded', open);
+      if (open) {
+        if (!radar.initialized) {
+          radar.initialized = true;
+          initRadar();
+        } else {
+          if (radar.map) {
+            setTimeout(function() { radar.map.invalidateSize(); }, 50);
+          }
+          startRadarAnim();
+          ensureRadarRefresh();
+        }
+      } else {
+        stopRadarAnim();
+        clearRadarRefresh();
+      }
+    };
+
+    function loadLeaflet(cb) {
+      if (radar.leafletReady || window.L) { radar.leafletReady = true; cb(); return; }
+      var css = document.createElement('link');
+      css.rel = 'stylesheet';
+      css.href = 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css';
+      document.head.appendChild(css);
+      var s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js';
+      s.onload = function () { radar.leafletReady = true; cb(); };
+      s.onerror = function () { showRadarError(); };
+      document.head.appendChild(s);
+    }
+
+    function showRadarError() {
+      var el = document.getElementById('radar-map');
+      el.classList.remove('loading');
+      el.classList.add('error');
+    }
+
+    function initRadar() {
+      loadLeaflet(function () {
+        var mapEl = document.getElementById('radar-map');
+        radar.map = L.map(mapEl, {
+          center: [EDSF_LAT, EDSF_LON],
+          zoom: 8,
+          zoomControl: true,
+          attributionControl: true,
+          worldCopyJump: true
+        });
+
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/attributions">CARTO</a> · Radar: <a href="https://www.rainviewer.com/">RainViewer</a>',
+          subdomains: 'abcd',
+          maxZoom: 19
+        }).addTo(radar.map);
+
+        L.control.scale({ imperial: false, position: 'bottomleft', maxWidth: 120 }).addTo(radar.map);
+
+        var icon = L.divIcon({
+          className: 'radar-marker-wrapper',
+          html: '<div class="radar-marker"></div>',
+          iconSize: [14, 14],
+          iconAnchor: [7, 7]
+        });
+        L.marker([EDSF_LAT, EDSF_LON], { icon: icon, interactive: false, keyboard: false }).addTo(radar.map);
+
+        // Pistenlinie 11/29 (300 m je Seite)
+        var p11 = destPoint(EDSF_LAT, EDSF_LON, RWY_DEG, 300);
+        var p29 = destPoint(EDSF_LAT, EDSF_LON, (RWY_DEG + 180) % 360, 300);
+        L.polyline([p11, p29], {
+          color: '#e2e8f0', weight: 2, opacity: 0.85,
+          dashArray: '5,4', interactive: false
+        }).addTo(radar.map);
+
+        bindRadarControls();
+        loadRadarData(true);
+        ensureRadarRefresh();
+      });
+    }
+
+    function destPoint(lat, lon, brngDeg, distM) {
+      var R = 6371000;
+      var brng = brngDeg * Math.PI / 180;
+      var latR = lat * Math.PI / 180;
+      var lonR = lon * Math.PI / 180;
+      var dR = distM / R;
+      var lat2 = Math.asin(Math.sin(latR) * Math.cos(dR) + Math.cos(latR) * Math.sin(dR) * Math.cos(brng));
+      var lon2 = lonR + Math.atan2(Math.sin(brng) * Math.sin(dR) * Math.cos(latR),
+                                   Math.cos(dR) - Math.sin(latR) * Math.sin(lat2));
+      return [lat2 * 180 / Math.PI, lon2 * 180 / Math.PI];
+    }
+
+    function loadRadarData(initial) {
+      fetch('https://api.rainviewer.com/public/weather-maps.json', { cache: 'no-store' })
+        .then(function (r) {
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return r.json();
+        })
+        .then(function (d) {
+          radar.apiData = d;
+          buildRadarFrames();
+          document.getElementById('radar-map').classList.remove('loading', 'error');
+          if (initial) {
+            radar.curIndex = radar.nowIndex;
+            renderRadarFrame();
+            startRadarAnim();
+          } else {
+            renderRadarFrame();
+          }
+        })
+        .catch(function () { showRadarError(); });
+    }
+
+    function buildRadarFrames() {
+      var d = radar.apiData;
+      if (!d) return;
+      if (radar.layer === 'rain') {
+        var past = (d.radar && d.radar.past) ? d.radar.past : [];
+        var nowcast = (d.radar && d.radar.nowcast) ? d.radar.nowcast : [];
+        var pl = past.length;
+        radar.frames = past.concat(nowcast).map(function (f, i) {
+          return { time: f.time, path: f.path, isForecast: i >= pl };
+        });
+        radar.nowIndex = Math.max(0, pl - 1);
+      } else {
+        var sat = (d.satellite && d.satellite.infrared) ? d.satellite.infrared : [];
+        radar.frames = sat.map(function (f) {
+          return { time: f.time, path: f.path, isForecast: false };
+        });
+        radar.nowIndex = Math.max(0, sat.length - 1);
+      }
+      if (radar.curIndex >= radar.frames.length) radar.curIndex = radar.nowIndex;
+    }
+
+    function renderRadarFrame() {
+      var d = radar.apiData;
+      if (!d || !radar.frames.length || !radar.map) return;
+      var frame = radar.frames[radar.curIndex];
+      if (!frame) return;
+
+      var color, options;
+      if (radar.layer === 'rain') { color = 8; options = '1_1'; }
+      else                        { color = 0; options = '0_0'; }
+
+      var url = d.host + frame.path + '/256/{z}/{x}/{y}/' + color + '/' + options + '.png';
+
+      var newLayer = L.tileLayer(url, {
+        opacity: 0,
+        zIndex: 200,
+        tileSize: 256,
+        crossOrigin: true
+      }).addTo(radar.map);
+
+      newLayer.on('load', function () {
+        newLayer.setOpacity(0.78);
+        if (radar.tileLayer && radar.tileLayer !== newLayer) {
+          radar.map.removeLayer(radar.tileLayer);
+        }
+        radar.tileLayer = newLayer;
+      });
+      // Fallback: nach 1s sichtbar machen, auch wenn 'load' nicht feuert
+      setTimeout(function() {
+        if (newLayer && newLayer.options.opacity === 0) {
+          newLayer.setOpacity(0.78);
+          if (radar.tileLayer && radar.tileLayer !== newLayer) {
+            radar.map.removeLayer(radar.tileLayer);
+          }
+          radar.tileLayer = newLayer;
+        }
+      }, 1000);
+
+      // Zeit + Tag
+      var dt = new Date(frame.time * 1000);
+      var timeEl = document.getElementById('radar-frame-time');
+      var tagEl  = document.getElementById('radar-frame-tag');
+      timeEl.textContent = pad(dt.getHours()) + ':' + pad(dt.getMinutes());
+      tagEl.classList.remove('forecast', 'past');
+      if (frame.isForecast) {
+        var fwd = Math.round((frame.time - radar.frames[radar.nowIndex].time) / 60);
+        tagEl.textContent = '+' + fwd + ' min';
+        tagEl.classList.add('forecast');
+      } else if (radar.curIndex === radar.nowIndex) {
+        tagEl.textContent = 'JETZT';
+      } else {
+        var back = Math.round((radar.frames[radar.nowIndex].time - frame.time) / 60);
+        tagEl.textContent = '–' + back + ' min';
+        tagEl.classList.add('past');
+      }
+
+      // Scrubber
+      var len = radar.frames.length;
+      var pct = len > 1 ? (radar.curIndex / (len - 1)) * 100 : 0;
+      document.getElementById('radar-scrubber-thumb').style.left = pct + '%';
+      var nowPct = len > 1 ? (radar.nowIndex / (len - 1)) * 100 : 100;
+      document.getElementById('radar-scrubber').style.setProperty('--now-pos', nowPct + '%');
+    }
+
+    function scheduleRadarTick() {
+      if (!radar.playing) return;
+      var delay = radar.speedMs;
+      if (radar.curIndex === radar.frames.length - 1) delay += 900; // Pause am Loop-Ende
+      else if (radar.curIndex === radar.nowIndex)     delay += 350; // kleine Atempause an JETZT
+      radar.animTimer = setTimeout(function () {
+        advanceRadarFrame();
+        scheduleRadarTick();
+      }, delay);
+    }
+
+    function advanceRadarFrame() {
+      if (!radar.frames.length) return;
+      var n = radar.curIndex + 1;
+      if (n >= radar.frames.length) n = 0;
+      radar.curIndex = n;
+      renderRadarFrame();
+    }
+
+    function startRadarAnim() {
+      if (radar.animTimer || !radar.frames.length) return;
+      radar.playing = true;
+      updatePlayBtn();
+      scheduleRadarTick();
+    }
+
+    function stopRadarAnim() {
+      if (radar.animTimer) { clearTimeout(radar.animTimer); radar.animTimer = null; }
+      radar.playing = false;
+      updatePlayBtn();
+    }
+
+    function updatePlayBtn() {
+      var btn = document.getElementById('radar-play');
+      if (!btn) return;
+      btn.innerHTML = radar.playing
+        ? '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>'
+        : '<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>';
+    }
+
+    function bindRadarControls() {
+      document.getElementById('radar-play').addEventListener('click', function () {
+        radar.playing ? stopRadarAnim() : startRadarAnim();
+      });
+      document.getElementById('radar-prev').addEventListener('click', function () {
+        stopRadarAnim();
+        var p = radar.curIndex - 1;
+        if (p < 0) p = radar.frames.length - 1;
+        radar.curIndex = p;
+        renderRadarFrame();
+      });
+      document.getElementById('radar-next').addEventListener('click', function () {
+        stopRadarAnim();
+        advanceRadarFrame();
+      });
+      document.getElementById('radar-speed').addEventListener('click', function () {
+        if      (radar.speedMs === 500) { radar.speedMs = 250;  this.textContent = '2×'; }
+        else if (radar.speedMs === 250) { radar.speedMs = 1000; this.textContent = '0.5×'; }
+        else                            { radar.speedMs = 500;  this.textContent = '1×'; }
+        if (radar.playing) { stopRadarAnim(); startRadarAnim(); }
+      });
+
+      var sc = document.getElementById('radar-scrubber');
+      function seek(clientX) {
+        if (!radar.frames.length) return;
+        var rect = sc.getBoundingClientRect();
+        var p = (clientX - rect.left) / rect.width;
+        p = Math.max(0, Math.min(1, p));
+        radar.curIndex = Math.round(p * (radar.frames.length - 1));
+        renderRadarFrame();
+      }
+      sc.addEventListener('click', function (e) { stopRadarAnim(); seek(e.clientX); });
+
+      document.querySelectorAll('#radar-layer-toggle button').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var layer = b.getAttribute('data-layer');
+          if (layer === radar.layer) return;
+          radar.layer = layer;
+          document.querySelectorAll('#radar-layer-toggle button').forEach(function (x) {
+            x.classList.toggle('active', x === b);
+          });
+          buildRadarFrames();
+          radar.curIndex = radar.nowIndex;
+          renderRadarFrame();
+        });
+      });
+    }
+
+    function ensureRadarRefresh() {
+      if (radar.refreshTimer) return;
+      radar.refreshTimer = setInterval(function () { loadRadarData(false); }, 300000);
+    }
+    function clearRadarRefresh() {
+      if (radar.refreshTimer) { clearInterval(radar.refreshTimer); radar.refreshTimer = null; }
     }
 
     /* ── Kamera-Links: Klick öffnet neues Fenster ───────────── */
