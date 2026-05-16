@@ -15,6 +15,7 @@
   <link rel="preconnect" href="https://tilecache.rainviewer.com">
   <link rel="preconnect" href="https://basemaps.cartocdn.com">
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="preconnect" href="https://server.arcgisonline.com">
 
   <style>
     :root {
@@ -411,7 +412,7 @@
 
     .radar-map {
       width: 100%;
-      height: 400px;
+      height: 460px;
       border-radius: 8px;
       background: #0a0f1c;
       position: relative;
@@ -441,6 +442,25 @@
       font-size: 0.85rem;
       z-index: 400;
       background: var(--card-bg);
+    }
+    .radar-map.no-data::after {
+      content: attr(data-no-data-msg);
+      position: absolute;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15,23,42,0.92);
+      color: var(--text);
+      padding: 10px 18px;
+      border-radius: 8px;
+      border: 1px solid var(--card-border);
+      font-size: 0.82rem;
+      z-index: 600;
+      text-align: center;
+      max-width: 80%;
+      white-space: pre-line;
+      backdrop-filter: blur(4px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
     }
 
     .radar-controls {
@@ -514,30 +534,6 @@
       min-width: 44px;
     }
     .radar-speed:hover { border-color: var(--accent); }
-
-    .radar-layer-toggle {
-      display: inline-flex;
-      background: rgba(0,0,0,0.3);
-      border: 1px solid var(--card-border);
-      border-radius: 8px;
-      overflow: hidden;
-      height: 36px;
-    }
-    .radar-layer-toggle button {
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      padding: 0 12px;
-      font-size: 0.8rem;
-      cursor: pointer;
-      font-family: var(--font);
-      transition: background var(--ease), color var(--ease);
-    }
-    .radar-layer-toggle button.active {
-      background: var(--accent);
-      color: var(--bg);
-      font-weight: 600;
-    }
 
     .radar-info {
       margin-top: 10px;
@@ -651,7 +647,7 @@
       .dropdown-content { width: 100%; left: 0; transform: none; top: calc(100% + 4px); }
 
       /* Radar kompakter auf Mobile */
-      .radar-map { height: 280px; }
+      .radar-map { height: 320px; }
       .radar-controls { gap: 6px; }
       .radar-scrubber { flex-basis: 100%; order: 10; margin-top: 4px; }
       .radar-info { font-size: 0.72rem; }
@@ -751,17 +747,13 @@
           <div class="radar-scrubber-thumb" id="radar-scrubber-thumb"></div>
         </div>
         <button class="radar-speed" id="radar-speed" title="Geschwindigkeit">1×</button>
-        <div class="radar-layer-toggle" id="radar-layer-toggle">
-          <button data-layer="rain" class="active" title="Niederschlag">🌧 Regen</button>
-          <button data-layer="clouds" title="Wolken (Infrarot)">☁ Wolken</button>
-        </div>
       </div>
       <div class="radar-info">
         <div>
           <span class="radar-frame-time" id="radar-frame-time">--:--</span>
           <span class="radar-frame-tag" id="radar-frame-tag">JETZT</span>
         </div>
-        <div id="radar-updated">Daten: <a href="https://www.rainviewer.com/" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;">RainViewer</a> · alle 5 min</div>
+        <div id="radar-updated">Vergangenheit: <a href="https://www.rainviewer.com/" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;">RainViewer</a> · Vorhersage: <a href="https://www.dwd.de/" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;">DWD RV</a></div>
       </div>
     </div>
   </div>
@@ -1530,7 +1522,6 @@
       curIndex: 0,
       playing: false,
       speedMs: 500,
-      layer: 'rain',
       animTimer: null,
       refreshTimer: null
     };
@@ -1581,15 +1572,25 @@
         radar.map = L.map(mapEl, {
           center: [EDSF_LAT, EDSF_LON],
           zoom: 8,
+          minZoom: 4,
+          maxZoom: 11,
           zoomControl: true,
           attributionControl: true,
           worldCopyJump: true
         });
 
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/attributions">CARTO</a> · Radar: <a href="https://www.rainviewer.com/">RainViewer</a>',
-          subdomains: 'abcd',
-          maxZoom: 19
+        // Satellitenbild als Basemap
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+          attribution: 'Tiles &copy; <a href="https://www.esri.com/">Esri</a>, Maxar · Radar: <a href="https://www.rainviewer.com/">RainViewer</a> · Vorhersage: <a href="https://www.dwd.de/">DWD</a>',
+          maxZoom: 19,
+          zIndex: 100
+        }).addTo(radar.map);
+
+        // Labels (Ortsnamen, Grenzen) darüber
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
+          maxZoom: 19,
+          zIndex: 150,
+          opacity: 0.95
         }).addTo(radar.map);
 
         L.control.scale({ imperial: false, position: 'bottomleft', maxWidth: 120 }).addTo(radar.map);
@@ -1647,45 +1648,89 @@
         .catch(function () { showRadarError(); });
     }
 
+    function buildDwdForecastFrames() {
+      // DWD RV: 5-Min-Schritte bis +2 h, ausgehend vom letzten 5-Min-Raster
+      var refMs = Math.floor(Date.now() / 300000) * 300000;
+      var frames = [];
+      for (var i = 1; i <= 24; i++) {
+        var t = refMs + i * 5 * 60000;
+        var d = new Date(t);
+        var iso = d.getUTCFullYear() + '-' +
+                  pad(d.getUTCMonth() + 1) + '-' +
+                  pad(d.getUTCDate()) + 'T' +
+                  pad(d.getUTCHours()) + ':' +
+                  pad(d.getUTCMinutes()) + ':00Z';
+        frames.push({
+          source: 'dwd',
+          time: Math.floor(t / 1000),
+          timeISO: iso,
+          isForecast: true
+        });
+      }
+      return frames;
+    }
+
     function buildRadarFrames() {
       var d = radar.apiData;
       if (!d) return;
-      if (radar.layer === 'rain') {
-        var past = (d.radar && d.radar.past) ? d.radar.past : [];
-        var nowcast = (d.radar && d.radar.nowcast) ? d.radar.nowcast : [];
-        var pl = past.length;
-        radar.frames = past.concat(nowcast).map(function (f, i) {
-          return { time: f.time, path: f.path, isForecast: i >= pl };
-        });
-        radar.nowIndex = Math.max(0, pl - 1);
-      } else {
-        var sat = (d.satellite && d.satellite.infrared) ? d.satellite.infrared : [];
-        radar.frames = sat.map(function (f) {
-          return { time: f.time, path: f.path, isForecast: false };
-        });
-        radar.nowIndex = Math.max(0, sat.length - 1);
-      }
+      var past = (d.radar && d.radar.past) ? d.radar.past : [];
+      var nowcast = (d.radar && d.radar.nowcast) ? d.radar.nowcast : [];
+      var pl = past.length;
+      var rvFrames = past.concat(nowcast).map(function (f, i) {
+        return { source: 'rainviewer', time: f.time, path: f.path, isForecast: i >= pl };
+      });
+      var dwdFrames = buildDwdForecastFrames();
+      radar.frames = rvFrames.concat(dwdFrames);
+      radar.nowIndex = Math.max(0, pl - 1);
       if (radar.curIndex >= radar.frames.length) radar.curIndex = radar.nowIndex;
     }
 
     function renderRadarFrame() {
       var d = radar.apiData;
-      if (!d || !radar.frames.length || !radar.map) return;
+      if (!d || !radar.map) return;
+      var mapEl = document.getElementById('radar-map');
+
+      if (!radar.frames.length) {
+        if (radar.tileLayer) { radar.map.removeLayer(radar.tileLayer); radar.tileLayer = null; }
+        mapEl.setAttribute('data-no-data-msg', 'Keine Radar-Daten verfügbar');
+        mapEl.classList.add('no-data');
+        document.getElementById('radar-frame-time').textContent = '--:--';
+        var tag = document.getElementById('radar-frame-tag');
+        tag.textContent = '—';
+        tag.className = 'radar-frame-tag past';
+        document.getElementById('radar-scrubber-thumb').style.left = '0%';
+        return;
+      }
+      mapEl.classList.remove('no-data');
+
       var frame = radar.frames[radar.curIndex];
       if (!frame) return;
 
-      var color, options;
-      if (radar.layer === 'rain') { color = 2; options = '1_1'; }
-      else                        { color = 0; options = '0_0'; }
-
-      var url = d.host + frame.path + '/256/{z}/{x}/{y}/' + color + '/' + options + '.png';
-
-      var newLayer = L.tileLayer(url, {
-        opacity: 0,
-        zIndex: 200,
-        tileSize: 256,
-        crossOrigin: true
-      }).addTo(radar.map);
+      var newLayer;
+      if (frame.source === 'dwd') {
+        newLayer = L.tileLayer.wms('https://maps.dwd.de/geoserver/dwd/wms', {
+          layers: 'dwd:Radar_rv_product_1x1km_ger',
+          format: 'image/png',
+          transparent: true,
+          version: '1.3.0',
+          time: frame.timeISO,
+          opacity: 0,
+          zIndex: 250,
+          maxZoom: 11,
+          crossOrigin: true,
+          uppercase: true
+        }).addTo(radar.map);
+      } else {
+        var url = d.host + frame.path + '/256/{z}/{x}/{y}/4/1_1.png';
+        newLayer = L.tileLayer(url, {
+          opacity: 0,
+          zIndex: 250,
+          tileSize: 256,
+          crossOrigin: true,
+          maxNativeZoom: 7,
+          maxZoom: 11
+        }).addTo(radar.map);
+      }
 
       newLayer.on('load', function () {
         newLayer.setOpacity(0.78);
@@ -1823,19 +1868,6 @@
       }, { passive: true });
       sc.addEventListener('touchend', function () { scrubDragging = false; });
 
-      document.querySelectorAll('#radar-layer-toggle button').forEach(function (b) {
-        b.addEventListener('click', function () {
-          var layer = b.getAttribute('data-layer');
-          if (layer === radar.layer) return;
-          radar.layer = layer;
-          document.querySelectorAll('#radar-layer-toggle button').forEach(function (x) {
-            x.classList.toggle('active', x === b);
-          });
-          buildRadarFrames();
-          radar.curIndex = radar.nowIndex;
-          renderRadarFrame();
-        });
-      });
     }
 
     function ensureRadarRefresh() {
@@ -1845,6 +1877,7 @@
     function clearRadarRefresh() {
       if (radar.refreshTimer) { clearInterval(radar.refreshTimer); radar.refreshTimer = null; }
     }
+
 
     /* ── Kamera-Links: Klick öffnet neues Fenster ───────────── */
     document.querySelectorAll('.cam-card').forEach(function(card) {
