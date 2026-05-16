@@ -1,7 +1,9 @@
 name: Wetterdaten aktualisieren
 
 on:
-  workflow_dispatch:          # auch manuell auslösbar
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
   
 # Erlaubt nur ein gleichzeitiges Deployment und reiht weitere in eine Warteschlange ein
 concurrency:
