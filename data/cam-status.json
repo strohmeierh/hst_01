@@ -1,22 +1,22 @@
 {
   "https://wsrv.nl/?url=cam.afu-server.de/Klippeneck-CAM1.jpg": {
-    "hash": "df2047783dbf7a97969c1e25467c1d63ca2d4ad9",
-    "lastChange": 1779405545000,
+    "hash": "c16ac02fa9b7d985d5788d8a49d988eb3ec4e74d",
+    "lastChange": 1779405845000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=cam.afu-server.de/Klippeneck-CAM3.jpg": {
-    "hash": "e64b7f3baa46d8185132f3df3d4668c736243f11",
-    "lastChange": 1779405545000,
+    "hash": "94fb4bd00e11ad5faa790b2585382335d06c85e4",
+    "lastChange": 1779405845000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=donau-airport.de/donau-airport.de/webcam/cam_neu2.jpg": {
-    "hash": "4e0fe7bd9bfd0b3f5bd5f4f74e0989fc02ba9584",
-    "lastChange": 1779405557000,
+    "hash": "ac615782b882fbb4bcda6101cc2b1547f3146755",
+    "lastChange": 1779405857000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=webcam-gewerbepark.ftp-land-in-sicht.de/snap_c1.jpg": {
-    "hash": "4578012452cfd791986e02ac37ca3769abd23aa6",
-    "lastChange": 1779405553000,
+    "hash": "a3232c3197799f705bfb9908392c87262bef26d3",
+    "lastChange": 1779405853000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=webcam.datacreate.de/feldbergblick/webcam-feldbergblick.jpg": {
@@ -30,8 +30,8 @@
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.lgh-platz.de/cam/cam11.jpg": {
-    "hash": "abbb7a84f4f13fc645c29440d58a225ad39248b4",
-    "lastChange": 1779405204000,
+    "hash": "60225c937374895eab60a9ae6db5d952a8827e8d",
+    "lastChange": 1779405803000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.lgh-platz.de/cam/cam21.jpg": {
@@ -40,33 +40,33 @@
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.lgh-platz.de/cam/cam31.jpg": {
-    "hash": "9bc4b1a543e3f5951f9a0408f2aff999a7dc6258",
-    "lastChange": 1779405266000,
+    "hash": "ab4182814485f0db042792fb5fb12287227cbabb",
+    "lastChange": 1779405858000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.lgh-platz.de/cam/cam41.jpg": {
-    "hash": "fde507772479e495df86ff929a6294da722b9765",
-    "lastChange": 1779405077000,
+    "hash": "bd399de7ee5f43251a70f67b8217af635692cfae",
+    "lastChange": 1779405676000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.lgh-platz.de/cam/cam51.jpg": {
-    "hash": "ecced8d0cff05c932c7a7ddeebac626daa550e9a",
-    "lastChange": 1779405076000,
+    "hash": "e12df69a372eab79b47fc52f0877a1da8f37c654",
+    "lastChange": 1779405676000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.lgh-platz.de/cam/cam61.jpg": {
-    "hash": "e69e97a1b464069f87cf9473e2587f745ba38900",
-    "lastChange": 1779405219000,
+    "hash": "29736f7a47d8fefe820e58012b2a9e9354bd9b7a",
+    "lastChange": 1779405822000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.lgh-platz.de/cam/cam91.jpg": {
-    "hash": "b13ef1cdb8fb3400268047f10239ba35c3fbea6a",
-    "lastChange": 1779405039000,
+    "hash": "ce0c4ff8997ebe86cf81e8a67b28ff3c89d120ad",
+    "lastChange": 1779405652000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.lsg-suedwest.de/WebCam/snapshot.jpg": {
-    "hash": "c70968347a8e29af16037e8fcb8c32f739268bf9",
-    "lastChange": 1779405531000,
+    "hash": "49894c594198fd03ecb4b93d52bf55c9cd8d1fd4",
+    "lastChange": 1779405832000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.notschrei-loipe.de/notschrei-loipe.jpg": {
@@ -75,8 +75,8 @@
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.schopfheim.de/webcam/gersbach/video.jpg": {
-    "hash": "b66f6eca46208044619b34c43c0c2adc4baefdd3",
-    "lastChange": 1779405528000,
+    "hash": "d507032b1a6ed53a532fd914ca79ec086367e19e",
+    "lastChange": 1779405828000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.ziis.de/cam/current_WE.jpg": {
@@ -85,8 +85,8 @@
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.ziis.de/cam/mega.jpg": {
-    "hash": "0012d48774c01b1a309e701e62085928ddb9af2e",
-    "lastChange": 1779404414000,
+    "hash": "eb3b8b2c395843c73b87ca40a0904896bbb425ee",
+    "lastChange": 1779405604000,
     "source": "origin"
   }
 }
