@@ -700,6 +700,7 @@
           <a href="https://glidertracker.de/#lat=47.633&lon=7.941&z=11&nowelcome" target="_blank" rel="noopener">🛰 Glidertracker</a>
           <a href="https://www.weglide.org/flight?club=LG%2520Hotzenwald,23" target="_blank" rel="noopener">🛩 WeGlide</a>
           <a href="https://flightbook.glidernet.org/logbook/EDSF" target="_blank" rel="noopener">📒 OGN Flightbook (EDSF)</a>
+          <a href="#flights-EDSF" onclick="event.preventDefault(); openFlightsWindow('EDSF');">🛩 Flüge heute EDSF</a>
           <a href="https://vereinsflieger.de/" target="_blank" rel="noopener">☁ Vereinsflieger</a>
         </div>
       </div>
@@ -1905,6 +1906,153 @@
       }
     });
 
+  })();
+
+  // ===== OGN Flightbook → SeeYou Cloud Viewer (Popup-Fenster) =====
+  (function () {
+    function buildFlightsHtml(icao) {
+      var icaoJs = JSON.stringify(icao);
+      return `<!DOCTYPE html>
+<html lang="de"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>OGN Flüge ${icao} → SeeYou Cloud</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🛩%3C/text%3E%3C/svg%3E">
+<style>
+:root{--bg:#0f172a;--bg-card:#1e293b;--text:#e2e8f0;--text-muted:#94a3b8;--accent:#38bdf8;--accent-dim:rgba(56,189,248,0.15);--card-border:#334155;--warn:#fbbf24}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.45;min-height:100vh;-webkit-text-size-adjust:100%}
+header{padding:14px 18px;padding-top:max(14px,env(safe-area-inset-top));border-bottom:1px solid var(--card-border);background:var(--bg-card);display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:8px;position:sticky;top:0;z-index:5}
+h1{margin:0;font-size:1rem;letter-spacing:0.02em;font-weight:600}
+h1 .accent{color:var(--accent)}
+.meta{color:var(--text-muted);font-size:0.78rem}
+.meta b{color:var(--text);font-weight:600}
+main{padding:14px 18px 24px;max-width:1100px;margin:0 auto}
+.status{color:var(--text-muted);font-size:0.9rem;padding:14px 0;font-style:italic;text-align:center}
+.hint{color:var(--text-muted);font-size:0.74rem;margin-top:10px;line-height:1.55}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+thead th{text-align:left;font-size:0.68rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);font-weight:600;padding:8px 10px;border-bottom:1px solid var(--card-border);background:var(--bg-card);position:sticky;top:48px;z-index:4}
+thead th.num{text-align:right}
+tbody tr{border-bottom:1px solid var(--card-border);transition:background-color 0.15s}
+tbody tr:hover{background:var(--accent-dim)}
+tbody td{padding:9px 10px;font-size:0.85rem;vertical-align:middle}
+.cell-reg{font-weight:600;color:var(--text);white-space:nowrap}
+.cell-reg .comp{color:var(--text-muted);font-size:0.78rem;font-weight:400;margin-left:4px}
+.cell-ac{color:var(--text-muted);font-size:0.82rem}
+.num{text-align:right;color:var(--text)}
+.num-muted{text-align:right;color:var(--text-muted)}
+.running{color:var(--warn);font-style:italic}
+.warn-icon{color:var(--warn);margin-left:4px}
+.priv{color:var(--text-muted);font-style:italic}
+.btn-igc{display:inline-block;background:var(--accent);color:var(--bg);padding:7px 14px;border-radius:5px;text-decoration:none;font-size:0.82rem;font-weight:600;white-space:nowrap;transition:background-color 0.15s;line-height:1.2}
+.btn-igc:hover,.btn-igc:active{background:#7dd3fc}
+.btn-disabled{display:inline-block;color:var(--text-muted);padding:7px 14px;font-size:0.78rem;font-style:italic;cursor:default;white-space:nowrap}
+footer{padding:14px 18px;padding-bottom:max(14px,env(safe-area-inset-bottom));border-top:1px solid var(--card-border);color:var(--text-muted);font-size:0.72rem;text-align:center}
+footer a{color:var(--accent);text-decoration:none}
+footer a:hover{text-decoration:underline}
+@media (max-width: 720px){
+header{padding:12px 14px;padding-top:max(12px,env(safe-area-inset-top))}
+h1{font-size:0.95rem}
+.meta{font-size:0.74rem;width:100%;margin-top:2px}
+main{padding:12px 12px 20px}
+thead{display:none}
+table,tbody,tr,td{display:block;width:100%}
+tr{background:var(--bg-card);border:1px solid var(--card-border);border-radius:10px;padding:12px 14px;margin-bottom:10px}
+tr:hover{background:var(--bg-card)}
+td{border:none!important;padding:3px 0!important;text-align:left!important;font-size:0.92rem}
+td:not(.cell-reg):not(.cell-action)::before{content:attr(data-label);display:inline-block;min-width:96px;color:var(--text-muted);font-size:0.7rem;text-transform:uppercase;letter-spacing:0.05em;font-weight:600}
+td.cell-reg{font-size:1.05rem;padding-bottom:8px!important;border-bottom:1px solid var(--card-border)!important;margin-bottom:6px}
+td.cell-ac{padding-bottom:8px!important;font-size:0.88rem}
+td.cell-action{margin-top:12px;padding:0!important}
+td.cell-action .btn-igc{display:block;text-align:center;padding:13px 16px;font-size:1rem;border-radius:6px;min-height:46px}
+td.cell-action .btn-disabled{display:block;text-align:center;padding:13px 16px;font-size:0.85rem}
+.num,.num-muted{text-align:left}
+}
+</style>
+</head><body>
+<header>
+<h1>🛩 OGN Flüge <span class="accent">${icao}</span></h1>
+<div class="meta" id="meta">lädt…</div>
+</header>
+<main>
+<div id="content" class="status">Lade Flugdaten…</div>
+<div class="hint">📊 SeeYou öffnet den Flug im SeeYou Cloud Viewer (2D/3D-Karte, Barogramm, Statistiken). OGN hält IGC-Dateien max. 24 h vor.</div>
+</main>
+<footer>Datenquelle: <a href="https://flightbook.glidernet.org" target="_blank" rel="noopener">OGN Flightbook</a> · Viewer: <a href="https://seeyou.cloud" target="_blank" rel="noopener">SeeYou Cloud</a></footer>
+<script>
+(function(){
+var ICAO=${icaoJs};
+var API_URL="https://flightbook.glidernet.org/api/logbook/"+ICAO+"/";
+var content=document.getElementById("content");
+var meta=document.getElementById("meta");
+var lastData=null;
+function pad(n){return n<10?"0"+n:""+n}
+function formatDuration(s){if(!s)return"–";var h=Math.floor(s/3600),m=Math.floor((s%3600)/60);return h?h+":"+pad(m)+" h":m+" min"}
+function formatStart(s){return s?s.replace("h",":"):"?"}
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]})}
+function buildIgcUrl(date,dev,f){var a=dev.address,s=f.start_tsp-(f.start_delta!==undefined?60*f.start_delta:30),o=f.stop_tsp+(f.stop_delta!==undefined?60*f.stop_delta:30);return"https://flightbook.glidernet.org/api/live/igc/"+a+"/"+s+"/"+o+"?date="+date}
+function buildSeeYouUrl(u){return"https://seeyou.cloud/api/open?igc="+encodeURIComponent(u)}
+function hasIgc(d,f){if(!d.identified||!d.tracked)return false;if(!f.stop_tsp)return false;if(Date.now()/1000-f.stop_tsp>86400)return false;return true}
+function render(){
+  if(!lastData)return;
+  var data=lastData,devs=data.devices||[],flights=(data.flights||[]).slice();
+  var af=data.airfield||{},now=new Date();
+  meta.innerHTML="<b>"+esc(af.name||ICAO)+"</b>"+(af.elevation?" · "+af.elevation+" m":"")+" · "+esc(data.date||"")+" · "+flights.length+" Flug"+(flights.length===1?"":"e")+" · aktualisiert "+pad(now.getHours())+":"+pad(now.getMinutes());
+  if(!flights.length){content.className="status";content.textContent="Heute noch keine Flüge geloggt.";return}
+  flights.sort(function(a,b){return b.start_tsp-a.start_tsp});
+  var html='<table><thead><tr><th>Kennzeichen</th><th>Flugzeug</th><th>Start</th><th>Stop</th><th class="num">Dauer</th><th class="num">max. AGL</th><th class="num">max. MSL</th><th></th></tr></thead><tbody>';
+  flights.forEach(function(f){
+    var d=devs[f.device]||{},a=d.address||"";
+    var priv=a.charAt(0)==="~"||a.charAt(0)==="_";
+    var reg=priv?'<span class="priv">#'+esc(a.slice(-5))+"</span>":esc(d.registration||a.slice(-5))+(d.competition?' <span class="comp">"'+esc(d.competition)+'"</span>':"");
+    var ac=esc(d.aircraft||"—");
+    var sc=f.start_code?' <span class="cell-ac">('+esc(f.start_code)+")</span>":"";
+    var stc=f.stop_code?' <span class="cell-ac">('+esc(f.stop_code)+")</span>":"";
+    var tow=f.towing?' <span class="cell-ac" title="Schleppfahrt">🪢</span>':"";
+    var warn=f.warn?' <span class="warn-icon" title="Detektion unsicher">⚠</span>':"";
+    var stop=f.stop?(esc(formatStart(f.stop))+stc):'<span class="running">läuft…</span>';
+    var dur=f.duration?esc(formatDuration(f.duration)):'<span class="running">'+(f.duration_expected?"≈ "+formatDuration(f.duration_expected):"läuft…")+"</span>";
+    var agl=f.max_height?f.max_height+" m":"–";
+    var msl=f.max_alt?f.max_alt+" m":"–";
+    var action;
+    if(hasIgc(d,f)){
+      var url=buildSeeYouUrl(buildIgcUrl(data.date,d,f));
+      action='<a class="btn-igc" href="'+url+'" target="_blank" rel="noopener" title="In SeeYou Cloud öffnen">📊 SeeYou</a>';
+    }else{
+      var why=priv?"anonym":!d.identified?"nicht registriert":!f.stop_tsp?"läuft noch":"IGC abgelaufen";
+      action='<span class="btn-disabled" title="Kein IGC – '+why+'">— '+why+" —</span>";
+    }
+    html+="<tr>"+
+      '<td class="cell-reg">'+reg+"</td>"+
+      '<td class="cell-ac" data-label="Flugzeug">'+ac+"</td>"+
+      '<td data-label="Start">'+esc(formatStart(f.start))+sc+tow+"</td>"+
+      '<td data-label="Stop">'+stop+warn+"</td>"+
+      '<td class="num" data-label="Dauer">'+dur+"</td>"+
+      '<td class="num-muted" data-label="max. AGL">'+agl+"</td>"+
+      '<td class="num-muted" data-label="max. MSL">'+msl+"</td>"+
+      '<td class="cell-action">'+action+"</td>"+
+      "</tr>";
+  });
+  html+="</tbody></table>";
+  content.className="";
+  content.innerHTML=html;
+}
+function load(){fetch(API_URL,{cache:"no-store"}).then(function(r){if(!r.ok)throw new Error("HTTP "+r.status);return r.json()}).then(function(d){lastData=d;render()}).catch(function(e){content.className="status";content.textContent="OGN nicht erreichbar ("+e.message+").";meta.textContent=ICAO+" · Fehler beim Laden"})}
+load();
+setInterval(load,60000);
+})();
+<\/script>
+</body></html>`;
+    }
+
+    window.openFlightsWindow = function (icao) {
+      var win = window.open('', 'ogn-flights-' + icao, 'width=960,height=820,scrollbars=yes,resizable=yes');
+      if (!win) { alert('Popup blockiert. Bitte Popups für diese Seite erlauben.'); return; }
+      win.document.open();
+      win.document.write(buildFlightsHtml(icao));
+      win.document.close();
+      try { win.focus(); } catch (e) {}
+    };
   })();
   </script>
 
