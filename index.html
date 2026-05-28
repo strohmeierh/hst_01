@@ -700,7 +700,7 @@
           <a href="https://glidertracker.de/#lat=47.633&lon=7.941&z=11&nowelcome" target="_blank" rel="noopener">🛰 Glidertracker</a>
           <a href="https://www.weglide.org/flight?club=LG%2520Hotzenwald,23" target="_blank" rel="noopener">🛩 WeGlide</a>
           <a href="https://flightbook.glidernet.org/logbook/EDSF" target="_blank" rel="noopener">📒 OGN Flightbook (EDSF)</a>
-          <a href="#flights-EDSF" onclick="event.preventDefault(); openFlightsWindow('EDSF');">🛩 Flüge heute EDSF</a>
+          <a href="#" data-flights-icao="EDSF" target="_blank" rel="noopener">🛩 Fluganalyse EDSF</a>
           <a href="https://vereinsflieger.de/" target="_blank" rel="noopener">☁ Vereinsflieger</a>
         </div>
       </div>
@@ -1908,7 +1908,7 @@
 
   })();
 
-  // ===== OGN Flightbook → SeeYou Cloud Viewer (Popup-Fenster) =====
+  // ===== OGN Fluganalyse → SeeYou Cloud Viewer (eigenständige Seite via Blob-URL) =====
   (function () {
     function buildFlightsHtml(icao) {
       var icaoJs = JSON.stringify(icao);
@@ -1916,22 +1916,29 @@
 <html lang="de"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>OGN Flüge ${icao} → SeeYou Cloud</title>
+<title>OGN Fluganalyse ${icao}</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🛩%3C/text%3E%3C/svg%3E">
 <style>
 :root{--bg:#0f172a;--bg-card:#1e293b;--text:#e2e8f0;--text-muted:#94a3b8;--accent:#38bdf8;--accent-dim:rgba(56,189,248,0.15);--card-border:#334155;--warn:#fbbf24}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.45;min-height:100vh;-webkit-text-size-adjust:100%}
-header{padding:14px 18px;padding-top:max(14px,env(safe-area-inset-top));border-bottom:1px solid var(--card-border);background:var(--bg-card);display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:8px;position:sticky;top:0;z-index:5}
+header{padding:14px 18px;padding-top:max(14px,env(safe-area-inset-top));border-bottom:1px solid var(--card-border);background:var(--bg-card)}
+.header-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap;width:100%}
 h1{margin:0;font-size:1rem;letter-spacing:0.02em;font-weight:600}
 h1 .accent{color:var(--accent)}
 .meta{color:var(--text-muted);font-size:0.78rem}
 .meta b{color:var(--text);font-weight:600}
+.date-nav{display:flex;align-items:center;gap:8px;margin-top:10px}
+.navbtn,.date-display{background:var(--bg);border:1px solid var(--card-border);color:var(--text);padding:8px 14px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:0.85rem;font-variant-numeric:tabular-nums;transition:background-color 0.15s,border-color 0.15s,color 0.15s}
+.navbtn{width:40px;padding:8px 0;font-size:1.1rem;flex-shrink:0;line-height:1}
+.navbtn:hover:not(:disabled),.date-display:hover{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
+.navbtn:disabled{opacity:0.3;cursor:default}
+.date-display{min-width:220px;font-weight:600;text-align:center;flex:1}
 main{padding:14px 18px 24px;max-width:1100px;margin:0 auto}
 .status{color:var(--text-muted);font-size:0.9rem;padding:14px 0;font-style:italic;text-align:center}
 .hint{color:var(--text-muted);font-size:0.74rem;margin-top:10px;line-height:1.55}
 table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
-thead th{text-align:left;font-size:0.68rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);font-weight:600;padding:8px 10px;border-bottom:1px solid var(--card-border);background:var(--bg-card);position:sticky;top:48px;z-index:4}
+thead th{text-align:left;font-size:0.68rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);font-weight:600;padding:8px 10px;border-bottom:1px solid var(--card-border)}
 thead th.num{text-align:right}
 tbody tr{border-bottom:1px solid var(--card-border);transition:background-color 0.15s}
 tbody tr:hover{background:var(--accent-dim)}
@@ -1952,8 +1959,12 @@ footer a{color:var(--accent);text-decoration:none}
 footer a:hover{text-decoration:underline}
 @media (max-width: 720px){
 header{padding:12px 14px;padding-top:max(12px,env(safe-area-inset-top))}
+.header-top{flex-direction:column;align-items:flex-start}
 h1{font-size:0.95rem}
 .meta{font-size:0.74rem;width:100%;margin-top:2px}
+.date-nav{width:100%;margin-top:10px;gap:6px}
+.navbtn{width:46px;height:46px;padding:0;font-size:1.3rem}
+.date-display{min-width:0;font-size:0.85rem;padding:0 8px}
 main{padding:12px 12px 20px}
 thead{display:none}
 table,tbody,tr,td{display:block;width:100%}
@@ -1971,8 +1982,15 @@ td.cell-action .btn-disabled{display:block;text-align:center;padding:13px 16px;f
 </style>
 </head><body>
 <header>
-<h1>🛩 OGN Flüge <span class="accent">${icao}</span></h1>
+<div class="header-top">
+<h1>🛩 OGN Fluganalyse <span class="accent">${icao}</span></h1>
 <div class="meta" id="meta">lädt…</div>
+</div>
+<div class="date-nav">
+<button class="navbtn" id="prev-day" type="button" title="Vorheriger Tag" aria-label="Vorheriger Tag">‹</button>
+<button class="date-display" id="date-display" type="button" title="Zurück zu heute">heute</button>
+<button class="navbtn" id="next-day" type="button" title="Nächster Tag" aria-label="Nächster Tag">›</button>
+</div>
 </header>
 <main>
 <div id="content" class="status">Lade Flugdaten…</div>
@@ -1982,23 +2000,35 @@ td.cell-action .btn-disabled{display:block;text-align:center;padding:13px 16px;f
 <script>
 (function(){
 var ICAO=${icaoJs};
-var API_URL="https://flightbook.glidernet.org/api/logbook/"+ICAO+"/";
+var API_BASE="https://flightbook.glidernet.org/api/logbook/"+ICAO+"/";
 var content=document.getElementById("content");
 var meta=document.getElementById("meta");
+var prevBtn=document.getElementById("prev-day");
+var nextBtn=document.getElementById("next-day");
+var dateDisplay=document.getElementById("date-display");
+var today=new Date();today.setHours(0,0,0,0);
+var currentDate=new Date(today);
 var lastData=null;
+var DAYS=["So","Mo","Di","Mi","Do","Fr","Sa"];
 function pad(n){return n<10?"0"+n:""+n}
+function fmtISO(d){return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())}
+function fmtHuman(d){return DAYS[d.getDay()]+". "+pad(d.getDate())+"."+pad(d.getMonth()+1)+"."+d.getFullYear()}
+function isFuture(d){return d.getTime()>today.getTime()}
+function isToday(d){return d.getTime()===today.getTime()}
+function isYesterday(d){var y=new Date(today);y.setDate(y.getDate()-1);return d.getTime()===y.getTime()}
 function formatDuration(s){if(!s)return"–";var h=Math.floor(s/3600),m=Math.floor((s%3600)/60);return h?h+":"+pad(m)+" h":m+" min"}
 function formatStart(s){return s?s.replace("h",":"):"?"}
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]})}
 function buildIgcUrl(date,dev,f){var a=dev.address,s=f.start_tsp-(f.start_delta!==undefined?60*f.start_delta:30),o=f.stop_tsp+(f.stop_delta!==undefined?60*f.stop_delta:30);return"https://flightbook.glidernet.org/api/live/igc/"+a+"/"+s+"/"+o+"?date="+date}
 function buildSeeYouUrl(u){return"https://seeyou.cloud/api/open?igc="+encodeURIComponent(u)}
 function hasIgc(d,f){if(!d.identified||!d.tracked)return false;if(!f.stop_tsp)return false;if(Date.now()/1000-f.stop_tsp>86400)return false;return true}
+function updateDateUI(){var label=isToday(currentDate)?"heute":isYesterday(currentDate)?"gestern":fmtHuman(currentDate);dateDisplay.textContent=label+" · "+fmtISO(currentDate);nextBtn.disabled=isToday(currentDate)}
 function render(){
   if(!lastData)return;
   var data=lastData,devs=data.devices||[],flights=(data.flights||[]).slice();
   var af=data.airfield||{},now=new Date();
-  meta.innerHTML="<b>"+esc(af.name||ICAO)+"</b>"+(af.elevation?" · "+af.elevation+" m":"")+" · "+esc(data.date||"")+" · "+flights.length+" Flug"+(flights.length===1?"":"e")+" · aktualisiert "+pad(now.getHours())+":"+pad(now.getMinutes());
-  if(!flights.length){content.className="status";content.textContent="Heute noch keine Flüge geloggt.";return}
+  meta.innerHTML="<b>"+esc(af.name||ICAO)+"</b>"+(af.elevation?" · "+af.elevation+" m":"")+" · "+flights.length+" Flug"+(flights.length===1?"":"e")+(isToday(currentDate)?" · aktualisiert "+pad(now.getHours())+":"+pad(now.getMinutes()):"");
+  if(!flights.length){content.className="status";content.textContent="Keine Flüge an diesem Tag.";return}
   flights.sort(function(a,b){return b.start_tsp-a.start_tsp});
   var html='<table><thead><tr><th>Kennzeichen</th><th>Flugzeug</th><th>Start</th><th>Stop</th><th class="num">Dauer</th><th class="num">max. AGL</th><th class="num">max. MSL</th><th></th></tr></thead><tbody>';
   flights.forEach(function(f){
@@ -2037,22 +2067,26 @@ function render(){
   content.className="";
   content.innerHTML=html;
 }
-function load(){fetch(API_URL,{cache:"no-store"}).then(function(r){if(!r.ok)throw new Error("HTTP "+r.status);return r.json()}).then(function(d){lastData=d;render()}).catch(function(e){content.className="status";content.textContent="OGN nicht erreichbar ("+e.message+").";meta.textContent=ICAO+" · Fehler beim Laden"})}
+function load(){content.className="status";content.textContent="Lade Flugdaten…";meta.textContent="lädt…";fetch(API_BASE+fmtISO(currentDate),{cache:"no-store"}).then(function(r){if(!r.ok)throw new Error("HTTP "+r.status);return r.json()}).then(function(d){lastData=d;render()}).catch(function(e){content.className="status";content.textContent="OGN nicht erreichbar ("+e.message+").";meta.textContent=ICAO+" · Fehler beim Laden"})}
+function setDate(d){if(isFuture(d))return;currentDate=d;updateDateUI();load()}
+prevBtn.onclick=function(){var d=new Date(currentDate);d.setDate(d.getDate()-1);setDate(d)};
+nextBtn.onclick=function(){var d=new Date(currentDate);d.setDate(d.getDate()+1);setDate(d)};
+dateDisplay.onclick=function(){setDate(new Date(today))};
+document.addEventListener("keydown",function(e){if(e.target&&(e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA"))return;if(e.key==="ArrowLeft"){prevBtn.click();e.preventDefault()}else if(e.key==="ArrowRight"&&!nextBtn.disabled){nextBtn.click();e.preventDefault()}});
+updateDateUI();
 load();
-setInterval(load,60000);
+setInterval(function(){if(isToday(currentDate))load()},60000);
 })();
 <\/script>
 </body></html>`;
     }
 
-    window.openFlightsWindow = function (icao) {
-      var win = window.open('', 'ogn-flights-' + icao, 'width=960,height=820,scrollbars=yes,resizable=yes');
-      if (!win) { alert('Popup blockiert. Bitte Popups für diese Seite erlauben.'); return; }
-      win.document.open();
-      win.document.write(buildFlightsHtml(icao));
-      win.document.close();
-      try { win.focus(); } catch (e) {}
-    };
+    // Blob-URL für jeden Fluganalyse-Link erzeugen → klickt wie normaler "target=_blank"-Link
+    document.querySelectorAll('a[data-flights-icao]').forEach(function (link) {
+      var icao = link.getAttribute('data-flights-icao');
+      var blob = new Blob([buildFlightsHtml(icao)], { type: 'text/html;charset=utf-8' });
+      link.href = URL.createObjectURL(blob);
+    });
   })();
   </script>
 
