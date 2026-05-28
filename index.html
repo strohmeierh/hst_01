@@ -1934,6 +1934,22 @@ h1 .accent{color:var(--accent)}
 .navbtn:hover:not(:disabled),.date-display:hover{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
 .navbtn:disabled{opacity:0.3;cursor:default}
 .date-display{min-width:220px;font-weight:600;text-align:center;flex:1}
+.search-bar{position:relative;margin-top:8px;width:100%}
+.search-input{width:100%;background:var(--bg);border:1px solid var(--card-border);color:var(--text);padding:8px 36px 8px 34px;border-radius:6px;font-family:inherit;font-size:0.85rem;transition:border-color 0.15s,background-color 0.15s;outline:none;-webkit-appearance:none;appearance:none}
+.search-input:focus{border-color:var(--accent);background:var(--accent-dim)}
+.search-input::placeholder{color:var(--text-muted)}
+.search-input::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none}
+.search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:0.85rem;pointer-events:none;line-height:1}
+.search-clear{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:transparent;border:none;color:var(--text-muted);cursor:pointer;padding:4px 8px;font-size:1.1rem;border-radius:4px;line-height:1;display:none;font-family:inherit}
+.search-clear.visible{display:block}
+.search-clear:hover{color:var(--accent);background:var(--accent-dim)}
+.meta .count{color:var(--accent);font-weight:600}
+tfoot tr.sum-row td{background:var(--accent-dim);border-top:2px solid var(--accent);padding:12px 14px}
+.cell-sum{display:flex;gap:6px 20px;align-items:baseline;flex-wrap:wrap;color:var(--text)}
+.sum-label{color:var(--accent);font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;font-weight:700}
+.sum-item{font-size:0.92rem;font-weight:600;font-variant-numeric:tabular-nums}
+.sum-item .lbl{color:var(--text-muted);font-weight:500;font-size:0.78rem;margin-right:5px}
+.sum-running{color:var(--text-muted);font-weight:500;font-size:0.78rem;font-style:italic;font-variant-numeric:tabular-nums}
 main{padding:14px 18px 24px;max-width:1100px;margin:0 auto}
 .status{color:var(--text-muted);font-size:0.9rem;padding:14px 0;font-style:italic;text-align:center}
 .hint{color:var(--text-muted);font-size:0.74rem;margin-top:10px;line-height:1.55}
@@ -1965,6 +1981,8 @@ h1{font-size:0.95rem}
 .date-nav{width:100%;margin-top:10px;gap:6px}
 .navbtn{width:46px;height:46px;padding:0;font-size:1.3rem}
 .date-display{min-width:0;font-size:0.85rem;padding:0 8px}
+.search-input{font-size:16px;padding:11px 40px 11px 36px}
+.search-clear{padding:8px 10px;font-size:1.25rem}
 main{padding:12px 12px 20px}
 thead{display:none}
 table,tbody,tr,td{display:block;width:100%}
@@ -1978,6 +1996,10 @@ td.cell-action{margin-top:12px;padding:0!important}
 td.cell-action .btn-igc{display:block;text-align:center;padding:13px 16px;font-size:1rem;border-radius:6px;min-height:46px}
 td.cell-action .btn-disabled{display:block;text-align:center;padding:13px 16px;font-size:0.85rem}
 .num,.num-muted{text-align:left}
+tfoot{display:block;width:100%}
+tfoot tr.sum-row{background:var(--accent-dim);border-color:var(--accent)}
+tfoot tr.sum-row td{padding:0!important}
+tfoot tr.sum-row td::before{display:none!important}
 }
 </style>
 </head><body>
@@ -1990,6 +2012,11 @@ td.cell-action .btn-disabled{display:block;text-align:center;padding:13px 16px;f
 <button class="navbtn" id="prev-day" type="button" title="Vorheriger Tag" aria-label="Vorheriger Tag">‹</button>
 <button class="date-display" id="date-display" type="button" title="Zurück zu heute">heute</button>
 <button class="navbtn" id="next-day" type="button" title="Nächster Tag" aria-label="Nächster Tag">›</button>
+</div>
+<div class="search-bar">
+<span class="search-icon" aria-hidden="true">🔍</span>
+<input class="search-input" id="filter-input" type="search" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Filter (/): Kennzeichen, Wettbewerbskennung oder Typ – z. B. KBC, IA, ASK">
+<button class="search-clear" id="filter-clear" type="button" title="Filter löschen (Esc)" aria-label="Filter löschen">×</button>
 </div>
 </header>
 <main>
@@ -2006,9 +2033,15 @@ var meta=document.getElementById("meta");
 var prevBtn=document.getElementById("prev-day");
 var nextBtn=document.getElementById("next-day");
 var dateDisplay=document.getElementById("date-display");
+var filterInput=document.getElementById("filter-input");
+var clearBtn=document.getElementById("filter-clear");
 var today=new Date();today.setHours(0,0,0,0);
 var currentDate=new Date(today);
 var lastData=null;
+var STORAGE_KEY="ogn-filter-"+ICAO;
+function loadFilter(){try{return(localStorage.getItem(STORAGE_KEY)||"").trim()}catch(e){return ""}}
+function saveFilter(v){try{if(v)localStorage.setItem(STORAGE_KEY,v);else localStorage.removeItem(STORAGE_KEY)}catch(e){}}
+var filterText=loadFilter();
 var DAYS=["So","Mo","Di","Mi","Do","Fr","Sa"];
 function pad(n){return n<10?"0"+n:""+n}
 function fmtISO(d){return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())}
@@ -2023,12 +2056,21 @@ function buildIgcUrl(date,dev,f){var a=dev.address,s=f.start_tsp-(f.start_delta!
 function buildSeeYouUrl(u){return"https://seeyou.cloud/api/open?igc="+encodeURIComponent(u)}
 function hasIgc(d,f){if(!d.identified||!d.tracked)return false;if(!f.stop_tsp)return false;if(Date.now()/1000-f.stop_tsp>86400)return false;return true}
 function updateDateUI(){var label=isToday(currentDate)?"heute":isYesterday(currentDate)?"gestern":fmtHuman(currentDate);dateDisplay.textContent=label+" · "+fmtISO(currentDate);nextBtn.disabled=isToday(currentDate)}
+function matchesFilter(d){
+  if(!filterText)return true;
+  var q=filterText.toLowerCase();
+  return(((d.registration||"")+" "+(d.competition||"")+" "+(d.aircraft||"")).toLowerCase().indexOf(q)!==-1);
+}
 function render(){
   if(!lastData)return;
-  var data=lastData,devs=data.devices||[],flights=(data.flights||[]).slice();
+  var data=lastData,devs=data.devices||[],allFlights=(data.flights||[]).slice();
   var af=data.airfield||{},now=new Date();
-  meta.innerHTML="<b>"+esc(af.name||ICAO)+"</b>"+(af.elevation?" · "+af.elevation+" m":"")+" · "+flights.length+" Flug"+(flights.length===1?"":"e")+(isToday(currentDate)?" · aktualisiert "+pad(now.getHours())+":"+pad(now.getMinutes()):"");
-  if(!flights.length){content.className="status";content.textContent="Keine Flüge an diesem Tag.";return}
+  var flights=filterText?allFlights.filter(function(f){return matchesFilter(devs[f.device]||{})}):allFlights;
+  var total=allFlights.length,shown=flights.length;
+  var countStr=filterText?'<span class="count">'+shown+'</span> von '+total+' Flügen':total+' Flug'+(total===1?'':'e');
+  meta.innerHTML="<b>"+esc(af.name||ICAO)+"</b>"+(af.elevation?" · "+af.elevation+" m":"")+" · "+countStr+(isToday(currentDate)?" · aktualisiert "+pad(now.getHours())+":"+pad(now.getMinutes()):"");
+  if(!allFlights.length){content.className="status";content.textContent="Keine Flüge an diesem Tag.";return}
+  if(!flights.length){content.className="status";content.textContent='Keine Flüge passen zum Filter „'+filterText+'".';return}
   flights.sort(function(a,b){return b.start_tsp-a.start_tsp});
   var html='<table><thead><tr><th>Kennzeichen</th><th>Flugzeug</th><th>Start</th><th>Stop</th><th class="num">Dauer</th><th class="num">max. AGL</th><th class="num">max. MSL</th><th></th></tr></thead><tbody>';
   flights.forEach(function(f){
@@ -2063,7 +2105,20 @@ function render(){
       '<td class="cell-action">'+action+"</td>"+
       "</tr>";
   });
-  html+="</tbody></table>";
+  if(filterText){
+    var sumSec=0,running=0;
+    flights.forEach(function(f){if(f.duration)sumSec+=f.duration;else if(!f.stop_tsp)running++});
+    var sumDur=sumSec?formatDuration(sumSec):"–";
+    var runHtml=running?'<span class="sum-running">+'+running+' läuft…</span>':'';
+    html+='</tbody><tfoot><tr class="sum-row"><td colspan="8"><div class="cell-sum">'+
+      '<span class="sum-label">Σ Filter</span>'+
+      '<span class="sum-item"><span class="lbl">Starts:</span>'+shown+'</span>'+
+      '<span class="sum-item"><span class="lbl">Flugzeit:</span>'+sumDur+'</span>'+
+      runHtml+
+      '</div></td></tr></tfoot></table>';
+  }else{
+    html+="</tbody></table>";
+  }
   content.className="";
   content.innerHTML=html;
 }
@@ -2072,7 +2127,17 @@ function setDate(d){if(isFuture(d))return;currentDate=d;updateDateUI();load()}
 prevBtn.onclick=function(){var d=new Date(currentDate);d.setDate(d.getDate()-1);setDate(d)};
 nextBtn.onclick=function(){var d=new Date(currentDate);d.setDate(d.getDate()+1);setDate(d)};
 dateDisplay.onclick=function(){setDate(new Date(today))};
-document.addEventListener("keydown",function(e){if(e.target&&(e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA"))return;if(e.key==="ArrowLeft"){prevBtn.click();e.preventDefault()}else if(e.key==="ArrowRight"&&!nextBtn.disabled){nextBtn.click();e.preventDefault()}});
+function applyFilter(v){filterText=(v||"").trim();saveFilter(filterText);clearBtn.classList.toggle("visible",!!filterText);if(lastData)render()}
+filterInput.value=filterText;clearBtn.classList.toggle("visible",!!filterText);
+filterInput.addEventListener("input",function(){applyFilter(filterInput.value)});
+clearBtn.addEventListener("click",function(){filterInput.value="";applyFilter("");filterInput.focus()});
+document.addEventListener("keydown",function(e){
+  if(e.target===filterInput){if(e.key==="Escape"){filterInput.value="";applyFilter("");filterInput.blur();e.preventDefault()}return}
+  if(e.target&&(e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA"))return;
+  if(e.key==="/"){filterInput.focus();filterInput.select();e.preventDefault()}
+  else if(e.key==="ArrowLeft"){prevBtn.click();e.preventDefault()}
+  else if(e.key==="ArrowRight"&&!nextBtn.disabled){nextBtn.click();e.preventDefault()}
+});
 updateDateUI();
 load();
 setInterval(function(){if(isToday(currentDate))load()},60000);
