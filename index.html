@@ -652,6 +652,30 @@
       .radar-scrubber { flex-basis: 100%; order: 10; margin-top: 4px; }
       .radar-info { font-size: 0.72rem; }
     }
+
+    /* === Lightbox === */
+    .lightbox { display: none; position: fixed; inset: 0; z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+    .lightbox.open { display: flex; }
+    .lightbox-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(4px); }
+    .lightbox-content { position: relative; z-index: 1; max-width: 96vw; max-height: 92vh; display: flex; flex-direction: column; gap: 10px; }
+    .lightbox-bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; color: var(--text); }
+    .lightbox-title { font-size: 0.95rem; font-weight: 600; color: var(--accent); }
+    .lightbox-actions { display: flex; align-items: center; gap: 12px; }
+    .lightbox-orig { color: var(--accent); text-decoration: none; font-size: 0.82rem; white-space: nowrap; }
+    .lightbox-orig:hover { color: #fff; }
+    .lightbox-close { background: var(--card-bg); border: 1px solid var(--accent); color: var(--accent); width: 34px; height: 34px; border-radius: 50%; font-size: 1.2rem; line-height: 1; cursor: pointer; flex-shrink: 0; }
+    .lightbox-close:hover { background: var(--accent); color: var(--bg); }
+    .lightbox-img { max-width: 96vw; max-height: 82vh; object-fit: contain; border-radius: 8px; background: #000; border: 1px solid var(--card-border); }
+
+    /* === Reduzierte Bewegung respektieren === */
+    @media (prefers-reduced-motion: reduce) {
+      .status-dot, .radar-marker::after { animation: none !important; }
+      .media-container::after { animation-duration: 2s; }
+      .cam-card { transition: border-color var(--ease); }
+      .cam-card:hover { transform: none; }
+      .top-btn:hover { transform: none; }
+      * { scroll-behavior: auto !important; }
+    }
   </style>
 </head>
 <body>
@@ -954,6 +978,20 @@
     </div>
   </main>
 
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Kamera-Grossansicht">
+    <div class="lightbox-backdrop"></div>
+    <div class="lightbox-content">
+      <div class="lightbox-bar">
+        <span class="lightbox-title" id="lightbox-title"></span>
+        <span class="lightbox-actions">
+          <a class="lightbox-orig" id="lightbox-orig" href="#" target="_blank" rel="noopener">Original ↗</a>
+          <button class="lightbox-close" type="button" aria-label="Schliessen">×</button>
+        </span>
+      </div>
+      <img class="lightbox-img" id="lightbox-img" alt="Kamera-Grossansicht">
+    </div>
+  </div>
+
   <footer>
     <p>Letzter Refresh: <span id="last-refresh">–</span> &middot; Aktualisierung alle 90 Sekunden</p>
     <div class="disclaimer">
@@ -1073,6 +1111,8 @@
         img.style.objectFit = '';
         img.classList.add('loaded');
         container.classList.add('loaded');
+        var e = camStatus[base];
+        img.dataset.loadedChange = (e && e.lastChange) ? String(e.lastChange) : '';
       };
       fresh.onerror = function() {
         img.src = fallbackSvg;
@@ -1083,6 +1123,15 @@
       fresh.src = bust(base, ts);
 
       applyStatusToCam(img);
+    }
+
+    // P1: nur neu laden, wenn die Quelle sich nachweislich geändert hat.
+    // Ohne Status-Eintrag (unbekannt) wie bisher zeitbasiert nachladen.
+    function needsReload(img) {
+      var base = img.getAttribute('data-src');
+      var entry = camStatus[base];
+      if (!entry || !entry.lastChange) return true;
+      return String(entry.lastChange) !== (img.dataset.loadedChange || '');
     }
 
     var visible = new Set();
@@ -1107,17 +1156,30 @@
 
     refreshCamStatus(ts0).then(function(data) {
       camStatus = data;
-      imgs.forEach(function (img) { applyStatusToCam(img); });
+      imgs.forEach(function (img) {
+        var base = img.getAttribute('data-src');
+        var e = camStatus[base];
+        if (e && e.lastChange) img.dataset.loadedChange = String(e.lastChange);
+        applyStatusToCam(img);
+      });
     });
 
-    setInterval(function () {
+    // P1 + P2: nur geänderte Kameras nachladen, im Hintergrund pausieren.
+    function refreshCams() {
       var ts = Date.now();
       refreshCamStatus(ts).then(function(data) {
         camStatus = data;
-        visible.forEach(function (img) { loadImg(img, ts); });
+        visible.forEach(function (img) {
+          if (needsReload(img)) loadImg(img, ts);
+          else applyStatusToCam(img);
+        });
         if (lastEl) lastEl.textContent = nowStr();
       });
-    }, REFRESH_MS);
+    }
+    setInterval(function () { if (!document.hidden) refreshCams(); }, REFRESH_MS);
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden) refreshCams();
+    });
     if (lastEl) lastEl.textContent = nowStr();
 
     (function() {
@@ -1138,6 +1200,7 @@
     };
 
     setInterval(function() {
+      if(document.hidden) return;
       if(document.getElementById('wx-panel').classList.contains('open')) {
         loadWetter();
       }
@@ -1478,19 +1541,11 @@
       var Jset  = 2451545.0 + n + (0.0009 - lon/360 - EoT) + H / (2*Math.PI);
 
       function jdToTime(jd) {
-        var ms   = (jd - 2440587.5) * 86400000;
-        var d2   = new Date(ms);
-        var year = d2.getUTCFullYear();
-        function lastSunday(month) {
-          var d3 = new Date(Date.UTC(year, month, 31));
-          d3.setUTCDate(31 - (d3.getUTCDay() || 7) % 7);
-          return d3;
-        }
-        var offset   = (d2 >= lastSunday(2) && d2 < lastSunday(9)) ? 2 : 1; 
-        var totalMin = Math.round(ms / 60000) + offset * 60;
-        var h = Math.floor(totalMin / 60) % 24;
-        var m = totalMin % 60;
-        return (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
+        var ms = (jd - 2440587.5) * 86400000;
+        return new Date(ms).toLocaleTimeString('de-CH', {
+          hour: '2-digit', minute: '2-digit', hour12: false,
+          timeZone: 'Europe/Berlin'
+        });
       }
 
       return { rise: jdToTime(Jrise), set: jdToTime(Jset) };
@@ -1878,7 +1933,55 @@
     }
 
 
-    /* ── Kamera-Links: Klick öffnet neues Fenster ───────────── */
+    /* ── Lightbox (Grossansicht mit Auto-Refresh) ───────────── */
+    var lb = {
+      el:    document.getElementById('lightbox'),
+      img:   document.getElementById('lightbox-img'),
+      title: document.getElementById('lightbox-title'),
+      orig:  document.getElementById('lightbox-orig'),
+      timer: null, src: null, refresh: true
+    };
+    function lbLoad() {
+      if (!lb.src) return;
+      var fresh = new Image();
+      fresh.onload = function () { lb.img.src = fresh.src; };
+      fresh.src = lb.refresh ? bust(lb.src, Date.now()) : lb.src;
+    }
+    function openLightbox(title, srcBase, origUrl, opts) {
+      opts = opts || {};
+      if (!lb.el) return;
+      lb.src = srcBase;
+      lb.refresh = opts.refresh !== false;
+      lb.title.textContent = title || '';
+      lb.orig.href = origUrl || srcBase;
+      lb.img.removeAttribute('src');
+      lb.el.classList.add('open');
+      document.body.style.overflow = 'hidden';
+      lbLoad();
+      if (lb.timer) clearInterval(lb.timer);
+      if (lb.refresh) lb.timer = setInterval(function () { if (!document.hidden) lbLoad(); }, 30000);
+    }
+    function closeLightbox() {
+      if (!lb.el) return;
+      lb.el.classList.remove('open');
+      document.body.style.overflow = '';
+      if (lb.timer) { clearInterval(lb.timer); lb.timer = null; }
+      lb.img.removeAttribute('src');
+    }
+    if (lb.el) {
+      lb.el.addEventListener('click', function (e) {
+        if (e.target === lb.el ||
+            e.target.classList.contains('lightbox-backdrop') ||
+            e.target.classList.contains('lightbox-close')) {
+          closeLightbox();
+        }
+      });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && lb.el.classList.contains('open')) closeLightbox();
+      });
+    }
+
+    /* ── Kamera-Klick: Bild-Kameras öffnen die Lightbox ─────── */
     document.querySelectorAll('.cam-card').forEach(function(card) {
       var a    = card.querySelector('.cam-header a');
       var img  = card.querySelector('img.live-cam');
@@ -1887,10 +1990,10 @@
 
       function openFresh(e) {
         if (!base) return;
-        if (base.indexOf('.jpg') > -1 || base.indexOf('wsrv.nl') > -1) {
+        if (img) {
           e.preventDefault();
-          var sep = base.indexOf('?') === -1 ? '?' : '&';
-          window.open(base + sep + 't=' + Date.now(), '_blank', 'noopener');
+          var srcBase = img.getAttribute('data-src') || base;
+          openLightbox(a.textContent.trim(), srcBase, base);
         } else if (e.target && e.target.tagName && e.target.tagName.toLowerCase() === 'img') {
           e.preventDefault();
           window.open(base, '_blank', 'noopener');
