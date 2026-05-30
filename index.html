@@ -699,7 +699,6 @@
           <a href="https://www.dwd.de/DE/fachnutzer/luftfahrt/teaser/luftsportberichte/fbdl60_edzf_node.html" target="_blank" rel="noopener">🌤 3-Tage DWD (DE Mitte)</a>
           <a href="https://glidertracker.de/#lat=47.633&lon=7.941&z=11&nowelcome" target="_blank" rel="noopener">🛰 Glidertracker</a>
           <a href="https://www.weglide.org/flight?club=LG%2520Hotzenwald,23" target="_blank" rel="noopener">🛩 WeGlide</a>
-          <a href="https://flightbook.glidernet.org/logbook/EDSF" target="_blank" rel="noopener">📒 OGN Flightbook (EDSF)</a>
           <a href="#" data-flights-icao="EDSF" target="_blank" rel="noopener">🛩 Fluganalyse EDSF</a>
           <a href="https://vereinsflieger.de/" target="_blank" rel="noopener">☁ Vereinsflieger</a>
         </div>
@@ -1928,6 +1927,14 @@ h1{margin:0;font-size:1rem;letter-spacing:0.02em;font-weight:600}
 h1 .accent{color:var(--accent)}
 .meta{color:var(--text-muted);font-size:0.78rem}
 .meta b{color:var(--text);font-weight:600}
+.title-wrap{display:flex;align-items:center;gap:10px}
+.title-link{color:inherit;text-decoration:none}
+.title-link:hover{text-decoration:underline;text-decoration-color:var(--accent);text-underline-offset:3px}
+.refresh-btn{background:var(--bg);border:1px solid var(--card-border);color:var(--text);width:30px;height:30px;border-radius:6px;cursor:pointer;font-size:1.05rem;line-height:1;padding:0;display:inline-flex;align-items:center;justify-content:center;transition:background-color 0.15s,border-color 0.15s,color 0.15s;font-family:inherit;flex-shrink:0}
+.refresh-btn:hover{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
+.refresh-btn.spinning{color:var(--accent);animation:spin 0.7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.tow-partner{display:inline-block;background:var(--accent-dim);color:var(--accent);padding:1px 6px;border-radius:4px;font-size:0.74rem;font-weight:600;font-variant-numeric:tabular-nums;margin-left:5px;white-space:nowrap}
 .date-nav{display:flex;align-items:center;gap:8px;margin-top:10px}
 .navbtn,.date-display{background:var(--bg);border:1px solid var(--card-border);color:var(--text);padding:8px 14px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:0.85rem;font-variant-numeric:tabular-nums;transition:background-color 0.15s,border-color 0.15s,color 0.15s}
 .navbtn{width:40px;padding:8px 0;font-size:1.1rem;flex-shrink:0;line-height:1}
@@ -1980,6 +1987,7 @@ h1{font-size:0.95rem}
 .meta{font-size:0.74rem;width:100%;margin-top:2px}
 .date-nav{width:100%;margin-top:10px;gap:6px}
 .navbtn{width:46px;height:46px;padding:0;font-size:1.3rem}
+.refresh-btn{width:36px;height:36px;font-size:1.15rem}
 .date-display{min-width:0;font-size:0.85rem;padding:0 8px}
 .search-input{font-size:16px;padding:11px 40px 11px 36px}
 .search-clear{padding:8px 10px;font-size:1.25rem}
@@ -2005,7 +2013,10 @@ tfoot tr.sum-row td::before{display:none!important}
 </head><body>
 <header>
 <div class="header-top">
-<h1>🛩 OGN Fluganalyse <span class="accent">${icao}</span></h1>
+<div class="title-wrap">
+<h1><a class="title-link" href="https://flightbook.glidernet.org/logbook/${icao}" target="_blank" rel="noopener" title="OGN Flightbook (${icao}) öffnen">🛩 OGN Fluganalyse <span class="accent">${icao}</span></a></h1>
+<button class="refresh-btn" id="refresh-btn" type="button" title="Aktualisieren" aria-label="Aktualisieren">⟳</button>
+</div>
 <div class="meta" id="meta">lädt…</div>
 </div>
 <div class="date-nav">
@@ -2021,7 +2032,7 @@ tfoot tr.sum-row td::before{display:none!important}
 </header>
 <main>
 <div id="content" class="status">Lade Flugdaten…</div>
-<div class="hint">📊 SeeYou öffnet den Flug im SeeYou Cloud Viewer (2D/3D-Karte, Barogramm, Statistiken). OGN hält IGC-Dateien max. 24 h vor.</div>
+<div class="hint">📊 Flugweg Analyse öffnet den Flug im SeeYou Cloud Viewer (2D/3D-Karte, Barogramm, Statistiken). OGN hält IGC-Dateien max. 24 h vor.</div>
 </main>
 <footer>Datenquelle: <a href="https://flightbook.glidernet.org" target="_blank" rel="noopener">OGN Flightbook</a> · Viewer: <a href="https://seeyou.cloud" target="_blank" rel="noopener">SeeYou Cloud</a></footer>
 <script>
@@ -2033,6 +2044,7 @@ var meta=document.getElementById("meta");
 var prevBtn=document.getElementById("prev-day");
 var nextBtn=document.getElementById("next-day");
 var dateDisplay=document.getElementById("date-display");
+var refreshBtn=document.getElementById("refresh-btn");
 var filterInput=document.getElementById("filter-input");
 var clearBtn=document.getElementById("filter-clear");
 var today=new Date();today.setHours(0,0,0,0);
@@ -2061,10 +2073,26 @@ function matchesFilter(d){
   var q=filterText.toLowerCase();
   return(((d.registration||"")+" "+(d.competition||"")+" "+(d.aircraft||"")).toLowerCase().indexOf(q)!==-1);
 }
+function regOf(d){if(!d)return"?";var a=d.address||"";var priv=a.charAt(0)==="~"||a.charAt(0)==="_";if(priv)return"#"+a.slice(-5);return d.registration||a.slice(-5)||"?"}
+function buildTowPairs(list){
+  for(var i=0;i<list.length;i++){if(list[i])list[i]._partner=null}
+  for(var i=0;i<list.length;i++){
+    var f=list[i];if(!f||!f.towing||!f.start_tsp||f._partner)continue;
+    var best=null,bestDelta=Infinity;
+    for(var j=0;j<list.length;j++){
+      if(j===i)continue;var g=list[j];if(!g||!g.start_tsp)continue;
+      if(g.device===f.device)continue;if(g._partner)continue;
+      var delta=Math.abs(g.start_tsp-f.start_tsp);
+      if(delta<=20&&delta<bestDelta){bestDelta=delta;best=g}
+    }
+    if(best){f._partner=best;best._partner=f}
+  }
+}
 function render(){
   if(!lastData)return;
   var data=lastData,devs=data.devices||[],allFlights=(data.flights||[]).slice();
   var af=data.airfield||{},now=new Date();
+  buildTowPairs(allFlights);
   var flights=filterText?allFlights.filter(function(f){return matchesFilter(devs[f.device]||{})}):allFlights;
   var total=allFlights.length,shown=flights.length;
   var countStr=filterText?'<span class="count">'+shown+'</span> von '+total+' Flügen':total+' Flug'+(total===1?'':'e');
@@ -2080,7 +2108,9 @@ function render(){
     var ac=esc(d.aircraft||"—");
     var sc=f.start_code?' <span class="cell-ac">('+esc(f.start_code)+")</span>":"";
     var stc=f.stop_code?' <span class="cell-ac">('+esc(f.stop_code)+")</span>":"";
-    var tow=f.towing?' <span class="cell-ac" title="Schleppfahrt">🪢</span>':"";
+    var tow="";
+    if(f._partner){var pd=devs[f._partner.device]||{};tow=' <span class="tow-partner" title="Schlepppartner">🪢 '+esc(regOf(pd))+'</span>'}
+    else if(f.towing){tow=' <span class="cell-ac" title="Schleppfahrt">🪢</span>'}
     var warn=f.warn?' <span class="warn-icon" title="Detektion unsicher">⚠</span>':"";
     var stop=f.stop?(esc(formatStart(f.stop))+stc):'<span class="running">läuft…</span>';
     var dur=f.duration?esc(formatDuration(f.duration)):'<span class="running">'+(f.duration_expected?"≈ "+formatDuration(f.duration_expected):"läuft…")+"</span>";
@@ -2089,7 +2119,7 @@ function render(){
     var action;
     if(hasIgc(d,f)){
       var url=buildSeeYouUrl(buildIgcUrl(data.date,d,f));
-      action='<a class="btn-igc" href="'+url+'" target="_blank" rel="noopener" title="In SeeYou Cloud öffnen">📊 SeeYou</a>';
+      action='<a class="btn-igc" href="'+url+'" target="_blank" rel="noopener" title="Flugweg im SeeYou Cloud Viewer öffnen">📊 Flugweg Analyse</a>';
     }else{
       var why=priv?"anonym":!d.identified?"nicht registriert":!f.stop_tsp?"läuft noch":"IGC abgelaufen";
       action='<span class="btn-disabled" title="Kein IGC – '+why+'">— '+why+" —</span>";
@@ -2122,11 +2152,20 @@ function render(){
   content.className="";
   content.innerHTML=html;
 }
-function load(){content.className="status";content.textContent="Lade Flugdaten…";meta.textContent="lädt…";fetch(API_BASE+fmtISO(currentDate),{cache:"no-store"}).then(function(r){if(!r.ok)throw new Error("HTTP "+r.status);return r.json()}).then(function(d){lastData=d;render()}).catch(function(e){content.className="status";content.textContent="OGN nicht erreichbar ("+e.message+").";meta.textContent=ICAO+" · Fehler beim Laden"})}
+function load(){
+  refreshBtn.classList.add("spinning");
+  content.className="status";content.textContent="Lade Flugdaten…";meta.textContent="lädt…";
+  fetch(API_BASE+fmtISO(currentDate),{cache:"no-store"})
+    .then(function(r){if(!r.ok)throw new Error("HTTP "+r.status);return r.json()})
+    .then(function(d){lastData=d;render()})
+    .catch(function(e){content.className="status";content.textContent="OGN nicht erreichbar ("+e.message+").";meta.textContent=ICAO+" · Fehler beim Laden"})
+    .then(function(){refreshBtn.classList.remove("spinning")});
+}
 function setDate(d){if(isFuture(d))return;currentDate=d;updateDateUI();load()}
 prevBtn.onclick=function(){var d=new Date(currentDate);d.setDate(d.getDate()-1);setDate(d)};
 nextBtn.onclick=function(){var d=new Date(currentDate);d.setDate(d.getDate()+1);setDate(d)};
 dateDisplay.onclick=function(){setDate(new Date(today))};
+refreshBtn.onclick=function(){load()};
 function applyFilter(v){filterText=(v||"").trim();saveFilter(filterText);clearBtn.classList.toggle("visible",!!filterText);if(lastData)render()}
 filterInput.value=filterText;clearBtn.classList.toggle("visible",!!filterText);
 filterInput.addEventListener("input",function(){applyFilter(filterInput.value)});
@@ -2140,7 +2179,6 @@ document.addEventListener("keydown",function(e){
 });
 updateDateUI();
 load();
-setInterval(function(){if(isToday(currentDate))load()},60000);
 })();
 <\/script>
 </body></html>`;
