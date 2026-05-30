@@ -1927,8 +1927,9 @@ h1 .accent{color:var(--accent)}
 .meta{color:var(--text-muted);font-size:0.78rem}
 .meta b{color:var(--text);font-weight:600}
 .title-wrap{display:flex;align-items:center;gap:10px}
-.title-link{color:inherit;text-decoration:none}
-.title-link:hover{text-decoration:underline;text-decoration-color:var(--accent);text-underline-offset:3px}
+.title-link{color:inherit;text-decoration:underline;text-decoration-color:var(--accent);text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:4px;cursor:pointer}
+.title-link:hover{text-decoration-style:solid;text-decoration-thickness:2px}
+.title-link::after{content:" ↗";color:var(--accent);font-size:0.75em;font-weight:400;margin-left:2px;display:inline-block;vertical-align:baseline;text-decoration:none}
 .refresh-btn{background:var(--bg);border:1px solid var(--card-border);color:var(--text);width:30px;height:30px;border-radius:6px;cursor:pointer;font-size:1.05rem;line-height:1;padding:0;display:inline-flex;align-items:center;justify-content:center;transition:background-color 0.15s,border-color 0.15s,color 0.15s;font-family:inherit;flex-shrink:0}
 .refresh-btn:hover{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
 .refresh-btn.spinning{color:var(--accent);animation:spin 0.7s linear infinite}
@@ -2013,7 +2014,7 @@ tfoot tr.sum-row td::before{display:none!important}
 <header>
 <div class="header-top">
 <div class="title-wrap">
-<h1><a class="title-link" href="https://flightbook.glidernet.org/logbook/${icao}" target="_blank" rel="noopener" title="OGN Flightbook (${icao}) öffnen">🛩 OGN Fluganalyse <span class="accent">${icao}</span></a></h1>
+<h1><a class="title-link" id="title-link" href="https://flightbook.glidernet.org/logbook/${icao}" target="_blank" rel="noopener" title="OGN Flightbook (${icao}) öffnen">🛩 OGN Fluganalyse <span class="accent">${icao}</span></a></h1>
 <button class="refresh-btn" id="refresh-btn" type="button" title="Aktualisieren" aria-label="Aktualisieren">⟳</button>
 </div>
 <div class="meta" id="meta">lädt…</div>
@@ -2031,9 +2032,9 @@ tfoot tr.sum-row td::before{display:none!important}
 </header>
 <main>
 <div id="content" class="status">Lade Flugdaten…</div>
-<div class="hint">📊 Flugweg Analyse öffnet den Flug im SeeYou Cloud Viewer (2D/3D-Karte, Barogramm, Statistiken). OGN hält IGC-Dateien max. 24 h vor.</div>
+<div class="hint">📊 SeeYou Analyse öffnet den Flug im SeeYou Cloud Viewer (2D/3D-Karte, Barogramm, Statistiken). OGN hält IGC-Dateien max. 24 h vor.</div>
 </main>
-<footer>Datenquelle: <a href="https://flightbook.glidernet.org" target="_blank" rel="noopener">OGN Flightbook</a> · Viewer: <a href="https://seeyou.cloud" target="_blank" rel="noopener">SeeYou Cloud</a></footer>
+<footer>Datenquelle: <a id="footer-link" href="https://flightbook.glidernet.org/logbook/${icao}" target="_blank" rel="noopener">OGN Flightbook (${icao})</a> · Viewer: <a href="https://seeyou.cloud" target="_blank" rel="noopener">SeeYou Cloud</a></footer>
 <script>
 (function(){
 var ICAO=${icaoJs};
@@ -2044,6 +2045,8 @@ var prevBtn=document.getElementById("prev-day");
 var nextBtn=document.getElementById("next-day");
 var dateDisplay=document.getElementById("date-display");
 var refreshBtn=document.getElementById("refresh-btn");
+var titleLink=document.getElementById("title-link");
+var footerLink=document.getElementById("footer-link");
 var filterInput=document.getElementById("filter-input");
 var clearBtn=document.getElementById("filter-clear");
 var today=new Date();today.setHours(0,0,0,0);
@@ -2066,7 +2069,7 @@ function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){retur
 function buildIgcUrl(date,dev,f){var a=dev.address,s=f.start_tsp-(f.start_delta!==undefined?60*f.start_delta:30),o=f.stop_tsp+(f.stop_delta!==undefined?60*f.stop_delta:30);return"https://flightbook.glidernet.org/api/live/igc/"+a+"/"+s+"/"+o+"?date="+date}
 function buildSeeYouUrl(u){return"https://seeyou.cloud/api/open?igc="+encodeURIComponent(u)}
 function hasIgc(d,f){if(!d.identified||!d.tracked)return false;if(!f.stop_tsp)return false;if(Date.now()/1000-f.stop_tsp>86400)return false;return true}
-function updateDateUI(){var label=isToday(currentDate)?"heute":isYesterday(currentDate)?"gestern":fmtHuman(currentDate);dateDisplay.textContent=label+" · "+fmtISO(currentDate);nextBtn.disabled=isToday(currentDate)}
+function updateDateUI(){var label=isToday(currentDate)?"heute":isYesterday(currentDate)?"gestern":fmtHuman(currentDate);dateDisplay.textContent=label+" · "+fmtISO(currentDate);nextBtn.disabled=isToday(currentDate);var url="https://flightbook.glidernet.org/logbook/"+ICAO+"/"+fmtISO(currentDate);titleLink.href=url;footerLink.href=url}
 function matchesFilter(d){
   if(!filterText)return true;
   var q=filterText.toLowerCase();
@@ -2118,7 +2121,7 @@ function render(){
     var action;
     if(hasIgc(d,f)){
       var url=buildSeeYouUrl(buildIgcUrl(data.date,d,f));
-      action='<a class="btn-igc" href="'+url+'" target="_blank" rel="noopener" title="Flugweg im SeeYou Cloud Viewer öffnen">📊 Flugweg Analyse</a>';
+      action='<a class="btn-igc" href="'+url+'" target="_blank" rel="noopener" title="Flugweg im SeeYou Cloud Viewer öffnen">📊 SeeYou Analyse</a>';
     }else{
       var why=priv?"anonym":!d.identified?"nicht registriert":!f.stop_tsp?"läuft noch":"IGC abgelaufen";
       action='<span class="btn-disabled" title="Kein IGC – '+why+'">— '+why+" —</span>";
