@@ -1981,7 +1981,13 @@
       });
     }
 
-    /* ── Kamera-Klick: Bild-Kameras öffnen die Lightbox ─────── */
+    // Lightbox nur auf Laptop/Desktop (Maus + breiter Schirm); sonst wie vorher.
+    function isMobile() {
+      return window.matchMedia('(max-width: 768px)').matches ||
+             !window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    }
+
+    /* ── Kamera-Klick: Laptop → Lightbox, Mobil → Bild direkt ─ */
     document.querySelectorAll('.cam-card').forEach(function(card) {
       var a    = card.querySelector('.cam-header a');
       var img  = card.querySelector('img.live-cam');
@@ -1990,10 +1996,16 @@
 
       function openFresh(e) {
         if (!base) return;
-        if (img) {
+        if (img && !isMobile()) {
+          // Laptop/Desktop → Lightbox
           e.preventDefault();
           var srcBase = img.getAttribute('data-src') || base;
           openLightbox(a.textContent.trim(), srcBase, base);
+        } else if (base.indexOf('.jpg') > -1 || base.indexOf('wsrv.nl') > -1) {
+          // Mobil → Kamerabild direkt öffnen (wie vorher)
+          e.preventDefault();
+          var sep = base.indexOf('?') === -1 ? '?' : '&';
+          window.open(base + sep + 't=' + Date.now(), '_blank', 'noopener');
         } else if (e.target && e.target.tagName && e.target.tagName.toLowerCase() === 'img') {
           e.preventDefault();
           window.open(base, '_blank', 'noopener');
