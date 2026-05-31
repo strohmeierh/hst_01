@@ -1,27 +1,27 @@
 {
   "https://wsrv.nl/?url=cam.afu-server.de/Klippeneck-CAM1.jpg": {
-    "hash": "ccadce8d28e0b732be4158bb171fed03eb65893a",
-    "lastChange": 1780259954000,
+    "hash": "311846a5277a9c4ab348b1170fd4eabab69ffd2f",
+    "lastChange": 1780260254000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=cam.afu-server.de/Klippeneck-CAM3.jpg": {
-    "hash": "d0f3994812935c6f2eb68768de35072c274e9e6f",
-    "lastChange": 1780259954000,
+    "hash": "d3315bd83be56a924371a098a276849a35e0696f",
+    "lastChange": 1780260254000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=donau-airport.de/donau-airport.de/webcam/cam_neu2.jpg": {
-    "hash": "ef60463f9a9a008e04a11fd3c3205baff7e3c033",
-    "lastChange": 1780259957000,
+    "hash": "7ebb266345211686c4e0007ee8f8e99a55473682",
+    "lastChange": 1780260257000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=webcam-gewerbepark.ftp-land-in-sicht.de/snap_c1.jpg": {
-    "hash": "306c79d17104ee44599daf554b93e8e5a96fcf9d",
-    "lastChange": 1780259955000,
+    "hash": "442d02fad3d614b0d36efdbef8536b3eaa59f223",
+    "lastChange": 1780260255000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=webcam.datacreate.de/feldbergblick/webcam-feldbergblick.jpg": {
     "hash": "bf979adb40753c8eb845bd5fd28f2c6c6d9f4528",
-    "lastChange": 1780259883000,
+    "lastChange": 1780260242000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.feldberger-hof.de/static/webcam/fh-webcam.jpg": {
@@ -30,8 +30,8 @@
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.lgh-platz.de/cam/cam11.jpg": {
-    "hash": "aa36593b80060d26d56f97f6cbe22c03720b18d9",
-    "lastChange": 1780259597000,
+    "hash": "d1f8f2db611d0b044322053df6ddb11b9686a65d",
+    "lastChange": 1780260194000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.lgh-platz.de/cam/cam21.jpg": {
@@ -45,8 +45,8 @@
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.lgh-platz.de/cam/cam41.jpg": {
-    "hash": "4e158c2890590051031d9d941a1dc8f22694dae4",
-    "lastChange": 1780259483000,
+    "hash": "02841fab5393e383f41eeb6a2c4b3f895744f8d2",
+    "lastChange": 1780260081000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.lgh-platz.de/cam/cam51.jpg": {
@@ -60,33 +60,33 @@
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.lgh-platz.de/cam/cam91.jpg": {
-    "hash": "60ced1693170b8bc31e4ebe02a9c9d2b98c4e5f6",
-    "lastChange": 1780259449000,
+    "hash": "3512ae72d681c7b62aeb5a7a95ab0136b381a8eb",
+    "lastChange": 1780260055000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.lsg-suedwest.de/WebCam/snapshot.jpg": {
-    "hash": "f76f5e2d23cafb0cfd36bd7c5a5dec1147727b94",
-    "lastChange": 1780259959000,
+    "hash": "3ddea55eec9a02dcb6a2177297c550f269e05c31",
+    "lastChange": 1780260259000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.notschrei-loipe.de/notschrei-loipe.jpg": {
-    "hash": "24bf7182b21e1f5fee20a03f77bcace6465a829b",
-    "lastChange": 1780259703000,
+    "hash": "fb86931a5fed6e38e8aee45e2f2a1a1b88b37a8a",
+    "lastChange": 1780260003000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.schopfheim.de/webcam/gersbach/video.jpg": {
-    "hash": "812fa8209da93392800664046da93185323e4661",
-    "lastChange": 1780259933000,
+    "hash": "1ce1a8dc7cf6cfd5f59e1a9a084ec43c17bb8cab",
+    "lastChange": 1780260233000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.ziis.de/cam/current_WE.jpg": {
-    "hash": "d046d37c95ca9c8ca0b5c64e9361b2fb53262f7f",
-    "lastChange": 1780259407000,
+    "hash": "6b6645257e6c7f8e7c5aee91b00d6a4236f6157f",
+    "lastChange": 1780260007000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.ziis.de/cam/mega.jpg": {
-    "hash": "78d78c9812c022b3028d2dfac38b8e5135487b28",
-    "lastChange": 1780258808000,
+    "hash": "bbc499972320837af79e96f5f50bd2ec09924def",
+    "lastChange": 1780260006000,
     "source": "origin"
   }
 }
