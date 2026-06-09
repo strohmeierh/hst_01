@@ -1,17 +1,17 @@
 {
   "https://wsrv.nl/?url=cam.afu-server.de/Klippeneck-CAM1.jpg": {
-    "hash": "8f602ba8ac8332cf7f434bf3f6c8a5b3ce48236e",
-    "lastChange": 1781037859000,
+    "hash": "0a91ef0270365d1fbdcf864ac5e80c53a774a84d",
+    "lastChange": 1781038729000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=cam.afu-server.de/Klippeneck-CAM3.jpg": {
-    "hash": "a18323c64c7a60306a2212804a3c50cbf6986fdf",
-    "lastChange": 1781037859000,
+    "hash": "1c1fbf90496b95e9e7f360ebef31cf5e6ef73cc3",
+    "lastChange": 1781038729000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=donau-airport.de/donau-airport.de/webcam/cam_neu2.jpg": {
-    "hash": "f1e12400fe5c3c558f016945ed387a5850b9e894",
-    "lastChange": 1781038444000,
+    "hash": "693d30f0cc6128558c34e2cb1f286b6a2a136de9",
+    "lastChange": 1781038757000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=webcam-gewerbepark.ftp-land-in-sicht.de/snap_c1.jpg": {
@@ -35,8 +35,8 @@
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.lgh-platz.de/cam/cam21.jpg": {
-    "hash": "a321f08520fc343c3c36ba083ba4ce69e172eea0",
-    "lastChange": 1781037925000,
+    "hash": "0340e683a7218cdcd5354e908744ffb1a6c99212",
+    "lastChange": 1781038523000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.lgh-platz.de/cam/cam31.jpg": {
@@ -65,8 +65,8 @@
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.lsg-suedwest.de/WebCam/snapshot.jpg": {
-    "hash": "88430db23c49a06ef82e96187912b68687091cbf",
-    "lastChange": 1781038460000,
+    "hash": "95c0f1d6d9a2f9c70826694aad119e3136e526e7",
+    "lastChange": 1781038760000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.notschrei-loipe.de/notschrei-loipe.jpg": {
@@ -85,8 +85,8 @@
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.ziis.de/cam/mega.jpg": {
-    "hash": "a833966bb826ebdd75eea17c3891f0121068bef8",
-    "lastChange": 1781037607000,
+    "hash": "7a63b21037fdb056c57e4619e15fa0bf8fdb887d",
+    "lastChange": 1781038814000,
     "source": "origin"
   }
 }
