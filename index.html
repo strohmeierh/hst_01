@@ -538,6 +538,28 @@
     }
     .radar-speed:hover { border-color: var(--accent); }
 
+    .radar-layer-toggle {
+      background: rgba(0,0,0,0.3);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      border-radius: 8px;
+      padding: 0 12px;
+      height: 36px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      font-weight: 600;
+      font-family: var(--font);
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: background var(--ease), border-color var(--ease), color var(--ease);
+    }
+    .radar-layer-toggle:hover { border-color: var(--accent); }
+    .radar-layer-toggle.active {
+      background: var(--accent-dim);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
     .radar-info {
       margin-top: 10px;
       display: flex;
@@ -734,12 +756,12 @@
           Links ▼
         </button>
         <div class="dropdown-content" id="tools-menu">
+          <a href="#" data-flights-icao="EDSF" target="_blank" rel="noopener">🧭 Fluganalyse EDSF</a>
           <a href="https://www.skybriefing.com/de/dabs" target="_blank" rel="noopener">🗺 DABS (Schweiz)</a>
           <a href="https://notaminfo.com/switzerlandmap" target="_blank" rel="noopener">✈ NOTAM Info (Schweiz)</a>
           <a href="https://notaminfo.com/germanymap" target="_blank" rel="noopener">✈ NOTAM Info (Deutschland)</a>
           <a href="https://glideandseek.com/?viewport=47.6330,7.9418,12" target="_blank" rel="noopener">🛰 Glide and Seek</a>
           <a href="https://www.weglide.org/flight?club=LG%2520Hotzenwald,23" target="_blank" rel="noopener">🛩 WeGlide</a>
-          <a href="#" data-flights-icao="EDSF" target="_blank" rel="noopener">🧭 Fluganalyse EDSF</a>
           <a href="https://vereinsflieger.de/" target="_blank" rel="noopener">☁ Vereinsflieger</a>
         </div>
       </div>
@@ -797,13 +819,14 @@
           <div class="radar-scrubber-thumb" id="radar-scrubber-thumb"></div>
         </div>
         <button class="radar-speed" id="radar-speed" title="Geschwindigkeit">1×</button>
+        <button class="radar-layer-toggle" id="radar-clouds" title="Wolken (Satellitenbild) ein-/ausblenden. Tagsüber Echtfarben, nachts Infrarot – dünner Bodennebel ist nachts nur eingeschränkt erkennbar." aria-pressed="true">☁ Wolken</button>
       </div>
       <div class="radar-info">
         <div>
           <span class="radar-frame-time" id="radar-frame-time">--:--</span>
           <span class="radar-frame-tag" id="radar-frame-tag">JETZT</span>
         </div>
-        <div id="radar-updated">Vergangenheit: <a href="https://www.rainviewer.com/" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;">RainViewer</a> · Vorhersage: <a href="https://www.dwd.de/" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;">DWD RV</a></div>
+        <div id="radar-updated">Regen: <a href="https://www.rainviewer.com/" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;">RainViewer</a> · Vorhersage: <a href="https://www.dwd.de/" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;">DWD RV</a> · Wolken: <a href="https://view.eumetsat.int/" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;">EUMETSAT</a></div>
       </div>
     </div>
   </div>
@@ -1761,7 +1784,11 @@
       speedMs: 500,
       animTimer: null,
       refreshTimer: null,
-      renderSeq: 0
+      renderSeq: 0,
+      satLayer: null,
+      satKey: null,
+      satSeq: 0,
+      cloudsOn: storeGet('edsf-radar-clouds') !== '0'
     };
 
     window.toggleRadar = function () {
@@ -1932,6 +1959,7 @@
 
       if (!radar.frames.length) {
         if (radar.tileLayer) { radar.map.removeLayer(radar.tileLayer); radar.tileLayer = null; }
+        if (radar.satLayer)  { radar.map.removeLayer(radar.satLayer); radar.satLayer = null; radar.satKey = null; }
         mapEl.setAttribute('data-no-data-msg', 'Keine Radar-Daten verfügbar');
         mapEl.classList.add('no-data');
         document.getElementById('radar-frame-time').textContent = '--:--';
@@ -1990,6 +2018,8 @@
         if (newLayer.options.opacity === 0) promoteLayer();
       }, 1000);
 
+      renderSatLayer(frame.time);
+
       // Zeit + Tag
       var dt = new Date(frame.time * 1000);
       var timeEl = document.getElementById('radar-frame-time');
@@ -2014,6 +2044,59 @@
       document.getElementById('radar-scrubber-thumb').style.left = pct + '%';
       var nowPct = len > 1 ? (radar.nowIndex / (len - 1)) * 100 : 100;
       document.getElementById('radar-scrubber').style.setProperty('--now-pos', nowPct + '%');
+    }
+
+    /* Wolken-Overlay: Meteosat GeoColour (EUMETSAT, 10-Min-Raster).
+       Tagsüber Echtfarben (Nebel/Hochnebel = milchige Fläche), nachts IR-Komposit.
+       Der WMS matcht auf den nächsten verfügbaren Zeitpunkt (nearestValue);
+       bei Vorhersage-Frames bleibt so das aktuellste Bild stehen. */
+    function satTimeISO(t) {
+      // Meteosat-Bilder kommen mit ~10-15 min Verzug; Zeiten, die der Server
+      // noch nicht hat, quittiert er mit HTTP 502 -> auf "jetzt - 20 min" begrenzen.
+      var ms = Math.min(t * 1000, Date.now() - 20 * 60000);
+      ms = Math.floor(ms / 600000) * 600000; // aufs 10-min-Raster runden
+      var d = new Date(ms);
+      return d.getUTCFullYear() + '-' + pad(d.getUTCMonth() + 1) + '-' + pad(d.getUTCDate()) +
+             'T' + pad(d.getUTCHours()) + ':' + pad(d.getUTCMinutes()) + ':00Z';
+    }
+
+    function renderSatLayer(frameTime) {
+      if (!radar.map || !window.L) return;
+      var wantKey = radar.cloudsOn ? satTimeISO(frameTime) : null;
+      if (wantKey === radar.satKey) return; // Layer ist bereits aktuell
+      radar.satKey = wantKey;
+      var seq = ++radar.satSeq;
+
+      if (!wantKey) {
+        if (radar.satLayer) { radar.map.removeLayer(radar.satLayer); radar.satLayer = null; }
+        return;
+      }
+
+      // zIndex 140: über der Basemap (100), unter Ortsnamen (150) und Regen (250)
+      var lyr = L.tileLayer.wms('https://view.eumetsat.int/geoserver/wms', {
+        layers: 'mtg_fd:rgb_geocolour',
+        format: 'image/png',
+        transparent: true,
+        version: '1.3.0',
+        time: wantKey,
+        opacity: 0,
+        zIndex: 140,
+        crossOrigin: true,
+        uppercase: true
+      }).addTo(radar.map);
+
+      function promoteSat() {
+        if (seq !== radar.satSeq) {
+          // Inzwischen wurde ein neuerer Wolken-Frame angefordert: verwerfen.
+          if (radar.satLayer !== lyr) radar.map.removeLayer(lyr);
+          return;
+        }
+        lyr.setOpacity(0.75);
+        if (radar.satLayer && radar.satLayer !== lyr) radar.map.removeLayer(radar.satLayer);
+        radar.satLayer = lyr;
+      }
+      lyr.on('load', promoteSat);
+      setTimeout(function () { if (lyr.options.opacity === 0) promoteSat(); }, 1200);
     }
 
     function scheduleRadarTick() {
@@ -2077,6 +2160,20 @@
         else                            { radar.speedMs = 500;  this.textContent = '1×'; }
         if (radar.playing) { stopRadarAnim(); startRadarAnim(); }
       });
+
+      var cloudsBtn = document.getElementById('radar-clouds');
+      function applyCloudsBtn() {
+        cloudsBtn.classList.toggle('active', radar.cloudsOn);
+        cloudsBtn.setAttribute('aria-pressed', radar.cloudsOn ? 'true' : 'false');
+      }
+      cloudsBtn.addEventListener('click', function () {
+        radar.cloudsOn = !radar.cloudsOn;
+        storeSet('edsf-radar-clouds', radar.cloudsOn ? null : '0');
+        applyCloudsBtn();
+        var f = radar.frames[radar.curIndex];
+        renderSatLayer(f ? f.time : Math.floor(Date.now() / 1000));
+      });
+      applyCloudsBtn();
 
       var sc = document.getElementById('radar-scrubber');
       var seekRaf = null, seekX = null;
