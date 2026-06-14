@@ -362,6 +362,11 @@
 
     @keyframes spin { 100% { transform: rotate(360deg); } }
 
+    .media-container iframe {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      border: none; display: block;
+    }
+
     .media-container img {
       width: 100%;
       height: 100%;
@@ -967,6 +972,16 @@
         </div>
         <div class="media-container">
           <img class="live-cam" data-src="https://wsrv.nl/?url=www.feldberger-hof.de/static/webcam/fh-webcam.jpg" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" width="640" height="360" alt="Feldberg Seebuck">
+        </div>
+      </div>
+
+      <div class="cam-card">
+        <div class="cam-header">
+          <a href="https://www.schauinslandbahn.de/de/service/webcam" target="_blank" rel="noopener">Schauinsland (Bergstation)</a>
+          <span class="status-dot age-unknown" title="Live-Frame – keine Altersprüfung"></span>
+        </div>
+        <div class="media-container loaded">
+          <iframe data-src="https://webtv.feratel.com/webtv/?design=v5&amp;cam=3212" loading="lazy" title="Webcam Schauinsland (Bergstation)" allowfullscreen></iframe>
         </div>
       </div>
 
