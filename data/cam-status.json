@@ -1,17 +1,17 @@
 {
   "https://wsrv.nl/?url=cam.afu-server.de/Klippeneck-CAM1.jpg": {
-    "hash": "9cea06df78b38784de65735685853dfe7a0e1181",
-    "lastChange": 1781685555000,
+    "hash": "4e0e88f4607969566727ad7e25f2f85689d5e265",
+    "lastChange": 1781685855000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=cam.afu-server.de/Klippeneck-CAM3.jpg": {
-    "hash": "1b77dac511c9cac6fc99b53a6a480b199172c27b",
-    "lastChange": 1781685555000,
+    "hash": "6832b455980a084f15fcf375d3015b4ec4b24255",
+    "lastChange": 1781685855000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=donau-airport.de/donau-airport.de/webcam/cam_neu2.jpg": {
-    "hash": "f23c7434b576029f439e40b48e7de625a21d8623",
-    "lastChange": 1781685553000,
+    "hash": "e1f22d4e910d6bd33e25218aa182afe78d92229f",
+    "lastChange": 1781685854000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=webcam-gewerbepark.ftp-land-in-sicht.de/snap_c1.jpg": {
@@ -21,32 +21,32 @@
   },
   "https://wsrv.nl/?url=webcam.datacreate.de/feldbergblick/webcam-feldbergblick.jpg": {
     "hash": "93722cc258c785e10b28e08f94aef58b20e0de58",
-    "lastChange": 1781685482000,
+    "lastChange": 1781685842000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.feldberger-hof.de/static/webcam/fh-webcam.jpg": {
-    "hash": "3acf832d3fa6fe2fd260d9a4c001a22e7d4a2be6",
-    "lastChange": 1781685010000,
+    "hash": "b6e040081a8d498c6954097b5d32b601bbfbe835",
+    "lastChange": 1781685608000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.lgh-platz.de/cam/cam11.jpg": {
-    "hash": "44b44c5fe0a774b4b1895b63bfb8ec3273e0164a",
-    "lastChange": 1781685214000,
+    "hash": "12127cd6a7fb5e9d6420ecf78642b67f1d833538",
+    "lastChange": 1781685800000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.lgh-platz.de/cam/cam21.jpg": {
-    "hash": "5ee9052ab5d15aaa259a05444779d938ceac0d8b",
-    "lastChange": 1781685140000,
+    "hash": "09d332b5dbec4fb8e79c1ed30df5b328bfd5653a",
+    "lastChange": 1781685737000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.lgh-platz.de/cam/cam31.jpg": {
-    "hash": "2735af74a0dda8fb44895e27728ac28027571db4",
-    "lastChange": 1781685012000,
+    "hash": "2286139c57d4801b7732664d7c410100939591c1",
+    "lastChange": 1781685610000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.lgh-platz.de/cam/cam41.jpg": {
-    "hash": "30058010f9df6402ff1b732fd3d97ab40b91a5c8",
-    "lastChange": 1781685073000,
+    "hash": "1b667ba95ba0fc11f3a352529383188479f82a25",
+    "lastChange": 1781685673000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.lgh-platz.de/cam/cam51.jpg": {
@@ -65,28 +65,28 @@
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.lsg-suedwest.de/WebCam/snapshot.jpg": {
-    "hash": "33ebbd9da84073ee18f7b0b2f6349bf9acfb1756",
-    "lastChange": 1781685565000,
+    "hash": "16ab90d23aaceee7081a8be1d8d657fbba1155ac",
+    "lastChange": 1781685866000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.notschrei-loipe.de/notschrei-loipe.jpg": {
-    "hash": "1350c14880eab2cdf4702f362003449e492e4a65",
-    "lastChange": 1781685303000,
+    "hash": "ed5f279e003cfd3178a15c59d5afd522de1a8ba1",
+    "lastChange": 1781685602000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.schopfheim.de/webcam/gersbach/video.jpg": {
-    "hash": "6ca01abccf2f1a216798937cd2f8945c236a16af",
-    "lastChange": 1781685532000,
+    "hash": "8d06fe56a701eba9dd6435b4c4bb8c84e6ef5c95",
+    "lastChange": 1781685832000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.ziis.de/cam/current_WE.jpg": {
-    "hash": "39c2072423b7161d61c9f5706e02679c72a59ab6",
-    "lastChange": 1781685004000,
+    "hash": "90c30c598feec925ad399b0d4249a0bf2899303f",
+    "lastChange": 1781685605000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.ziis.de/cam/mega.jpg": {
-    "hash": "b10f2f64ee56579388d281a486ab40f9a28b4b70",
-    "lastChange": 1781684407000,
+    "hash": "e2a34938860bfd5f39e7b1ae88e354f8df566aa9",
+    "lastChange": 1781685607000,
     "source": "origin"
   }
 }
