@@ -1,27 +1,27 @@
 {
   "https://wsrv.nl/?url=cam.afu-server.de/Klippeneck-CAM1.jpg": {
-    "hash": "d38dd30219c0930ee5350404f849c58de9b97b90",
-    "lastChange": 1781985509000,
+    "hash": "a8b4ed5ba0be0d1a7d953e4abc0854abb1c13bb4",
+    "lastChange": 1781985809000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=cam.afu-server.de/Klippeneck-CAM3.jpg": {
-    "hash": "3cec4d4407f51bce4de4b14a2d739562e7e6c354",
-    "lastChange": 1781985539000,
+    "hash": "8d854dd2c4ab92369736da68b8ed26e1f1b4baaf",
+    "lastChange": 1781985839000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=donau-airport.de/donau-airport.de/webcam/cam_neu2.jpg": {
-    "hash": "05dafaadb0088d999b3980464c67465bc2ab73de",
-    "lastChange": 1781985554000,
+    "hash": "9baa3e5160b41c50602e6de49707bbbe5e8586cd",
+    "lastChange": 1781985854000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=webcam-gewerbepark.ftp-land-in-sicht.de/snap_c1.jpg": {
-    "hash": "338866ee99ace3f29d81fbd9c71327d3cd9f9a1f",
-    "lastChange": 1781985559000,
+    "hash": "e5298dc50ad86929acbb5b8e71310b477821050d",
+    "lastChange": 1781985859000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=webcam.datacreate.de/feldbergblick/webcam-feldbergblick.jpg": {
     "hash": "669488b9c0168a5ae93c9eab2218700285a0a70c",
-    "lastChange": 1781985482000,
+    "lastChange": 1781985842000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.feldberger-hof.de/static/webcam/fh-webcam.jpg": {
@@ -30,23 +30,23 @@
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.lgh-platz.de/cam/cam11.jpg": {
-    "hash": "f72183a529b588c2a2df27066a6e082174f9e36e",
-    "lastChange": 1781985211000,
+    "hash": "c7ec2028076b2ab8e0afcc7661c41b756ab7ad64",
+    "lastChange": 1781985794000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.lgh-platz.de/cam/cam21.jpg": {
-    "hash": "7fbd24cc6243b9a9251dc30b096d0e2393e9b3a9",
-    "lastChange": 1781985141000,
+    "hash": "37d0081fc52f9645f3556814ddd4e37e4f60f295",
+    "lastChange": 1781985738000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.lgh-platz.de/cam/cam31.jpg": {
-    "hash": "f74027131a15a17c3d7f43471f225938da22e931",
-    "lastChange": 1781985011000,
+    "hash": "c880d3f6e2227daf4a5efa172db2960a43f93628",
+    "lastChange": 1781985611000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.lgh-platz.de/cam/cam41.jpg": {
-    "hash": "b3d02b383bdd961755ac4dbc3d698b95c5017018",
-    "lastChange": 1781985074000,
+    "hash": "d58985c64bf7e4a5c7c53afc2af4d6117a1ed713",
+    "lastChange": 1781985681000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.lgh-platz.de/cam/cam51.jpg": {
@@ -65,28 +65,28 @@
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.lsg-suedwest.de/WebCam/snapshot.jpg": {
-    "hash": "2f790fede5e3637c23ceb1ab6648f93aec2d8864",
-    "lastChange": 1781985543000,
+    "hash": "bbd26f6bab24a0049681d591d03efa261e92bcb6",
+    "lastChange": 1781985843000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.notschrei-loipe.de/notschrei-loipe.jpg": {
-    "hash": "9e54eff26cc3d9ea3b1dd62bf05aa9a8f8fd4760",
-    "lastChange": 1781985303000,
+    "hash": "befd21a73d3064d5805704ac009095d4299fa2ad",
+    "lastChange": 1781985602000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.schopfheim.de/webcam/gersbach/video.jpg": {
-    "hash": "bbc1c53f54241bb1d4aac54e43866646ccb58681",
-    "lastChange": 1781985540000,
+    "hash": "cc0c99f1c3374dde3fba44c3e866f5d03d49aaaa",
+    "lastChange": 1781985832000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.ziis.de/cam/current_WE.jpg": {
-    "hash": "dc16c7f5fbfa26c0608bb27e40f67c72daff11ae",
-    "lastChange": 1781985005000,
+    "hash": "9efcb1343642a58fd663d0f68ca5e849d5c6db57",
+    "lastChange": 1781985607000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.ziis.de/cam/mega.jpg": {
-    "hash": "e7c5d3ea92f1f8bdba53c4a9dba4371148f02f41",
-    "lastChange": 1781984406000,
+    "hash": "5cc9947979ecf14ee02d5fb0693be665d3e45952",
+    "lastChange": 1781985614000,
     "source": "origin"
   }
 }
