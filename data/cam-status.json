@@ -1,27 +1,27 @@
 {
   "https://wsrv.nl/?url=cam.afu-server.de/Klippeneck-CAM1.jpg": {
-    "hash": "1cd44c022652508ae5411a3dcd7395ae0cb7ca3e",
-    "lastChange": 1782518342000,
+    "hash": "544e6e6012a10bdd5f13536ef58e74948ef80647",
+    "lastChange": 1782518643000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=cam.afu-server.de/Klippeneck-CAM3.jpg": {
-    "hash": "c17b796d5001224945a4e59d72c99704e7b4cf98",
-    "lastChange": 1782518342000,
+    "hash": "9c36ead4adc84fbb38f7f4e55647851439c113e0",
+    "lastChange": 1782518642000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=donau-airport.de/donau-airport.de/webcam/cam_neu2.jpg": {
-    "hash": "ec7c103f0e7293a7c7c520baf4022c4e39ddc0f4",
-    "lastChange": 1782518357000,
+    "hash": "a8cb4f954378185cfe3b1da8c24520ea2e838775",
+    "lastChange": 1782518644000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=webcam-gewerbepark.ftp-land-in-sicht.de/snap_c1.jpg": {
-    "hash": "a55daa9eb982337706ea0d638efb4222668a58ce",
-    "lastChange": 1782518351000,
+    "hash": "d26313786cc00233d3f295bf04a343c69861268c",
+    "lastChange": 1782518666000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=webcam.datacreate.de/feldbergblick/webcam-feldbergblick.jpg": {
     "hash": "f3ad4fb212f4525d3b071102447f112b27a3393c",
-    "lastChange": 1782518283000,
+    "lastChange": 1782518643000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.feldberger-hof.de/static/webcam/fh-webcam.jpg": {
@@ -30,8 +30,8 @@
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.lgh-platz.de/cam/cam11.jpg": {
-    "hash": "01b5a5d1b8135ed6e6944816fe03b486f020f933",
-    "lastChange": 1782516890000,
+    "hash": "68f82e9f547f64a2a0ba4e4cf1f0398a53fae9db",
+    "lastChange": 1782518610000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.lgh-platz.de/cam/cam21.jpg": {
@@ -40,18 +40,18 @@
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.lgh-platz.de/cam/cam31.jpg": {
-    "hash": "8ba0d8f1ad3ca7f74ec1db11f6c5504c45ee2bc6",
-    "lastChange": 1782517998000,
+    "hash": "d72b4f45179e869ad13db57191ce5be838527ffd",
+    "lastChange": 1782518597000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.lgh-platz.de/cam/cam41.jpg": {
-    "hash": "956f145869e7d9224232f50d8577afc66f562032",
-    "lastChange": 1782517875000,
+    "hash": "cda54aaa90457de68a184a96a8651b7ae8312984",
+    "lastChange": 1782518474000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.lgh-platz.de/cam/cam51.jpg": {
-    "hash": "84053504b9b99d5c846472fd5a1ccb800bcf67a8",
-    "lastChange": 1782517947000,
+    "hash": "ec20dff4a5550c2b615baeeab7ff7d311c2913b7",
+    "lastChange": 1782518551000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.lgh-platz.de/cam/cam61.jpg": {
@@ -65,28 +65,28 @@
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.lsg-suedwest.de/WebCam/snapshot.jpg": {
-    "hash": "258bb6c3bdae0a6f8d603cc6cc8d627b2f54ea5b",
-    "lastChange": 1782518341000,
+    "hash": "de934594274e242160c6b34a3293dd026ba2f57e",
+    "lastChange": 1782518641000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.notschrei-loipe.de/notschrei-loipe.jpg": {
-    "hash": "80dc45c8ef80c9bd9bdd72ea8c49562c27196db9",
-    "lastChange": 1782518103000,
+    "hash": "ac953ad3356b2c61472d6032295a6bb44c0c2aeb",
+    "lastChange": 1782518404000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.schopfheim.de/webcam/gersbach/video.jpg": {
-    "hash": "723d6af3da83a7e9050fecacd3e7fc8117025c7d",
-    "lastChange": 1782518371000,
+    "hash": "6dc6704f6e1e2767cd7e56287ba705ef490f2846",
+    "lastChange": 1782518671000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.ziis.de/cam/current_WE.jpg": {
-    "hash": "50ca0c9495e600b1f5184288953225eba2e29f6d",
-    "lastChange": 1782514870000,
+    "hash": "cbbeb42df3977083c77b38266ef4f544530e4fd6",
+    "lastChange": 1782518467000,
     "source": "origin"
   },
   "https://wsrv.nl/?url=www.ziis.de/cam/mega.jpg": {
-    "hash": "31f424018c5e49639bd764f4c2ba912f3f712f15",
-    "lastChange": 1782517205000,
+    "hash": "9b7ce038f7c42f32e02c84b9f86e7da478a6fc7b",
+    "lastChange": 1782518411000,
     "source": "origin"
   }
 }
